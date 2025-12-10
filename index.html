@@ -515,7 +515,7 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${data.groqKey}` },
                     body: JSON.stringify({
-                        model: "llama3-8b-8192", // Model cepat & ringan
+                        model: "llama-3.3-70b-versatile", // UPDATED MODEL: Llama 3.3 70B
                         messages: messages,
                         temperature: 0.7
                     })
@@ -718,4 +718,5 @@
     </script>
 </body>
 </html>
+
 
