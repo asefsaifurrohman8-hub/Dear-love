@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DEAR LOVE - Ultimate Luxury System</title>
+    <title>DEAR LOVE - Ultra Compact</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -14,26 +14,16 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        /* --- 1. CORE VARIABLES (TEMA MEWAH) --- */
+        /* --- CORE VARIABLES --- */
         :root {
-            --bg-deep: #050505;
-            --bg-card: rgba(20, 20, 25, 0.85);
+            --bg-deep: #000000;
+            --bg-card: #111111;
             --gold: #D4AF37;
-            --gold-light: #F3E5AB;
-            --gold-glow: rgba(212, 175, 55, 0.4);
-            
             --text-light: #F8FAFC;
-            --text-dim: #94A3B8;
-            
+            --text-dim: #64748B;
             --success: #10B981;
-            --success-glow: rgba(16, 185, 129, 0.4);
             --danger: #EF4444;
-            --warning: #F59E0B;
-            
-            --glass: blur(25px);
-            --border: 1px solid rgba(255, 255, 255, 0.12);
-            --shadow-card: 0 15px 40px rgba(0,0,0,0.4);
-            
+            --border: 1px solid rgba(255, 255, 255, 0.1);
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
@@ -42,804 +32,526 @@
         
         body { 
             margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #000000);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: var(--text-light);
-            height: 100vh; overflow: hidden;
+            background: #050505; color: var(--text-light);
+            height: 100vh; overflow: hidden; font-size: 13px;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* --- 2. ANIMASI INTRO (SPLASH) --- */
+        /* --- SPLASH ANIMATION --- */
         #splashScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            animation: fadeOutSplash 0.8s ease-out 3s forwards;
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .splash-logo {
-            width: 110px; height: 110px; border-radius: 30px;
-            box-shadow: 0 0 50px var(--gold-glow);
+        .splash-logo-img {
+            width: 90px; height: 90px; object-fit: cover; border-radius: 25px;
             border: 2px solid var(--gold);
-            animation: breathe 3s infinite ease-in-out;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+            animation: logoPulse 2s infinite ease-in-out;
         }
-        .splash-text {
-            color: var(--gold); margin-top: 25px; font-family: 'Playfair Display', serif;
-            font-size: 28px; letter-spacing: 3px; opacity: 0; 
-            animation: fadeInUp 1s ease-out 0.5s forwards;
+        @keyframes logoPulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(212, 175, 55, 0.5); }
+            100% { transform: scale(0.95); box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
         }
-        @keyframes fadeOutSplash { to { opacity: 0; visibility: hidden; } }
-        @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px var(--gold-glow); } 50% { transform: scale(1.05); box-shadow: 0 0 60px var(--gold-glow); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 3. STRUKTUR LAYAR --- */
-        .screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; flex-direction: column; z-index: 1;
-            background: transparent;
+        /* --- HEADER & NAV --- */
+        .top-nav {
+            padding: calc(var(--safe-top) + 10px) 20px 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 50;
         }
-        .screen.active { display: flex; animation: zoomInScreen 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes zoomInScreen { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .app-logo { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold); font-weight: 800; letter-spacing: 0.5px; }
         
+        .head-btn {
+            width: 32px; height: 32px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;
+            color: #ccc; cursor: pointer; transition: 0.2s;
+        }
+        .head-profile { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--gold); }
+
         .scroll-content {
-            flex: 1; overflow-y: auto; padding: 25px;
-            padding-bottom: calc(100px + var(--safe-bottom)); 
+            flex: 1; overflow-y: auto; padding: 15px;
+            padding-bottom: calc(80px + var(--safe-bottom)); 
             scrollbar-width: none;
         }
         .scroll-content::-webkit-scrollbar { display: none; }
 
-        /* --- 4. KOMPONEN UI MEWAH --- */
-        .top-nav {
-            padding: calc(var(--safe-top) + 20px) 25px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0, 0, 0, 0.2); backdrop-filter: var(--glass);
-            border-bottom: var(--border);
-            position: sticky; top: 0; z-index: 50;
-        }
-        .app-logo { 
-            font-family: 'Playfair Display', serif; font-size: 22px; 
-            background: linear-gradient(to right, #fff, #D4AF37); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-weight: 800; letter-spacing: 0.5px;
-        }
-        
-        /* HEADER PROFILE & AI */
-        .header-actions { display: flex; align-items: center; gap: 15px; }
-        .ai-btn-top {
-            width: 38px; height: 38px; border-radius: 12px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--gold); cursor: pointer;
-        }
-        .profile-img { 
-            width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
-            border: 2px solid var(--gold); box-shadow: 0 0 15px var(--gold-glow);
-        }
+        /* --- CARDS --- */
+        .card { background: var(--bg-card); border-radius: 16px; padding: 15px; margin-bottom: 12px; border: var(--border); }
 
-        .card {
-            background: var(--bg-card); backdrop-filter: var(--glass);
-            border-radius: 28px; padding: 25px; margin-bottom: 25px;
-            border: var(--border); box-shadow: var(--shadow-card);
-            position: relative; overflow: hidden;
-            transition: transform 0.2s;
-        }
-        .card::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 60%);
-            transform: rotate(30deg); pointer-events: none;
-        }
-
-        /* CARD PROFIT (DENYUT) */
         .profit-card {
-            background: linear-gradient(135deg, rgba(20,20,20,0.95), #000);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 30px; padding: 30px; margin-bottom: 30px;
-            position: relative; overflow: hidden;
-            animation: pulseCard 4s infinite ease-in-out;
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 18px; padding: 18px; margin-bottom: 15px;
         }
-        @keyframes pulseCard { 
-            0%, 100% { border-color: rgba(212, 175, 55, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.4); } 
-            50% { border-color: rgba(212, 175, 55, 0.6); box-shadow: 0 15px 50px rgba(212, 175, 55, 0.15); } 
-        }
-        
-        .pc-val { font-family: 'Playfair Display', serif; font-size: 40px; color: var(--gold); margin: 5px 0; text-shadow: 0 0 25px var(--gold-glow); }
-        .pc-sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        .pc-val { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--gold); margin: 5px 0; }
 
-        /* TANK ANIMATION (REALISTIS) */
-        .tank-container {
-            background: rgba(255, 255, 255, 0.03); border: var(--border); border-radius: 28px;
-            padding: 6px; margin-bottom: 25px;
+        /* --- MICRO STATS GRID --- */
+        .micro-grid { display: grid; grid-template-columns: 1fr 0.7fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .micro-box {
+            background: #0f0f0f; border: var(--border); border-radius: 14px;
+            height: 75px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative; overflow: hidden; text-align: center;
         }
-        .tank-inner {
-            background: #0f172a; border-radius: 24px; padding: 25px; overflow: hidden; position: relative;
-            height: 120px; display: flex; align-items: center; justify-content: space-between;
-        }
-        .liquid-bg {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
-            background: linear-gradient(0deg, #059669 0%, #34D399 100%);
-            opacity: 0.6; transition: height 1s ease-in-out;
-            box-shadow: 0 0 40px #059669;
-        }
-        .liquid-wave {
-            position: absolute; top: -20px; left: 0; width: 200%; height: 40px;
-            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="%2334D399" opacity="0.6"></path></svg>');
-            background-size: 50% 100%; animation: wave 4s linear infinite;
-        }
-        .liquid-shimmer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
-            background-size: 200% 200%; animation: shimmer 3s infinite;
-        }
-        @keyframes wave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .mb-label { font-size: 8px; color: #666; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; z-index: 2; }
+        .mb-val { font-size: 14px; font-weight: 800; color: #fff; z-index: 2; }
+        .mb-sub { font-size: 9px; color: #444; margin-top: 2px; z-index: 2; }
+        .mb-target .mb-val { color: #10B981; } .mb-limit .mb-val { color: #F59E0B; } .mb-stok .mb-val { color: #38BDF8; }
+        .bg-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: #333; z-index: 1; }
+        .bg-fill { height: 100%; width: 0%; transition: width 0.5s; }
 
-        /* LIST ITEM (WATERFALL ANIMATION) */
-        .trans-item {
-            background: rgba(255, 255, 255, 0.03); border: var(--border); border-radius: 20px;
-            padding: 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
-            opacity: 0; transform: translateY(20px);
-            animation: slideUpList 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }
-        @keyframes slideUpList { to { opacity: 1; transform: translateY(0); } }
-
-        .ti-icon { 
-            width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        /* --- BOTTOM NAV ISLAND (NEW DESIGN) --- */
-        .bottom-nav-container {
-            position: fixed; bottom: 40px; left: 0; right: 0; display: flex; justify-content: center; z-index: 90;
-        }
+        /* --- BOTTOM NAV --- */
+        .bottom-nav-container { position: fixed; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; z-index: 90; }
         .bottom-nav {
-            background: rgba(15, 15, 20, 0.95); 
-            backdrop-filter: blur(20px);
-            padding: 0 15px; 
-            border-radius: 24px; 
-            display: flex; 
-            gap: 5px; /* Jarak lebih dekat */
-            align-items: center;
-            justify-content: space-between;
-            width: 320px; /* Minimalis Width */
-            height: 65px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(20px);
+            padding: 0 10px; border-radius: 18px; display: flex; gap: 5px;
+            align-items: center; justify-content: space-between; width: 280px; height: 50px;
+            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .nav-btn { 
-            width: 45px; height: 45px;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--text-dim); cursor: pointer; transition: 0.3s; 
-            border-radius: 12px;
-        }
-        .nav-btn:active { transform: scale(0.9); }
-        .nav-btn.active { color: var(--gold); background: rgba(212, 175, 55, 0.1); }
-        
-        /* TOMBOL TENGAH (CUTOUT STYLE) */
-        .fab-container {
-            position: relative; width: 60px; display: flex; justify-content: center;
-        }
+        .nav-btn { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; color: var(--text-dim); cursor: pointer; border-radius: 8px; }
+        .nav-btn.active { color: var(--gold); background: rgba(255,255,255,0.05); }
         .fab-main {
-            width: 58px; height: 58px; 
-            background: var(--gold); 
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; 
-            color: #000;
-            cursor: pointer;
-            margin-top: -30px; /* Floating up */
-            border: 5px solid #020617; /* CUTOUT EFFECT: Warna border sama dengan background body */
-            box-shadow: none; /* No shadow request */
-            transition: 0.3s;
+            width: 42px; height: 42px; background: var(--gold); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: #000;
+            cursor: pointer; margin-top: -20px; border: 4px solid #050505;
         }
-        .fab-main:active { transform: scale(0.95); }
 
-        /* --- 5. INPUT & BUTTONS (SISTEM LENGKAP) --- */
         .clean-input {
-            width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: var(--border);
-            border-radius: 16px; font-size: 16px; margin-bottom: 15px; outline: none; color: white;
-            transition: 0.3s;
+            width: 100%; padding: 12px; background: #1a1a1a; border: var(--border);
+            border-radius: 10px; font-size: 13px; margin-bottom: 10px; outline: none; color: white;
         }
-        .clean-input:focus { background: rgba(255,255,255,0.1); border-color: var(--gold); box-shadow: 0 0 20px rgba(212, 175, 55, 0.1); }
-        .input-label { display:block; font-size:11px; color:var(--gold); margin-bottom:5px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
-
         .btn-gold {
-            background: var(--gold); color: #000; border: none; width: 100%; padding: 16px;
-            border-radius: 16px; font-weight: 800; font-size: 14px; cursor: pointer;
-            box-shadow: 0 5px 25px rgba(212, 175, 55, 0.25); transition: 0.2s; position: relative; overflow: hidden;
+            background: var(--gold); color: #000; border: none; width: 100%; padding: 12px;
+            border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer;
         }
-        .btn-gold:active { transform: scale(0.96); }
-        .btn-gold::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: 0.5s; }
-        .btn-gold:hover::after { left: 100%; }
-
-        /* BUTTON KHUSUS QRIS & TUNAI */
-        .btn-cash { background: var(--success); color: white; box-shadow: 0 5px 25px var(--success-glow); }
-        .btn-qris { background: var(--warning); color: black; box-shadow: 0 5px 25px rgba(245, 158, 11, 0.4); }
-
-        /* MODAL */
-        #inputModal, #aiModal { background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); }
-        .sheet { background: #111; border: 1px solid #333; color: white; border-radius: 35px 35px 0 0; padding: 35px; }
-
-        .report-card { background: rgba(255,255,255,0.03); border-radius: 24px; padding: 20px; border: var(--border); margin-bottom: 20px; }
-        .report-table td { border-bottom: 1px solid rgba(255,255,255,0.05); color: #ccc; padding: 12px 0; }
         
-        .delete-btn { background: rgba(239, 68, 68, 0.15); color: var(--danger); border:none; padding:8px; border-radius:10px; cursor:pointer; transition:0.2s; }
-        .delete-btn:hover { background: rgba(239, 68, 68, 0.3); }
-
+        .trans-item {
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .hidden { display: none; }
+        .hidden { display: none !important; } /* FORCE HIDE */
+        .screen { display: none; height: 100%; flex-direction: column; }
+        .screen.active { display: flex; }
+
+        /* --- SETTING PROFILE HEADER STYLE --- */
+        .set-profile-header {
+            text-align: center;
+            padding: 20px 0 10px;
+            margin-bottom: 20px;
+        }
+        .set-profile-img {
+            width: 70px; 
+            height: 70px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 3px solid var(--gold);
+            margin-bottom: 8px;
+        }
+        .set-store-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-light);
+        }
+        .set-store-info {
+            font-size: 10px;
+            color: var(--gold);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
 
     <div id="splashScreen">
-        <img src="logo.png" class="splash-logo" onerror="this.src='https://via.placeholder.com/100/D4AF37/000?text=DL'">
-        <div class="splash-text">DEAR LOVE</div>
+        <img src="logo.png" class="splash-logo-img" onerror="this.src='https://via.placeholder.com/90/D4AF37/000?text=DL'">
+        <div style="margin-top:20px; color:var(--gold); font-family:'Playfair Display'; letter-spacing:2px; font-size:16px;">DEAR LOVE</div>
     </div>
 
     <div id="loginScreen" class="screen active">
-        <div style="padding:40px; display:flex; flex-direction:column; justify-content:center; height:100%; text-align:center;">
-            <div style="margin-bottom:40px; position:relative;">
-                <div style="position:absolute; inset:0; background:var(--gold); filter:blur(40px); opacity:0.2; border-radius:50%;"></div>
-                <img src="logo.png" style="width:110px; border-radius:30px; margin-bottom:0; position:relative; z-index:2; border:2px solid var(--gold); box-shadow:0 0 30px var(--gold-glow);" onerror="this.src='https://via.placeholder.com/110?text=DL'">
-            </div>
-            <h2 style="font-family:'Playfair Display',serif; color:var(--text-light); font-size:32px; margin-bottom:5px;">System Login</h2>
-            <p style="color:var(--text-dim); margin-bottom:50px; font-size:14px; letter-spacing:1px;">SECURE ACCESS POINT</p>
-            <input type="password" id="passInput" class="clean-input" placeholder="Enter Password...">
-            <button class="btn-gold" onclick="doLogin()">ACCESS DASHBOARD</button>
-            <div style="margin-top:20px; color:var(--text-dim); font-size:12px;">v5.0 Ultimate Luxury</div>
+        <div style="padding:40px;text-align:center;display:flex;flex-direction:column;justify-content:center;height:100%;">
+            <img src="logo.png" style="width:80px;height:80px;border-radius:20px;margin:0 auto 20px;border:2px solid var(--gold);">
+            <h2 style="font-family:'Playfair Display';color:var(--gold);margin-bottom:30px;">System Login</h2>
+            <input type="password" id="passInput" class="clean-input" placeholder="Password..." style="text-align:center;">
+            <button class="btn-gold" onclick="doLogin()">MASUK</button>
         </div>
     </div>
 
     <div id="adminScreen" class="screen">
         <div class="top-nav">
-            <span class="app-logo">Dashboard</span>
-            <div class="header-actions">
-                <div class="ai-btn-top" onclick="openAIChat()">
-                    <span class="material-icons-round">smart_toy</span>
-                </div>
-                <div style="position:relative;" onclick="switchTab('tabSet', this)">
-                    <img id="dispPhoto" class="profile-img" src="logo.png">
-                    <div style="position:absolute; bottom:0; right:0; width:12px; height:12px; background:var(--success); border-radius:50%; border:2px solid #000; box-shadow:0 0 10px var(--success);"></div>
-                </div>
+            <span class="app-logo">DEAR LOVE</span>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <div class="head-btn" onclick="openAIChat()"><span class="material-icons-round" style="font-size:16px;">smart_toy</span></div>
+                <img id="dispPhoto" class="head-profile" src="logo.png" onclick="switchTab('tabSet', this)">
             </div>
         </div>
 
         <div class="scroll-content">
             
             <div id="tabHome" class="tab-content active">
-                
-                <div id="pendingPayBox" style="background:rgba(245, 158, 11, 0.1); border:1px solid #F59E0B; padding:15px; display:none; justify-content:space-between; align-items:center; border-radius:18px; margin-bottom:25px; box-shadow:0 0 20px rgba(245, 158, 11, 0.2);">
-                    <div>
-                        <div style="font-size:10px; color:#F59E0B; font-weight:800; letter-spacing:1px;">TRANSAKSI GANTUNG</div>
-                        <div id="pendingNom" style="font-weight:800; font-size:16px;">Rp 0</div>
-                    </div>
-                    <button onclick="markAsLunas()" style="background:#F59E0B; color:black; border:none; padding:8px 18px; border-radius:20px; font-weight:800; font-size:11px; cursor:pointer;">LUNAS</button>
-                </div>
-
                 <div class="profit-card">
-                    <div style="font-size:12px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase;">Profit Bersih Hari Ini</div>
+                    <div style="font-size:9px; color:#666; letter-spacing:1px; font-weight:700;">PROFIT BERSIH HARI INI</div>
                     <div class="pc-val" id="netProfit">Rp 0</div>
-                    <div style="font-size:13px; color:var(--text-dim);">Margin Profit: <span id="profitMargin" style="color:var(--gold); font-weight:700;">0%</span></div>
-                    
-                    <div class="pc-sub-grid">
-                        <div><h4 style="margin:0; font-size:11px; color:var(--text-dim);">PEMASUKAN</h4><p id="totInc" style="margin:4px 0 0; color:var(--success); font-weight:700;">Rp 0</p></div>
-                        <div><h4 style="margin:0; font-size:11px; color:var(--text-dim);">LITER HARI INI</h4><p id="totLitDay" style="margin:4px 0 0; color:#fff; font-weight:700;">0 L</p></div>
+                    <div style="display:flex; justify-content:space-between; margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+                        <div><div style="font-size:9px; color:#666;">PEMASUKAN</div><div id="totInc" style="color:var(--success); font-weight:700; font-size:12px;">Rp 0</div></div>
+                        <div style="text-align:right;"><div style="font-size:9px; color:#666;">TERJUAL</div><div id="totLitDay" style="color:#fff; font-weight:700; font-size:12px;">0 L</div></div>
                     </div>
                 </div>
 
-                <div class="card" style="background:linear-gradient(to right, rgba(16, 185, 129, 0.05), rgba(52, 211, 153, 0.05)); border:1px solid rgba(16, 185, 129, 0.3);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                        <span style="font-weight:800; font-size:13px; color:#6EE7B7; letter-spacing:0.5px;">TARGET PROFIT BULANAN</span>
-                        <span id="targetText" style="font-size:11px; color:#A7F3D0; background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:10px;">0%</span>
+                <div class="micro-grid">
+                    <div class="micro-box mb-target">
+                        <div class="mb-label">Target</div>
+                        <div class="mb-val" id="targetPct">0%</div>
+                        <div class="mb-sub" id="targetNom">0k</div>
+                        <div class="bg-bar"><div class="bg-fill" id="barTarget" style="background:#10B981;"></div></div>
                     </div>
-                    <div style="background:rgba(0,0,0,0.3); height:8px; border-radius:4px; overflow:hidden; margin-bottom:10px;">
-                        <div id="targetProgress" style="width:0%; height:100%; background:linear-gradient(90deg, #10B981, #34D399); box-shadow:0 0 10px #10B981;"></div>
+                    <div class="micro-box mb-limit">
+                        <div class="mb-label">Sisa Limit</div>
+                        <div class="mb-val" id="limitRem" style="font-size:12px;">0k</div>
+                        <div class="mb-sub" style="font-size:8px; color:#666;">Harian</div>
+                        <div class="bg-bar"><div class="bg-fill" id="barLimit" style="background:#F59E0B;"></div></div>
                     </div>
-                    <div style="font-size:11px; color:#6EE7B7; text-align:right;">
-                        Tercapai: <span id="achievedProfit" style="font-weight:700;">Rp 0</span> / <span id="goalProfit">Rp 0</span>
-                    </div>
-                </div>
-
-                <div class="tank-container">
-                    <div class="tank-inner">
-                        <div class="liquid-bg" id="tankAnim">
-                            <div class="liquid-wave"></div>
-                            <div class="liquid-shimmer"></div>
-                        </div>
-                        <div style="position:relative; z-index:2;">
-                            <div style="font-size:10px; color:rgba(255,255,255,0.7); font-weight:800; letter-spacing:1px; margin-bottom:5px;">STOK BBM</div>
-                            <div id="dispStok" style="font-size:32px; font-weight:800; color:#fff; text-shadow:0 4px 15px rgba(0,0,0,0.5);">0 L</div>
-                        </div>
-                        <div id="stokAlert" style="position:relative; z-index:2; font-size:11px; background:rgba(0,0,0,0.6); padding:6px 12px; border-radius:20px; backdrop-filter:blur(5px); font-weight:700;">Status Aman</div>
+                    <div class="micro-box mb-stok">
+                        <div class="mb-label">Stok Fisik</div>
+                        <div class="mb-val" id="stokVal">0 L</div>
+                        <div class="mb-sub" id="stokStatus" style="color:#38BDF8;">Aman</div>
+                        <div class="bg-bar"><div class="bg-fill" id="barStok" style="background:#38BDF8;"></div></div>
                     </div>
                 </div>
 
-                <div style="margin-bottom:15px; font-family:'Playfair Display',serif; font-size:20px; color:var(--gold);">Transaksi Terakhir</div>
-                <div id="recentList"></div>
+                <div style="text-align:center; margin-top:40px; color:#333; font-size:10px;">~ Ready to Serve ~</div>
             </div>
 
             <div id="tabHist" class="tab-content">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-                    <h3 style="margin:0; font-family:'Playfair Display',serif; color:var(--text-light);">Riwayat Lengkap</h3>
-                    <button onclick="askAI('history')" style="background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); padding:8px 15px; border-radius:15px; font-size:12px; display:flex; align-items:center; gap:8px; cursor:pointer;"><span class="material-icons-round" style="font-size:16px;">auto_awesome</span> Audit AI</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="margin:0; font-size:16px;">Riwayat</h3>
+                    <button onclick="askAI('history')" style="background:#222; color:#ccc; border:1px solid #333; padding:5px 10px; border-radius:8px; font-size:10px;">AI Audit</button>
                 </div>
                 <div id="fullHistory"></div>
-                <button class="btn-gold" style="background:rgba(239, 68, 68, 0.15); color:var(--danger); margin-top:30px; border:1px solid rgba(239, 68, 68, 0.3);" onclick="clearData()">HAPUS SEMUA DATA</button>
+                <div style="height:20px;"></div>
+                <button class="btn-gold" style="background:#221111; color:var(--danger); border:1px solid var(--danger);" onclick="clearData()">RESET DATA</button>
             </div>
 
             <div id="tabExp" class="tab-content">
-                <h3 style="margin-bottom:25px; font-family:'Playfair Display',serif; color:var(--text-light);">Catatan Pengeluaran</h3>
-                
-                <div class="card" style="background:linear-gradient(to right, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1)); border:1px solid rgba(239, 68, 68, 0.3);">
-                    <div style="font-size:12px; color:#FCA5A5;">TOTAL PENGELUARAN BULAN INI</div>
-                    <div style="font-size:28px; color:#F87171; font-weight:800; margin-top:5px;" id="totalExpDisplay">Rp 0</div>
+                <h3 style="margin-bottom:15px; font-size:16px;">Pengeluaran</h3>
+                <div class="card" style="background:rgba(239,68,68,0.05); border-color:rgba(239,68,68,0.2);">
+                    <div style="font-size:9px; color:#FCA5A5;">TOTAL BULAN INI</div>
+                    <div style="font-size:20px; font-weight:800; color:#F87171;" id="totalExpDisplay">Rp 0</div>
                 </div>
-
-                <div style="font-size:12px; color:#aaa; margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;">Rincian Penggunaan Dana</div>
                 <div id="expenseList"></div>
             </div>
 
             <div id="tabRep" class="tab-content">
-                <h3 style="margin-bottom:25px; font-family:'Playfair Display',serif; color:var(--text-light);">Laporan Bulanan (Periode 18-17)</h3>
+                <h3 style="margin-bottom:15px; font-size:16px;">Laporan</h3>
                 <div id="reportList"></div>
             </div>
 
             <div id="tabSet" class="tab-content">
-                <div style="text-align:center; padding:35px 20px; background:var(--bg-card); border-radius:28px; margin-bottom:25px; border:var(--border);">
-                    <img id="settingPhoto" src="logo.png" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid var(--gold); padding:3px; margin-bottom:15px; box-shadow:0 0 30px rgba(212, 175, 55, 0.2);">
-                    <div style="font-size:22px; font-weight:800; margin-bottom:5px;">Admin Owner</div>
-                    <label style="font-size:12px; color:var(--gold); cursor:pointer; font-weight:700;">
-                        UBAH FOTO PROFIL <input type="file" onchange="updatePhoto(event)" style="display:none;">
+                
+                <div class="set-profile-header">
+                    <img id="setPhoto" class="set-profile-img" src="logo.png" onerror="this.src='https://via.placeholder.com/70/D4AF37/000?text=P'">
+                    <div id="setStoreNameDisplay" class="set-store-name">NAMA TOKO</div>
+                    <div id="setAdminDisplay" class="set-store-info">ADMIN: OWNER</div>
+                    
+                    <label style="font-size:10px; color:var(--gold); display:block; margin-top:10px; cursor:pointer; font-weight:700;">
+                        <span class="material-icons-round" style="font-size:14px; vertical-align:middle; margin-right:3px;">edit</span> UBAH FOTO PROFIL
+                        <input type="file" onchange="updatePhoto(event)" style="display:none;">
                     </label>
                 </div>
+                <hr style="border:none; border-top:var(--border); margin:0 0 15px;">
 
                 <div class="card">
-                    <h4 style="margin:0 0 20px 0; font-size:12px; color:var(--text-dim); border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; letter-spacing:1px;">DATA USAHA</h4>
-                    
-                    <span class="input-label">Nama Toko</span>
+                    <h4 style="margin:0 0 10px 0; color:#666; font-size:10px;">DATA TOKO</h4>
                     <input type="text" id="setStore" class="clean-input" placeholder="Nama Toko">
-                    
-                    <span class="input-label">Alamat Lengkap</span>
-                    <input type="text" id="setAddr" class="clean-input" placeholder="Alamat (Jl. Raya...)">
-                    
-                    <span class="input-label">Harga Jual per Liter</span>
-                    <input type="number" id="setPrice" class="clean-input" placeholder="Harga">
+                    <input type="text" id="setAdmin" class="clean-input" placeholder="Nama Admin">
+                    <input type="number" id="setPrice" class="clean-input" placeholder="Harga Jual">
                 </div>
 
                 <div class="card">
-                    <h4 style="margin:0 0 20px 0; font-size:12px; color:var(--text-dim); border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; letter-spacing:1px;">SISTEM & TARGET</h4>
-                    
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                        <div>
-                            <span class="input-label">Stok Fisik</span>
-                            <input type="number" id="setStok" class="clean-input" placeholder="Liter">
-                        </div>
-                        <div>
-                            <span class="input-label">Min. Stok (Alert)</span>
-                            <input type="number" id="setMinStok" class="clean-input" placeholder="Liter">
-                        </div>
+                    <h4 style="margin:0 0 10px 0; color:#666; font-size:10px;">TARGET & STOK</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <input type="number" id="setStok" class="clean-input" placeholder="Stok Fisik">
+                        <input type="number" id="setMinStok" class="clean-input" placeholder="Min Alert">
                     </div>
-
-                    <span class="input-label">Limit Pengeluaran Harian</span>
-                    <input type="number" id="setLimit" class="clean-input" placeholder="Contoh: 500000">
-
-                    <span class="input-label">Target Profit Bulanan</span>
-                    <input type="number" id="setTargetProfit" class="clean-input" placeholder="Contoh: 5000000">
-
-                    <span class="input-label">Groq API Key (AI Intelligence)</span>
-                    <input type="text" id="setGroqKey" class="clean-input" placeholder="Paste API Key Disini">
+                    <input type="number" id="setTargetProfit" class="clean-input" placeholder="Target Profit Bulanan">
+                    <input type="number" id="setLimit" class="clean-input" placeholder="Limit Harian (Rp)">
                 </div>
 
-                <button class="btn-gold" onclick="saveSet()">SIMPAN PENGATURAN</button>
-                <button class="btn-gold" onclick="doLogout()" style="background:transparent; border:1px solid var(--danger); color:var(--danger); margin-top:15px;">KELUAR APLIKASI</button>
-                <div style="height:80px;"></div>
+                <div class="card">
+                     <h4 style="margin:0 0 10px 0; color:#666; font-size:10px;">INTEGRASI</h4>
+                    <input type="text" id="setGroqKey" class="clean-input" placeholder="Groq API Key">
+                </div>
+
+                <button class="btn-gold" onclick="saveSet()">SIMPAN PERUBAHAN</button>
+                <button class="btn-gold" onclick="doLogout()" style="background:transparent; border:1px solid #333; color:#666; margin-top:10px;">LOGOUT</button>
             </div>
         </div>
 
         <div class="bottom-nav-container">
             <div class="bottom-nav">
                 <div class="nav-btn active" onclick="switchTab('tabHome', this)"><span class="material-icons-round">home</span></div>
-                
                 <div class="nav-btn" onclick="switchTab('tabHist', this)"><span class="material-icons-round">receipt_long</span></div>
-                
-                <div class="fab-container">
-                    <div class="fab-main" onclick="openInputModal()">
-                        <span class="material-icons-round" style="font-size:28px;">add</span>
-                    </div>
+                <div style="width:40px; display:flex; justify-content:center;">
+                    <div class="fab-main" onclick="openInputModal()"><span class="material-icons-round" style="font-size:24px;">add</span></div>
                 </div>
-
                 <div class="nav-btn" onclick="switchTab('tabExp', this)"><span class="material-icons-round">account_balance_wallet</span></div>
-                
                 <div class="nav-btn" onclick="switchTab('tabRep', this)"><span class="material-icons-round">poll</span></div>
             </div>
         </div>
     </div>
 
-    <div id="inputModal" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:200; display:none; align-items:flex-end;">
-        <div class="sheet">
-            <div style="display:flex; justify-content:space-between; margin-bottom:25px;">
-                <h3 style="margin:0; color:var(--gold); font-family:'Playfair Display',serif;">Transaksi Baru</h3>
-                <span class="material-icons-round" onclick="closeModal()" style="cursor:pointer; padding:5px;">close</span>
+    <div id="inputModal" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:200;display:none;align-items:flex-end;background:rgba(0,0,0,0.8);backdrop-filter:blur(5px);">
+        <div style="width:100%;background:#111;border-top:1px solid #333;border-radius:20px 20px 0 0;padding:20px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:15px;color:var(--gold);">
+                <span style="font-weight:700;">Transaksi</span><span class="material-icons-round" onclick="closeModal()">close</span>
             </div>
             
-            <div style="display:flex; background:#222; padding:5px; border-radius:14px; margin-bottom:25px;">
-                <div class="mt-btn active" id="mtInc" onclick="setMode('inc')" style="flex:1; padding:12px; text-align:center; border-radius:10px; cursor:pointer; background:var(--gold); color:black; font-weight:800; transition:0.3s;">JUAL BBM</div>
-                <div class="mt-btn" id="mtExp" onclick="setMode('exp')" style="flex:1; padding:12px; text-align:center; border-radius:10px; cursor:pointer; color:#666; font-weight:700; transition:0.3s;">PENGELUARAN</div>
+            <div style="display:flex;background:#222;border-radius:10px;padding:3px;margin-bottom:15px;">
+                <div class="mt-btn active" id="mtInc" onclick="setMode('inc')" style="flex:1;text-align:center;padding:8px;border-radius:8px;background:var(--gold);color:#000;font-size:12px;font-weight:800;">JUAL</div>
+                <div class="mt-btn" id="mtExp" onclick="setMode('exp')" style="flex:1;text-align:center;padding:8px;border-radius:8px;color:#666;font-size:12px;cursor:pointer;">EXP</div>
             </div>
             
-            <input type="text" id="descInput" class="clean-input hidden" placeholder="Keterangan Pengeluaran (e.g. Listrik)...">
-            <input type="number" id="admNom" class="clean-input" style="font-size:28px; color:var(--gold); font-weight:800; letter-spacing:1px;" placeholder="Nominal Rp..." oninput="calcAdm()">
+            <input type="text" id="descInput" class="clean-input hidden" placeholder="Keterangan...">
+            <input type="number" id="admNom" class="clean-input" style="font-size:20px;color:var(--gold);font-weight:800;" placeholder="Rp..." oninput="calcAdm()">
+            <div id="litEstBox" style="text-align:right;font-size:11px;color:#666;margin-bottom:15px;">Est: <span id="admLit" style="color:#fff;">0L</span></div>
             
-            <div id="litEstBox" style="text-align:right; font-size:14px; color:#aaa; margin-bottom:25px;">Estimasi: <span id="admLit" style="color:white; font-weight:800;">0 L</span></div>
-            
-            <div id="actInc">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                    <button class="btn-gold btn-cash" onclick="saveTrans('inc','cash')">
-                        <span class="material-icons-round" style="vertical-align:middle; margin-right:5px;">payments</span> TUNAI
-                    </button>
-                    <button class="btn-gold btn-qris" onclick="saveTrans('inc','qris')">
-                        <span class="material-icons-round" style="vertical-align:middle; margin-right:5px;">qr_code_scanner</span> QRIS
-                    </button>
-                </div>
-                <div style="text-align:center; margin-top:15px; font-size:11px; color:#666;">
-                    *Tunai = LUNAS | QRIS = Pending (Masuk Notifikasi)
-                </div>
+            <div id="actInc" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button class="btn-gold" style="background:#10B981;color:white;" onclick="saveTrans('inc','cash')">TUNAI</button>
+                <button class="btn-gold" style="background:#F59E0B;color:black;" onclick="saveTrans('inc','qris')">QRIS</button>
             </div>
             
-            <div id="actExp" class="hidden">
-                <button class="btn-gold" style="background:var(--danger); color:white; box-shadow:0 5px 25px rgba(239,68,68,0.3);" onclick="saveTrans('exp')">SIMPAN PENGELUARAN</button>
+            <div id="actExp" class="hidden" style="width:100%;">
+                <button class="btn-gold" style="background:var(--danger);color:white;" onclick="saveTrans('exp')">SIMPAN PENGELUARAN</button>
             </div>
         </div>
     </div>
 
-    <div id="aiModal" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:300; display:none; justify-content:center; align-items:center;">
-        <div style="width:90%; height:75vh; background:#111; border:1px solid #333; border-radius:30px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 0 50px rgba(0,0,0,0.8);">
-            <div style="padding:20px; background:#000; border-bottom:1px solid #333; display:flex; justify-content:space-between; color:var(--gold);">
-                <span style="font-weight:700; font-family:'Playfair Display',serif; font-size:18px;">AI Consultant</span><span class="material-icons-round" onclick="document.getElementById('aiModal').style.display='none'" style="cursor:pointer;">close</span>
+    <div id="aiModal" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:300;display:none;justify-content:center;align-items:center;background:rgba(0,0,0,0.9);">
+        <div style="width:90%;height:60vh;background:#111;border:1px solid #333;border-radius:15px;display:flex;flex-direction:column;">
+            <div style="padding:10px;border-bottom:1px solid #333;display:flex;justify-content:space-between;color:var(--gold);">
+                <span>AI</span><span class="material-icons-round" onclick="document.getElementById('aiModal').style.display='none'">close</span>
             </div>
-            <div id="chatBox" style="flex:1; padding:25px; overflow-y:auto; background:#050505;"></div>
-            <div style="padding:20px; background:#000; display:flex; gap:10px;">
-                <input type="text" id="aiInput" class="clean-input" style="margin:0;" placeholder="Tanyakan strategi bisnis...">
-                <button onclick="sendAIChat()" class="btn-gold" style="width:60px; padding:0; display:flex; align-items:center; justify-content:center;"><span class="material-icons-round">send</span></button>
-            </div>
+            <div id="chatBox" style="flex:1;padding:15px;overflow-y:auto;font-size:12px;"></div>
+            <div style="padding:10px;display:flex;gap:5px;"><input id="aiInput" class="clean-input" style="margin:0;"><button onclick="sendAIChat()" class="btn-gold" style="width:40px;">></button></div>
         </div>
     </div>
 
     <script type="module">
-        // --- SYSTEM CONFIG (JANGAN DIUBAH) ---
         const firebaseConfig = { apiKey: "AIzaSyBpwNPIYhelOhkPvJsBmKvlZnaH9FVnmM4", authDomain: "pom-mini-50b1e.firebaseapp.com", projectId: "pom-mini-50b1e", storageBucket: "pom-mini-50b1e.firebasestorage.app", messagingSenderId: "77499696502", appId: "1:77499696502:web:8080c37da62a12c9566657", measurementId: "G-KRRHTTGBRF" };
-        let db; 
-        try { 
-            firebase.initializeApp(firebaseConfig); 
-            db = firebase.firestore(); 
-            db.settings({ experimentalForceLongPolling: true, merge: true }); 
-        } catch(e) { console.error("Firebase Init Error", e); }
+        let db; try { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } catch(e) {}
 
-        // --- DATA DEFAULT ---
-        let data = JSON.parse(localStorage.getItem('dl_data')) || { 
-            pass: "DearLove2025", 
-            store: "DEAR LOVE", 
-            addr: "Jl. Raya", 
-            price: 10000, 
-            admin: "Owner", 
-            photo: "logo.png", 
-            groqKey: "", 
-            stokLiter: 150, 
-            minStok: 50, 
-            budgetLimit: 500000,
-            monthlyTarget: 5000000,
-            trans: [] 
-        };
-        
+        let data = JSON.parse(localStorage.getItem('dl_data')) || { pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya", price: 10000, admin: "Owner", photo: "logo.png", groqKey: "", stokLiter: 150, minStok: 50, budgetLimit: 500000, monthlyTarget: 5000000, trans: [] };
         let currentMode = 'inc';
 
-        // --- FUNGSI HELPER TANGGAL (PERIODE 18-17) ---
-        const getPeriodName = (ts) => {
-            let d = new Date(ts);
-            if (d.getDate() >= 18) {
-                d.setMonth(d.getMonth() + 1);
-            }
-            return d.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-        }
+        const getPeriodName = (ts) => { let d = new Date(ts); if (d.getDate() >= 18) d.setMonth(d.getMonth() + 1); return d.toLocaleString('id-ID', { month: 'long', year: 'numeric' }); }
 
-        // --- NAVIGATION ---
         window.nav = (id) => { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='adminScreen') renderDash(); }
-        window.checkLogin = () => { if(localStorage.getItem('dl_log')) nav('adminScreen'); else nav('loginScreen'); }
-        window.doLogin = () => { if(document.getElementById('passInput').value===data.pass) { localStorage.setItem('dl_log','1'); nav('adminScreen'); } else alert("Password Salah"); }
-        window.doLogout = () => { localStorage.removeItem('dl_log'); nav('menuScreen'); }
+        window.doLogin = () => { if(document.getElementById('passInput').value===data.pass) { localStorage.setItem('dl_log','1'); nav('adminScreen'); } else alert("Salah"); }
+        window.doLogout = () => { localStorage.removeItem('dl_log'); nav('loginScreen'); }
         
+        // --- FIXED SWITCH TAB FUNCTION ---
         window.switchTab = (tid, el) => { 
-            document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(tid).classList.add('active'); 
+            // 1. Ganti Tab Content
+            document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); 
+            document.getElementById(tid).classList.add('active'); 
+            
+            // 2. Reset semua tombol bawah
             document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active')); 
             
-            // Logic Active State untuk Menu Bawah
+            // 3. Highlight tombol bawah (HANYA JIKA ADA)
             if(tid==='tabHome') document.querySelector('.bottom-nav .nav-btn:nth-child(1)').classList.add('active');
             else if(tid==='tabHist') document.querySelector('.bottom-nav .nav-btn:nth-child(2)').classList.add('active');
-            else if(tid==='tabExp') { 
-                document.querySelector('.bottom-nav .nav-btn:nth-child(4)').classList.add('active'); 
-                renderExpenses(); // Render halaman pengeluaran
-            }
+            else if(tid==='tabExp') { document.querySelector('.bottom-nav .nav-btn:nth-child(4)').classList.add('active'); renderExpenses(); }
             else if(tid==='tabRep') { document.querySelector('.bottom-nav .nav-btn:nth-child(5)').classList.add('active'); renderReports(); }
+            else if(tid==='tabSet') { 
+                // Tidak perlu highlight tombol bawah karena akses lewat header
+                renderSetProfile(); 
+            }
+        }
+        
+        window.renderSetProfile = () => {
+             // Pastikan elemen-elemen di tabSet terisi
+            document.getElementById('setPhoto').src = data.photo;
+            document.getElementById('setStoreNameDisplay').innerText = data.store;
+            document.getElementById('setAdminDisplay').innerText = "ADMIN: " + (data.admin || "Owner").toUpperCase();
+            
+            document.getElementById('setStore').value=data.store; document.getElementById('setPrice').value=data.price;
+            document.getElementById('setStok').value=data.stokLiter; document.getElementById('setMinStok').value=data.minStok;
+            document.getElementById('setTargetProfit').value=data.monthlyTarget; document.getElementById('setLimit').value=data.budgetLimit;
+            document.getElementById('setGroqKey').value=data.groqKey; 
+            document.getElementById('setAdmin').value=data.admin || "Owner";
         }
 
-        // --- DASHBOARD CORE ---
         window.renderDash = () => {
             const today = new Date().toLocaleDateString();
             const currentPeriod = getPeriodName(Date.now());
-            
-            let dInc=0, dExp=0, dLiter=0; // Harian
-            let pInc=0, pExp=0; // Periode (Untuk Target)
+            let dInc=0, dExp=0, dLiter=0, pInc=0, pExp=0;
             
             data.trans.forEach(t => { 
-                // Hitung Harian
-                if(t.date === today) { 
-                    if((t.type||'inc')==='inc') {
-                        dInc += t.n; 
-                        dLiter += parseFloat(t.l || 0);
-                    } else {
-                        dExp += t.n; 
-                    }
-                } 
-                
-                // Hitung Periode (Target Profit)
-                if(getPeriodName(t.ts) === currentPeriod) {
-                    if((t.type||'inc')==='inc') pInc += t.n; else pExp += t.n;
-                }
+                if(t.date === today) { if((t.type||'inc')==='inc') { dInc += t.n; dLiter += parseFloat(t.l || 0); } else dExp += t.n; } 
+                if(getPeriodName(t.ts) === currentPeriod) { if((t.type||'inc')==='inc') pInc += t.n; else pExp += t.n; }
             });
 
-            // Update Kartu Harian
             document.getElementById('netProfit').innerText = "Rp " + (dInc - dExp).toLocaleString();
-            document.getElementById('profitMargin').innerText = dInc > 0 ? (((dInc-dExp)/dInc)*100).toFixed(1) + "%" : "0%";
             document.getElementById('totInc').innerText = "Rp " + dInc.toLocaleString();
             document.getElementById('totLitDay').innerText = dLiter.toFixed(2) + " L"; 
-            
-            // TANK ANIMATION
-            let currentStok = parseFloat(data.stokLiter);
-            let pctStok = Math.min((currentStok / 150) * 100, 100); 
-            document.getElementById('tankAnim').style.height = pctStok + "%";
-            document.getElementById('dispStok').innerText = currentStok.toFixed(1) + " L";
-            
-            // ALERT LOGIC
-            let sa = document.getElementById('stokAlert');
-            if(currentStok <= data.minStok) { sa.innerText="KRITIS! ISI ULANG SEGERA"; sa.style.color="var(--danger)"; sa.style.border="1px solid var(--danger)"; } 
-            else { sa.innerText="Stok Aman"; sa.style.color="var(--success)"; sa.style.border="none"; }
 
-            // TARGET PROFIT LOGIC
             let periodProfit = pInc - pExp;
             let target = data.monthlyTarget || 5000000;
             let pctTarget = Math.min((periodProfit / target) * 100, 100);
             if(periodProfit < 0) pctTarget = 0;
-            
-            document.getElementById('targetProgress').style.width = pctTarget + "%";
-            document.getElementById('targetText').innerText = pctTarget.toFixed(1) + "%";
-            document.getElementById('achievedProfit').innerText = "Rp " + periodProfit.toLocaleString();
-            document.getElementById('goalProfit').innerText = "Rp " + (target/1000) + "k";
+            document.getElementById('targetPct').innerText = pctTarget.toFixed(0) + "%";
+            document.getElementById('targetNom').innerText = (target/1000) + "k";
+            document.getElementById('barTarget').style.width = pctTarget + "%";
 
-            // RECENT LIST
-            let renderList = (list) => {
-                return list.map((t, i) => {
-                    let isInc = (t.type||'inc') === 'inc';
-                    let icon = isInc ? 'local_gas_station' : 'shopping_bag';
-                    let color = isInc ? 'var(--success)' : 'var(--danger)';
-                    let bg = isInc ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
-                    let label = isInc ? (t.metode === 'CASH' ? 'PENJUALAN TUNAI' : 'TAGIHAN QRIS') : (t.desc || 'PENGELUARAN');
-                    
-                    return `<div class="trans-item" style="animation-delay: ${i*0.05}s">
-                        <div style="display:flex; align-items:center; gap:15px;">
-                            <div class="ti-icon" style="background:${bg}; color:${color};"><span class="material-icons-round">${icon}</span></div>
-                            <div>
-                                <div style="font-weight:700; font-size:14px;">${label}</div>
-                                <div style="font-size:11px; color:#666;">${t.time} • ${t.status || 'PAID'}</div>
-                            </div>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div style="font-weight:700; color:${color}; font-size:15px;">${isInc?'+':'-'} ${t.n/1000}k</div>
-                            <button class="delete-btn" onclick="deleteTrans(${t.id})"><span class="material-icons-round" style="font-size:18px;">delete</span></button>
-                        </div>
-                    </div>`;
-                }).join('');
-            };
-            document.getElementById('recentList').innerHTML = renderList(data.trans.slice(0, 10));
+            let limit = data.budgetLimit || 500000;
+            let sisaLimit = limit - dExp;
+            document.getElementById('limitRem').innerText = (sisaLimit/1000).toFixed(0) + "k";
+            document.getElementById('barLimit').style.width = Math.max(0, Math.min(100, (sisaLimit/limit)*100)) + "%";
+            if(sisaLimit < (limit*0.2)) { document.querySelector('.mb-limit .mb-val').style.color = "#EF4444"; document.getElementById('barLimit').style.background = "#EF4444"; }
+            else { document.querySelector('.mb-limit .mb-val').style.color = "#F59E0B"; document.getElementById('barLimit').style.background = "#F59E0B"; }
+
+            let currentStok = parseFloat(data.stokLiter);
+            let pctStok = Math.min((currentStok / 150) * 100, 100); 
+            document.getElementById('stokVal').innerText = currentStok.toFixed(0) + " L";
+            document.getElementById('barStok').style.width = pctStok + "%";
+            if(currentStok <= data.minStok) { 
+                document.getElementById('stokStatus').innerText = "ISI!"; 
+                document.getElementById('stokStatus').style.color = "#EF4444";
+                document.getElementById('barStok').style.background = "#EF4444";
+            } else {
+                document.getElementById('stokStatus').innerText = "Aman";
+                document.getElementById('stokStatus').style.color = "#38BDF8";
+                document.getElementById('barStok').style.background = "#38BDF8";
+            }
+
+            let renderList = (list) => list.map(t => {
+                let isInc = (t.type||'inc') === 'inc';
+                let color = isInc ? 'var(--success)' : 'var(--danger)';
+                return `<div class="trans-item">
+                    <div><div style="font-weight:700;font-size:11px;color:#eee;">${isInc?t.metode:t.desc}</div><div style="font-size:9px;color:#666;">${t.time}</div></div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="font-weight:700;color:${color};font-size:11px;">${isInc?'+':'-'} ${t.n/1000}k</div>
+                        <span class="material-icons-round" style="font-size:14px;color:#444;" onclick="deleteTrans(${t.id})">close</span>
+                    </div>
+                </div>`;
+            }).join('');
             document.getElementById('fullHistory').innerHTML = renderList(data.trans);
         }
 
-        // --- RENDER MENU PENGELUARAN (BARU) ---
         window.renderExpenses = () => {
             const currentPeriod = getPeriodName(Date.now());
-            let totalExp = 0;
-            let html = '';
-
-            // Filter hanya pengeluaran
-            let expList = data.trans.filter(t => (t.type || 'inc') === 'exp');
-            
-            // Hitung total bulan ini
-            expList.forEach(t => {
-                if(getPeriodName(t.ts) === currentPeriod) {
-                    totalExp += t.n;
-                }
-            });
-
+            let totalExp = 0, expList = data.trans.filter(t => (t.type || 'inc') === 'exp');
+            expList.forEach(t => { if(getPeriodName(t.ts) === currentPeriod) totalExp += t.n; });
             document.getElementById('totalExpDisplay').innerText = "Rp " + totalExp.toLocaleString();
-
-            if(expList.length === 0) {
-                html = `<div style="text-align:center; padding:30px; color:#666;">Belum ada catatan pengeluaran.</div>`;
-            } else {
-                html = expList.map((t, i) => {
-                    return `<div class="trans-item" style="animation-delay: ${i*0.05}s; border-left: 3px solid var(--danger);">
-                        <div style="display:flex; align-items:center; gap:15px;">
-                            <div class="ti-icon" style="background:rgba(239, 68, 68, 0.2); color:var(--danger);"><span class="material-icons-round">outbound</span></div>
-                            <div>
-                                <div style="font-weight:700; font-size:14px; color:#fff;">${t.desc}</div>
-                                <div style="font-size:11px; color:#888;">${t.date} • ${t.time}</div>
-                            </div>
-                        </div>
-                        <div style="font-weight:700; color:var(--danger); font-size:15px;">- ${t.n.toLocaleString()}</div>
-                    </div>`;
-                }).join('');
-            }
-            document.getElementById('expenseList').innerHTML = html;
+            document.getElementById('expenseList').innerHTML = expList.length ? expList.map(t => `<div class="trans-item"><div><div style="font-weight:700;font-size:11px;">${t.desc}</div><div style="font-size:9px;color:#666;">${t.date}</div></div><div style="color:var(--danger);font-size:11px;">-${t.n.toLocaleString()}</div></div>`).join('') : '<div style="text-align:center;color:#666;font-size:10px;padding:20px;">Kosong</div>';
         }
 
-        // --- LAPORAN BULANAN ---
         window.renderReports = () => {
             let groups = {};
             data.trans.forEach(t => {
                 let key = getPeriodName(t.ts);
-                if(!groups[key]) groups[key] = { i:0, e:0, lit:0, d:{} };
-                
-                if((t.type||'inc')==='inc') {
-                    groups[key].i += t.n;
-                    groups[key].lit += parseFloat(t.l || 0); 
-                } else {
-                    groups[key].e += t.n;
-                }
-                
-                if(!groups[key].d[t.date]) groups[key].d[t.date]={i:0,e:0};
-                if((t.type||'inc')==='inc') groups[key].d[t.date].i+=t.n; else groups[key].d[t.date].e+=t.n;
+                if(!groups[key]) groups[key] = { i:0, e:0 };
+                if((t.type||'inc')==='inc') groups[key].i += t.n; else groups[key].e += t.n;
             });
-            
-            let html = Object.keys(groups).map(k => {
-                let g = groups[k];
-                let rows = Object.keys(g.d).sort().reverse().map(d => `<tr><td>${d.split('/')[0]}</td><td style="color:var(--success)">${g.d[d].i/1000}k</td><td style="color:var(--danger)">${g.d[d].e/1000}k</td><td style="text-align:right">${(g.d[d].i-g.d[d].e)/1000}k</td></tr>`).join('');
-                
-                return `<div class="report-card">
-                    <div style="display:flex;justify-content:space-between;color:var(--gold);font-weight:700;margin-bottom:5px;">
-                        <span>${k}</span><span>Rp ${(g.i-g.e).toLocaleString()}</span>
-                    </div>
-                    <div style="font-size:11px; color:#aaa; margin-bottom:10px; text-align:right;">Total Liter: <span style="color:white; font-weight:700;">${g.lit.toFixed(2)} L</span></div>
-                    <table class="report-table" style="width:100%;font-size:12px;">${rows}</table>
-                    <button onclick="askAI('report','${k}')" style="width:100%;margin-top:15px;background:rgba(255,255,255,0.1);border:none;color:#aaa;padding:10px;border-radius:10px; cursor:pointer;">Minta Analisa AI</button>
-                </div>`;
-            }).join('');
-            document.getElementById('reportList').innerHTML = html;
+            document.getElementById('reportList').innerHTML = Object.keys(groups).map(k => `<div class="card" style="padding:12px;"><div style="display:flex;justify-content:space-between;font-weight:700;font-size:11px;margin-bottom:5px;"><span>${k}</span><span>Rp ${(groups[k].i-groups[k].e).toLocaleString()}</span></div><div style="font-size:9px;color:#666;">In: ${groups[k].i/1000}k | Out: ${groups[k].e/1000}k</div></div>`).join('');
         }
 
-        // --- TRANSAKSI LOGIC ---
-        window.openInputModal = () => { document.getElementById('inputModal').style.display='flex'; }
-        window.closeModal = () => { document.getElementById('inputModal').style.display='none'; }
+        window.openInputModal = () => { document.getElementById('inputModal').style.display='flex'; setMode('inc'); }
+        window.closeModal = () => document.getElementById('inputModal').style.display='none';
+        
         window.setMode = (m) => {
-            currentMode = m; document.querySelectorAll('.mt-btn').forEach(b=>{b.classList.remove('active'); b.style.background='transparent'; b.style.color='#666';});
-            let a = document.getElementById(m==='inc'?'mtInc':'mtExp'); a.classList.add('active'); a.style.background=m==='inc'?'var(--gold)':'var(--danger)'; a.style.color=m==='inc'?'black':'white';
-            if(m==='exp') { document.getElementById('descInput').classList.remove('hidden'); document.getElementById('litEstBox').classList.add('hidden'); document.getElementById('actInc').classList.add('hidden'); document.getElementById('actExp').classList.remove('hidden'); }
-            else { document.getElementById('descInput').classList.add('hidden'); document.getElementById('litEstBox').classList.remove('hidden'); document.getElementById('actInc').classList.remove('hidden'); document.getElementById('actExp').classList.add('hidden'); }
+            currentMode = m; 
+            document.querySelectorAll('.mt-btn').forEach(b=>{b.classList.remove('active'); b.style.background='transparent'; b.style.color='#666';});
+            let a = document.getElementById(m==='inc'?'mtInc':'mtExp'); 
+            a.classList.add('active'); a.style.background=m==='inc'?'var(--gold)':'var(--danger)'; a.style.color=m==='inc'?'black':'white';
+            
+            // LOGIKA VISIBILITAS (FORCE STYLE)
+            if(m==='exp') { 
+                document.getElementById('descInput').classList.remove('hidden'); 
+                document.getElementById('litEstBox').classList.add('hidden'); 
+                document.getElementById('actInc').style.display = 'none'; // Force hide
+                document.getElementById('actExp').style.display = 'block'; // Force show (as block for full width button)
+                document.getElementById('actExp').classList.remove('hidden');
+            }
+            else { 
+                document.getElementById('descInput').classList.add('hidden'); 
+                document.getElementById('litEstBox').classList.remove('hidden'); 
+                document.getElementById('actInc').style.display = 'grid'; // Force show grid
+                document.getElementById('actExp').style.display = 'none'; // Force hide
+            }
         }
+
         window.calcAdm = () => { if(currentMode==='inc') { let n=parseInt(document.getElementById('admNom').value)||0; document.getElementById('admLit').innerText=(n/data.price).toFixed(2)+"L"; } }
         
         window.saveTrans = async (type, method='cash') => {
-            let n = parseInt(document.getElementById('admNom').value); 
-            if(!n) return;
-            
-            let now = new Date();
-            let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString(), type:type, n:n };
-            
+            let n = parseInt(document.getElementById('admNom').value); if(!n) return;
+            let now = new Date(), tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString(), type:type, n:n };
             if(type === 'inc') {
-                let l = (n / data.price).toFixed(2);
-                tx.l = l; 
-                
-                if(method === 'cash') {
-                    tx.metode = 'CASH';
-                    tx.status = 'PAID';
-                } else {
-                    tx.metode = 'QRIS';
-                    tx.status = 'UNPAID'; 
-                }
-                
+                let l = (n / data.price).toFixed(2); tx.l = l; tx.metode = method==='cash'?'CASH':'QRIS'; tx.status = method==='cash'?'PAID':'UNPAID';
                 data.stokLiter = Math.max(0, data.stokLiter - l);
-                
-                if(db) { 
-                    try { 
-                        await db.collection("struk_public").doc("current").set({
-                            nominal: n, 
-                            liter: l,
-                            shop: data.store,       
-                            address: data.addr,     
-                            waktu: now.toLocaleString(),
-                            status: tx.status,
-                            metode: tx.metode,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        }); 
-                    } catch(e){ console.error(e); } 
-                }
-            } else { 
-                tx.desc = document.getElementById('descInput').value || "Pengeluaran"; 
-            }
-            
-            data.trans.unshift(tx); 
-            localStorage.setItem('dl_data', JSON.stringify(data));
-            document.getElementById('admNom').value=''; document.getElementById('descInput').value=''; closeModal(); renderDash();
+                if(db) await db.collection("struk_public").doc("current").set({nominal:n, liter:l, shop:data.store, address:data.addr, time:now.toLocaleString(), status:tx.status});
+            } else tx.desc = document.getElementById('descInput').value || "Exp";
+            data.trans.unshift(tx); localStorage.setItem('dl_data', JSON.stringify(data));
+            document.getElementById('admNom').value=''; closeModal(); renderDash();
         }
 
-        window.deleteTrans = (id) => { if(confirm("Hapus Transaksi?")) { data.trans=data.trans.filter(t=>t.id!==id); localStorage.setItem('dl_data', JSON.stringify(data)); renderDash(); } }
+        window.deleteTrans = (id) => { if(confirm("Hapus?")) { data.trans=data.trans.filter(t=>t.id!==id); localStorage.setItem('dl_data', JSON.stringify(data)); renderDash(); } }
         
         window.saveSet = () => { 
             data.store = document.getElementById('setStore').value; 
-            data.addr = document.getElementById('setAddr').value;
             data.price = parseInt(document.getElementById('setPrice').value);
             data.stokLiter = parseFloat(document.getElementById('setStok').value); 
-            data.minStok = parseFloat(document.getElementById('setMinStok').value); 
+            data.minStok = parseFloat(document.getElementById('setMinStok').value);
+            data.monthlyTarget = parseFloat(document.getElementById('setTargetProfit').value); 
             data.budgetLimit = parseFloat(document.getElementById('setLimit').value);
-            data.monthlyTarget = parseFloat(document.getElementById('setTargetProfit').value);
-            data.groqKey = document.getElementById('setGroqKey').value; 
+            data.groqKey = document.getElementById('setGroqKey').value;
+            data.admin = document.getElementById('setAdmin').value; // Ambil nilai admin baru
+
             localStorage.setItem('dl_data', JSON.stringify(data)); 
+            
+            // Perbarui tampilan di header dan profile
+            document.getElementById('dispPhoto').src = data.photo; 
+            renderSetProfile(); // Update tampilan di tabSet
             renderDash(); 
-            alert("Pengaturan Berhasil Disimpan!"); 
+            alert("Perubahan Disimpan"); 
         }
+
+        window.clearData = () => { if(confirm("Reset Data?")) { data.trans=[]; localStorage.setItem('dl_data', JSON.stringify(data)); renderDash(); } }
         
-        window.clearData = () => { if(confirm("Reset Semua Data?")) { data.trans=[]; localStorage.setItem('dl_data', JSON.stringify(data)); renderDash(); } }
-
-        // FIREBASE LISTENER
-        if(db) {
-            db.collection("struk_public").doc("current").onSnapshot(doc => { 
-                if(doc.exists && doc.data().status === "UNPAID") { 
-                    document.getElementById('pendingPayBox').style.display='flex'; 
-                    document.getElementById('pendingNom').innerText="Rp " + parseInt(doc.data().nominal).toLocaleString(); 
-                } else { document.getElementById('pendingPayBox').style.display='none'; } 
-            });
+        // Fungsi Update Photo
+        window.updatePhoto = (e) => { 
+            let r=new FileReader(); 
+            r.onload=v=>{
+                data.photo=v.target.result; 
+                document.getElementById('dispPhoto').src=data.photo; // Update header
+                document.getElementById('setPhoto').src=data.photo; // Update setting profile
+                localStorage.setItem('dl_data', JSON.stringify(data));
+                renderDash(); 
+            }; 
+            if(e.target.files[0]) r.readAsDataURL(e.target.files[0]); 
         }
-        window.markAsLunas = async () => { if(db) await db.collection("struk_public").doc("current").update({status:"PAID"}); }
 
-        // AI LOGIC
-        window.openAIChat = () => { document.getElementById('aiModal').style.display='flex'; }
+        window.openAIChat = () => document.getElementById('aiModal').style.display='flex';
         window.sendAIChat = async () => {
-            let i=document.getElementById('aiInput'); let m=i.value; if(!m)return; i.value='';
-            let b=document.getElementById('chatBox'); b.innerHTML+=`<div style="text-align:right;margin:10px;"><span style="background:var(--gold);color:black;padding:10px 15px;border-radius:15px;font-size:13px;">${m}</span></div>`;
-            if(!data.groqKey) { b.innerHTML+=`<div style="color:var(--danger);font-size:12px;">API Key Belum Diisi di Pengaturan!</div>`; return; }
-            
-            let loadId = "l"+Date.now();
-            b.innerHTML += `<div id="${loadId}" style="margin:10px;"><span style="color:#666;font-size:11px;">AI sedang mengetik...</span></div>`;
-            
+            let i=document.getElementById('aiInput'), m=i.value, b=document.getElementById('chatBox'); if(!m)return; i.value='';
+            b.innerHTML+=`<div style="text-align:right;margin:10px;"><span style="background:var(--gold);color:black;padding:5px 10px;border-radius:8px;">${m}</span></div>`;
+            if(!data.groqKey) { b.innerHTML+=`<div style="color:red;font-size:10px;">No API Key</div>`; return; }
             try {
-                let r = await fetch("https://api.groq.com/openai/v1/chat/completions", { method:"POST", headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`}, body:JSON.stringify({model:"llama-3.3-70b-versatile", messages:[{role:"system",content:`Context: Kamu adalah konsultan bisnis pom mini profesional. Data Stok: ${data.stokLiter}L, Harga: ${data.price}.`},{role:"user",content:m}]}) });
-                let j = await r.json(); 
-                document.getElementById(loadId).remove();
-                b.innerHTML+=`<div style="margin:10px;"><span style="background:#222;color:#eee;padding:12px;border-radius:15px;display:inline-block;font-size:13px;line-height:1.5;border:1px solid #333;">${marked.parse(j.choices[0].message.content)}</span></div>`;
-                b.scrollTop = b.scrollHeight;
-            } catch(e) { document.getElementById(loadId).remove(); b.innerHTML+=`<div style="color:red;font-size:12px;">Gagal terhubung ke AI.</div>`; }
+                let r = await fetch("https://api.groq.com/openai/v1/chat/completions", { method:"POST", headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`}, body:JSON.stringify({model:"llama-3.3-70b-versatile", messages:[{role:"system",content:`Context: Bisnis Pom Mini. Stok: ${data.stokLiter}L.`},{role:"user",content:m}]}) });
+                let j = await r.json(); b.innerHTML+=`<div style="margin:10px;font-size:11px;color:#eee;">${marked.parse(j.choices[0].message.content)}</div>`;
+            } catch(e) { b.innerHTML+=`<div style="color:red;">Error</div>`; }
         }
-        window.askAI = (m, p) => { openAIChat(); document.getElementById('aiInput').value = m==='budget' ? "Analisa keuangan hari ini singkat & padat" : `Analisa performa bisnis bulan ${p}`; sendAIChat(); }
 
         window.onload = () => { 
-            setTimeout(()=>document.getElementById('splashScreen').style.display='none', 3000);
+            setTimeout(()=>document.getElementById('splashScreen').style.display='none', 2000);
             if(localStorage.getItem('dl_log')) nav('adminScreen');
             
-            // RESTORE ALL SETTINGS INPUTS
-            document.getElementById('setStore').value=data.store; 
-            document.getElementById('setAddr').value=data.addr;
-            document.getElementById('setPrice').value=data.price;
-            document.getElementById('setStok').value=data.stokLiter; 
-            document.getElementById('setMinStok').value=data.minStok;
-            document.getElementById('setLimit').value=data.budgetLimit;
-            document.getElementById('setTargetProfit').value=data.monthlyTarget || 5000000;
-            document.getElementById('setGroqKey').value=data.groqKey;
-            
+            // Set photo di header saat load
             document.getElementById('dispPhoto').src=data.photo; 
-            document.getElementById('settingPhoto').src=data.photo;
+            renderSetProfile(); // Panggil render profile untuk mengisi nilai awal di tabSet
         }
-        window.updatePhoto = (e) => { let r=new FileReader(); r.onload=v=>{data.photo=v.target.result; renderDash(); document.getElementById('dispPhoto').src=data.photo; document.getElementById('settingPhoto').src=data.photo; localStorage.setItem('dl_data', JSON.stringify(data));}; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]); }
     </script>
 </body>
 </html>
