@@ -18,7 +18,8 @@
         :root {
             --primary: #7F3DFF;
             --primary-dark: #5d26c9;
-            --bg-scaffold: #F2F4F7; /* Background abu muda agar kontras dengan nav putih */
+            --bg-scaffold: #F2F4F7; /* Background sedikit abu biar tombol tengah kelihatan pisah */
+            --bg-card: #FFFFFF;
             --text-dark: #161719;
             --text-grey: #91919F;
             --success: #00A86B;
@@ -339,8 +340,7 @@
                 <div class="nav-item" onclick="nav('historyScreen')">
                     <span class="material-icons-round">receipt_long</span><span>Riwayat</span>
                 </div>
-                <div style="width:50px;"></div>
-                <div class="nav-item" onclick="nav('aiScreen')">
+                <div style="width:50px;"></div> <div class="nav-item" onclick="nav('aiScreen')">
                     <span class="material-icons-round">smart_toy</span><span>Asisten</span>
                 </div>
                 <div class="nav-item" onclick="nav('reportScreen')">
