@@ -18,7 +18,8 @@
         :root {
             --primary: #7F3DFF;
             --primary-dark: #5d26c9;
-            --bg-scaffold: #F2F4F7; 
+            --bg-scaffold: #F2F4F7;
+            --bg-card: #FFFFFF;
             --text-dark: #161719;
             --text-grey: #91919F;
             --success: #00A86B;
@@ -26,6 +27,7 @@
             --warning: #FCAC12;
             --info: #0077FF;
             --radius-l: 24px;
+            --radius-m: 16px;
             --shadow: 0px 8px 25px rgba(0, 0, 0, 0.05);
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
@@ -137,138 +139,95 @@
         .ti-val { display: block; font-size: 14px; font-weight: 700; }
         .ti-time { font-size: 10px; color: var(--text-grey); margin-top: 4px; display: block; }
 
-        /* --- FLOATING BOTTOM NAV (FIXED STYLE) --- */
+        /* --- FLOATING BOTTOM NAV --- */
         .bottom-nav-wrap {
-            position: fixed;
-            bottom: 40px; /* 40px DARI BAWAH */
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center; /* Posisi Tengah */
-            z-index: 999;
-            pointer-events: none; /* Biar klik tembus di kiri/kanan */
+            position: fixed; bottom: 50px; left: 0; right: 0;
+            display: flex; justify-content: center; z-index: 999; pointer-events: none;
         }
-
         .bottom-nav {
-            pointer-events: auto;
-            background: #FFFFFF; /* Warna Putih */
-            width: 90%; /* Lebar responsif */
-            max-width: 400px;
-            height: 70px;
-            border-radius: 35px; /* Bentuk Kapsul/Pil */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 25px;
-            box-shadow: 0 10px 40px rgba(127, 61, 255, 0.2); /* Bayangan Melayang */
-            position: relative;
+            pointer-events: auto; background: #FFFFFF; width: 90%; max-width: 400px; height: 70px;
+            border-radius: 35px; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 25px; box-shadow: 0 10px 40px rgba(127, 61, 255, 0.2); position: relative;
         }
-
-        /* --- FLOATING BUTTON (Lengkungan Pisah) --- */
         .fab-container {
-            position: absolute;
-            left: 50%;
-            top: -35px; /* Naik ke atas */
-            transform: translateX(-50%);
-            width: 75px;
-            height: 75px;
-            background: var(--bg-scaffold); /* Warna background body (efek cut-out) */
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.03); /* Bayangan halus */
-            z-index: 1001;
+            position: absolute; left: 50%; top: -35px; transform: translateX(-50%);
+            width: 75px; height: 75px; background: var(--bg-scaffold); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.03); z-index: 1001;
         }
-
         .fab-add {
-            width: 56px;
-            height: 56px;
-            background: var(--text-dark);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            cursor: pointer;
-            transition: transform 0.2s;
-            border: 3px solid #FFFFFF; /* Border putih biar kontras */
+            width: 56px; height: 56px; background: var(--text-dark); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.2s;
+            border: 3px solid #FFFFFF;
         }
         .fab-add:active { transform: scale(0.9); }
-
-        .nav-item { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            color: #C6C6C6; font-size: 10px; font-weight: 600; cursor: pointer; width: 50px;
-        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #C6C6C6; font-size: 10px; font-weight: 600; cursor: pointer; width: 50px; }
         .nav-item.active { color: var(--primary); }
         .nav-item .material-icons-round { font-size: 26px; margin-bottom: 4px; transition: 0.3s; }
         
-        /* --- CHARTS --- */
-        .chart-card {
+        /* --- REPORT STYLES (NEW) --- */
+        .report-tabs {
+            background: #e2e8f0; padding: 4px; border-radius: 16px; 
+            display: flex; margin-bottom: 20px;
+        }
+        .rt-btn {
+            flex: 1; text-align: center; padding: 12px; border-radius: 12px;
+            font-size: 12px; font-weight: 600; color: var(--text-grey); 
+            cursor: pointer; transition: 0.3s;
+        }
+        .rt-btn.active { background: white; color: var(--text-dark); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .net-card {
             background: white; border-radius: 20px; padding: 20px; 
-            box-shadow: var(--shadow); margin-bottom: 20px; height: 300px; position: relative;
+            border: 1px solid #eee; margin-bottom: 15px;
+            position: relative; overflow: hidden;
         }
-        .weather-stat-card {
-            background: linear-gradient(135deg, #0ea5e9, #2563eb); color: white;
-            border-radius: 20px; padding: 20px; margin-bottom: 20px;
+        .net-card::after {
+            content: ''; position: absolute; right: -20px; top: -20px; 
+            width: 100px; height: 100px; background: currentColor; 
+            opacity: 0.05; border-radius: 50%; pointer-events: none;
+        }
+        .net-val { font-size: 28px; font-weight: 800; margin: 5px 0 15px; letter-spacing: -1px; }
+        
+        .net-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px dashed #eee; padding-top: 15px; }
+        .ng-item { font-size: 11px; color: #666; font-weight: 600; text-transform: uppercase; }
+        .ng-val { font-size: 14px; font-weight: 700; color: #333; margin-top: 2px; }
+
+        .report-row {
+            background: white; border-radius: 16px; padding: 15px; margin-bottom: 8px;
             display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid #f9f9f9;
         }
+        .rr-date { font-weight: 700; font-size: 13px; color: var(--text-dark); }
+        .rr-sub { font-size: 10px; color: var(--text-grey); margin-top: 2px; }
+        .rr-val { font-weight: 800; font-size: 13px; }
+        .rr-val.plus { color: var(--success); }
+        .rr-val.minus { color: var(--danger); }
+
+        /* --- CHARTS --- */
+        .chart-card { background: white; border-radius: 20px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; height: 300px; position: relative; }
+        .weather-stat-card { background: linear-gradient(135deg, #0ea5e9, #2563eb); color: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
 
         /* --- MODALS --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-            display: none; align-items: flex-end;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; align-items: flex-end; }
         .modal-overlay.center { align-items: center; justify-content: center; }
-        .sheet-content {
-            background: white; width: 100%; border-radius: 30px 30px 0 0;
-            padding: 25px 25px calc(var(--safe-bottom) + 20px);
-            animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            max-height: 90vh; overflow-y: auto;
-        }
+        .sheet-content { background: white; width: 100%; border-radius: 30px 30px 0 0; padding: 25px 25px calc(var(--safe-bottom) + 20px); animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); max-height: 90vh; overflow-y: auto; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
-        .clean-input {
-            width: 100%; border: 1px solid #E3E5E5; border-radius: 16px; background: #FCFCFC;
-            padding: 16px; font-size: 16px; margin-bottom: 15px; outline: none;
-            font-family: 'Inter', sans-serif; color: var(--text-dark); transition: 0.2s;
-        }
+        .clean-input { width: 100%; border: 1px solid #E3E5E5; border-radius: 16px; background: #FCFCFC; padding: 16px; font-size: 16px; margin-bottom: 15px; outline: none; font-family: 'Inter', sans-serif; color: var(--text-dark); transition: 0.2s; }
         .clean-input:focus { border-color: var(--primary); background: white; }
-        
-        .btn-primary {
-            background: var(--primary); color: white; border: none; width: 100%;
-            padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer;
-            box-shadow: 0 8px 20px rgba(127, 61, 255, 0.25); transition: 0.2s;
-        }
-
+        .btn-primary { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 8px 20px rgba(127, 61, 255, 0.25); transition: 0.2s; }
         .mode-wrapper { background: #F1F1FA; padding: 4px; border-radius: 16px; display: flex; margin-bottom: 20px; }
-        .mode-btn { 
-            flex: 1; border: none; background: transparent; padding: 12px; 
-            border-radius: 14px; font-weight: 600; color: var(--text-grey); 
-            transition: 0.3s; font-size: 12px; cursor: pointer;
-        }
+        .mode-btn { flex: 1; border: none; background: transparent; padding: 12px; border-radius: 14px; font-weight: 600; color: var(--text-grey); transition: 0.3s; font-size: 12px; cursor: pointer; }
         .mode-btn.active { background: white; color: var(--text-dark); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-
-        .btn-broadcast {
-            background: #103d81; color: white; border: none; width: 100%; padding: 12px;
-            border-radius: 12px; font-weight: 600; margin-bottom: 10px;
-            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
-        }
-
-        .receipt-paper {
-            background: white; padding: 20px; border-radius: 10px; border: 1px dashed #ccc; 
-            font-family: 'Courier New', monospace; text-align: center; margin-bottom: 20px;
-        }
+        .btn-broadcast { background: #103d81; color: white; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+        .receipt-paper { background: white; padding: 20px; border-radius: 10px; border: 1px dashed #ccc; font-family: 'Courier New', monospace; text-align: center; margin-bottom: 20px; }
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .calc-btn { background: #F1F1FA; border: none; border-radius: 12px; height: 50px; font-size: 18px; font-weight: 600; cursor: pointer; }
         .calc-btn.eq { background: var(--primary); color: white; grid-column: span 2; }
         .kasbon-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; }
         .tag-lunas { background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; }
         .tag-belum { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; }
-
-        /* --- AI CHAT STYLE --- */
         .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
         .chat-user { background: var(--primary); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
         .chat-ai { background: white; color: var(--text-dark); margin-right: auto; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -279,7 +238,7 @@
     <div id="splashScreen">
         <div class="splash-logo">DL</div>
         <div style="color:white; font-weight:700; font-size:20px;">DEAR LOVE</div>
-        <div style="color:rgba(255,255,255,0.8); font-size:12px; margin-top:5px;">System v4.3 (Floating)</div>
+        <div style="color:rgba(255,255,255,0.8); font-size:12px; margin-top:5px;">System v4.4 (Reports)</div>
     </div>
 
     <div id="loginScreen" class="screen active">
@@ -360,25 +319,12 @@
 
         <div class="bottom-nav-wrap">
             <div class="bottom-nav">
-                <div class="nav-item active" onclick="nav('adminScreen')">
-                    <span class="material-icons-round">home</span><span>Home</span>
-                </div>
-                <div class="nav-item" onclick="nav('historyScreen')">
-                    <span class="material-icons-round">receipt_long</span><span>Riwayat</span>
-                </div>
+                <div class="nav-item active" onclick="nav('adminScreen')"><span class="material-icons-round">home</span><span>Home</span></div>
+                <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span><span>Riwayat</span></div>
                 <div style="width:50px;"></div>
-                <div class="nav-item" onclick="nav('aiScreen')">
-                    <span class="material-icons-round">smart_toy</span><span>Asisten</span>
-                </div>
-                <div class="nav-item" onclick="nav('reportScreen')">
-                    <span class="material-icons-round">description</span><span>Laporan</span>
-                </div>
-                
-                <div class="fab-container">
-                    <div class="fab-add" onclick="openInputModal()">
-                        <span class="material-icons-round" style="font-size:32px;">add</span>
-                    </div>
-                </div>
+                <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span><span>Asisten</span></div>
+                <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">description</span><span>Laporan</span></div>
+                <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
             </div>
         </div>
     </div>
@@ -410,7 +356,6 @@
         </div>
         <div class="scroll-content">
             <p style="font-size:12px; color:#888; text-align:center; margin-bottom:20px;">Menganalisa kebiasaan pelanggan & cuaca.</p>
-
             <div class="weather-stat-card">
                 <div>
                     <div style="font-size:12px; opacity:0.8; margin-bottom:5px;">DAMPAK CUACA</div>
@@ -423,12 +368,10 @@
                 </div>
                 <span class="material-icons-round" style="font-size:40px; opacity:0.5;">cloud_sync</span>
             </div>
-
             <div class="chart-card">
                 <h4 style="margin:0 0 15px 0; font-size:14px;">Jam Paling Rame</h4>
                 <canvas id="hourChart"></canvas>
             </div>
-
             <div class="chart-card">
                 <h4 style="margin:0 0 15px 0; font-size:14px;">Hari Paling Rame</h4>
                 <canvas id="dayChart"></canvas>
@@ -474,16 +417,29 @@
             <span style="width:24px;"></span>
         </div>
         <div class="scroll-content">
-            <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:12px; margin-bottom:15px; font-size:11px; text-align:center;">
-                Periode Laporan: Tgl 18 (Bulan Lalu) s/d Tgl 17 (Bulan Ini)
+            <div class="report-tabs">
+                <div id="rtDay" class="rt-btn active" onclick="setReportMode('daily')">Harian</div>
+                <div id="rtMonth" class="rt-btn" onclick="setReportMode('monthly')">Bulanan</div>
+                <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Tahunan</div>
             </div>
 
-            <div style="background:white; border-radius:20px; padding:20px; margin-bottom:20px; box-shadow:var(--shadow);">
-                <canvas id="expenseChart" height="250"></canvas>
+            <div class="net-card" style="color: var(--success); background: #f0fdf4; border-color: #bbf7d0;">
+                <div class="ng-item" style="color:#166534;">PROFIT BERSIH (PERIODE INI)</div>
+                <div class="net-val" id="repNet">Rp 0</div>
+                <div class="net-grid">
+                    <div>
+                        <div class="ng-item">TOTAL MASUK</div>
+                        <div class="ng-val" style="color:var(--success);" id="repInc">Rp 0</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="ng-item">TOTAL KELUAR</div>
+                        <div class="ng-val" style="color:var(--danger);" id="repExp">Rp 0</div>
+                    </div>
+                </div>
             </div>
             
-            <h4 style="margin:20px 0 15px 0;">Rekap Periode (18-17)</h4>
-            <div id="reportList"></div>
+            <h4 style="margin:20px 0 15px 0;">Rincian Lengkap</h4>
+            <div id="reportContent"></div>
         </div>
         <div class="bottom-nav-wrap">
             <div class="bottom-nav">
@@ -662,6 +618,7 @@
         if(!data.kasbon) data.kasbon = [];
 
         let currentMode = 'inc';
+        let reportMode = 'daily';
         let expenseChartInstance = null;
         let dayChartInstance = null;
         let hourChartInstance = null;
@@ -784,16 +741,58 @@
             window[id+'Instance'] = new Chart(ctx, { type: type, data: { labels: labels, datasets: [{ label: label, data: dataArr, backgroundColor: '#7F3DFF', borderColor: '#7F3DFF', borderWidth: 1, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false } });
         }
 
+        /* --- NEW REPORT LOGIC --- */
+        window.setReportMode = (m) => {
+            reportMode = m;
+            document.querySelectorAll('.rt-btn').forEach(b => b.classList.remove('active'));
+            if(m==='daily') document.getElementById('rtDay').classList.add('active');
+            else if(m==='monthly') document.getElementById('rtMonth').classList.add('active');
+            else document.getElementById('rtYear').classList.add('active');
+            renderReport();
+        }
+
         window.renderReport = () => {
-            let groups = {}, catExp = {};
+            let groups = {};
+            let tInc = 0, tExp = 0;
+
             data.trans.forEach(t => {
-                let m = getCustomPeriod(t.ts);
-                if(!groups[m]) groups[m] = {i:0, e:0};
-                if(t.type==='inc') groups[m].i+=t.n; else { groups[m].e+=t.n; let d = t.type==='buy'?'Kulakan':t.desc; catExp[d]=(catExp[d]||0)+t.n; }
+                let k = "";
+                if(reportMode === 'daily') k = t.date;
+                else if(reportMode === 'monthly') k = getCustomPeriod(t.ts);
+                else k = new Date(t.ts).getFullYear().toString();
+
+                if(!groups[k]) groups[k] = { i:0, e:0 };
+                
+                if(t.type === 'inc') { 
+                    groups[k].i += t.n;
+                    tInc += t.n;
+                } else { 
+                    groups[k].e += t.n;
+                    tExp += t.n;
+                }
             });
-            if(expenseChartInstance) expenseChartInstance.destroy();
-            expenseChartInstance = new Chart(document.getElementById('expenseChart'), { type:'doughnut', data: { labels: Object.keys(catExp), datasets:[{ data:Object.values(catExp), backgroundColor:['#FD3C4A','#FCAC12','#00A86B','#7F3DFF','#0077FF'] }] }, options: { plugins: { legend: {position:'bottom'} } } });
-            document.getElementById('reportList').innerHTML = Object.keys(groups).map(k=>`<div class="trans-item"><div><b>${k}</b></div><div style="text-align:right;"><div style="color:var(--success)">Masuk: ${fmtMoney(groups[k].i)}</div><div style="color:var(--danger)">Keluar: ${fmtMoney(groups[k].e)}</div></div></div>`).join('');
+
+            // Update Net Card
+            let net = tInc - tExp;
+            document.getElementById('repNet').innerText = fmtMoney(net);
+            document.getElementById('repNet').style.color = net >= 0 ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('repInc').innerText = fmtMoney(tInc);
+            document.getElementById('repExp').innerText = fmtMoney(tExp);
+
+            // Render List
+            document.getElementById('reportContent').innerHTML = Object.keys(groups).map(k => {
+                let profit = groups[k].i - groups[k].e;
+                let cls = profit >= 0 ? 'plus' : 'minus';
+                let sign = profit >= 0 ? '+' : '';
+                return `
+                <div class="report-row">
+                    <div>
+                        <div class="rr-date">${k}</div>
+                        <div class="rr-sub">In: ${fmtMoney(groups[k].i)} | Out: ${fmtMoney(groups[k].e)}</div>
+                    </div>
+                    <div class="rr-val ${cls}">${sign} ${fmtMoney(profit)}</div>
+                </div>`;
+            }).join('');
         }
 
         window.openKasbon = () => { document.getElementById('kasbonModal').style.display='flex'; renderKasbon(); }
