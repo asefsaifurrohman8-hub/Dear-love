@@ -18,8 +18,7 @@
         :root {
             --primary: #7F3DFF;
             --primary-dark: #5d26c9;
-            --bg-scaffold: #F2F4F7; /* Background sedikit abu biar tombol tengah kelihatan pisah */
-            --bg-card: #FFFFFF;
+            --bg-scaffold: #F2F4F7; /* Background abu muda agar kontras dengan nav putih */
             --text-dark: #161719;
             --text-grey: #91919F;
             --success: #00A86B;
@@ -140,7 +139,7 @@
 
         /* --- UPDATED BOTTOM NAV (Floating Plus) --- */
         .bottom-nav-wrap {
-            position: fixed; bottom: 10; left: 0; right: 0;
+            position: fixed; bottom: 0; left: 0; right: 0;
             background: white; padding: 0 20px calc(var(--safe-bottom) + 10px);
             box-shadow: 0 -10px 40px rgba(0,0,0,0.08); z-index: 100;
             border-top-left-radius: 30px; border-top-right-radius: 30px;
@@ -340,7 +339,8 @@
                 <div class="nav-item" onclick="nav('historyScreen')">
                     <span class="material-icons-round">receipt_long</span><span>Riwayat</span>
                 </div>
-                <div style="width:50px;"></div> <div class="nav-item" onclick="nav('aiScreen')">
+                <div style="width:50px;"></div>
+                <div class="nav-item" onclick="nav('aiScreen')">
                     <span class="material-icons-round">smart_toy</span><span>Asisten</span>
                 </div>
                 <div class="nav-item" onclick="nav('reportScreen')">
