@@ -18,8 +18,7 @@
         :root {
             --primary: #7F3DFF;
             --primary-dark: #5d26c9;
-            --bg-scaffold: #F2F4F7; /* Background sedikit abu biar tombol tengah kelihatan pisah */
-            --bg-card: #FFFFFF;
+            --bg-scaffold: #F2F4F7; 
             --text-dark: #161719;
             --text-grey: #91919F;
             --success: #00A86B;
@@ -138,41 +137,73 @@
         .ti-val { display: block; font-size: 14px; font-weight: 700; }
         .ti-time { font-size: 10px; color: var(--text-grey); margin-top: 4px; display: block; }
 
-        /* --- UPDATED BOTTOM NAV (Floating Plus) --- */
+        /* --- FLOATING BOTTOM NAV (FIXED STYLE) --- */
         .bottom-nav-wrap {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: white; padding: 0 20px calc(var(--safe-bottom) + 10px);
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.08); z-index: 100;
-            border-top-left-radius: 30px; border-top-right-radius: 30px;
-            height: 80px; display: flex; align-items: center;
+            position: fixed;
+            bottom: 40px; /* 40px DARI BAWAH */
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center; /* Posisi Tengah */
+            z-index: 999;
+            pointer-events: none; /* Biar klik tembus di kiri/kanan */
         }
-        .bottom-nav { 
-            display: flex; justify-content: space-between; align-items: center; 
-            width: 100%; position: relative; 
+
+        .bottom-nav {
+            pointer-events: auto;
+            background: #FFFFFF; /* Warna Putih */
+            width: 90%; /* Lebar responsif */
+            max-width: 400px;
+            height: 70px;
+            border-radius: 35px; /* Bentuk Kapsul/Pil */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            box-shadow: 0 10px 40px rgba(127, 61, 255, 0.2); /* Bayangan Melayang */
+            position: relative;
         }
-        .nav-item { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            color: #C6C6C6; font-size: 10px; font-weight: 600; cursor: pointer; width: 60px;
-        }
-        .nav-item.active { color: var(--primary); }
-        .nav-item .material-icons-round { font-size: 26px; margin-bottom: 4px; transition: 0.3s; }
-        .nav-item.active .material-icons-round { transform: translateY(-3px); }
-        
-        /* Floating Curved Button */
+
+        /* --- FLOATING BUTTON (Lengkungan Pisah) --- */
         .fab-container {
-            position: absolute; left: 50%; top: -45px; transform: translateX(-50%);
-            width: 70px; height: 70px; 
-            background: var(--bg-scaffold); /* Match body background for "cutout" effect */
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            position: absolute;
+            left: 50%;
+            top: -35px; /* Naik ke atas */
+            transform: translateX(-50%);
+            width: 75px;
+            height: 75px;
+            background: var(--bg-scaffold); /* Warna background body (efek cut-out) */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.03); /* Bayangan halus */
+            z-index: 1001;
         }
+
         .fab-add {
-            width: 56px; height: 56px; background: var(--text-dark); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; color: white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4); cursor: pointer;
+            width: 56px;
+            height: 56px;
+            background: var(--text-dark);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            cursor: pointer;
             transition: transform 0.2s;
+            border: 3px solid #FFFFFF; /* Border putih biar kontras */
         }
         .fab-add:active { transform: scale(0.9); }
 
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            color: #C6C6C6; font-size: 10px; font-weight: 600; cursor: pointer; width: 50px;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-item .material-icons-round { font-size: 26px; margin-bottom: 4px; transition: 0.3s; }
+        
         /* --- CHARTS --- */
         .chart-card {
             background: white; border-radius: 20px; padding: 20px; 
@@ -237,7 +268,7 @@
         .tag-lunas { background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; }
         .tag-belum { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; }
 
-        /* --- AI CHAT STYLE (Full Screen) --- */
+        /* --- AI CHAT STYLE --- */
         .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
         .chat-user { background: var(--primary); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
         .chat-ai { background: white; color: var(--text-dark); margin-right: auto; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -248,7 +279,7 @@
     <div id="splashScreen">
         <div class="splash-logo">DL</div>
         <div style="color:white; font-weight:700; font-size:20px;">DEAR LOVE</div>
-        <div style="color:rgba(255,255,255,0.8); font-size:12px; margin-top:5px;">System v4.2 (AI Pro)</div>
+        <div style="color:rgba(255,255,255,0.8); font-size:12px; margin-top:5px;">System v4.3 (Floating)</div>
     </div>
 
     <div id="loginScreen" class="screen active">
@@ -328,11 +359,6 @@
         </div>
 
         <div class="bottom-nav-wrap">
-            <div class="fab-container">
-                <div class="fab-add" onclick="openInputModal()">
-                    <span class="material-icons-round" style="font-size:32px;">add</span>
-                </div>
-            </div>
             <div class="bottom-nav">
                 <div class="nav-item active" onclick="nav('adminScreen')">
                     <span class="material-icons-round">home</span><span>Home</span>
@@ -340,11 +366,18 @@
                 <div class="nav-item" onclick="nav('historyScreen')">
                     <span class="material-icons-round">receipt_long</span><span>Riwayat</span>
                 </div>
-                <div style="width:50px;"></div> <div class="nav-item" onclick="nav('aiScreen')">
+                <div style="width:50px;"></div>
+                <div class="nav-item" onclick="nav('aiScreen')">
                     <span class="material-icons-round">smart_toy</span><span>Asisten</span>
                 </div>
                 <div class="nav-item" onclick="nav('reportScreen')">
                     <span class="material-icons-round">description</span><span>Laporan</span>
+                </div>
+                
+                <div class="fab-container">
+                    <div class="fab-add" onclick="openInputModal()">
+                        <span class="material-icons-round" style="font-size:32px;">add</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -402,13 +435,13 @@
             </div>
         </div>
         <div class="bottom-nav-wrap">
-            <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
             <div class="bottom-nav">
                 <div class="nav-item" onclick="nav('adminScreen')"><span class="material-icons-round">home</span><span>Home</span></div>
                 <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span><span>Riwayat</span></div>
                 <div style="width:50px;"></div>
                 <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span><span>Asisten</span></div>
                 <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">description</span><span>Laporan</span></div>
+                <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
             </div>
         </div>
     </div>
@@ -423,13 +456,13 @@
             <div id="fullHistoryList"></div>
         </div>
         <div class="bottom-nav-wrap">
-            <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
             <div class="bottom-nav">
                 <div class="nav-item" onclick="nav('adminScreen')"><span class="material-icons-round">home</span><span>Home</span></div>
                 <div class="nav-item active" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span><span>Riwayat</span></div>
                 <div style="width:50px;"></div>
                 <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span><span>Asisten</span></div>
                 <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">description</span><span>Laporan</span></div>
+                <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
             </div>
         </div>
     </div>
@@ -453,13 +486,13 @@
             <div id="reportList"></div>
         </div>
         <div class="bottom-nav-wrap">
-            <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
             <div class="bottom-nav">
                 <div class="nav-item" onclick="nav('adminScreen')"><span class="material-icons-round">home</span><span>Home</span></div>
                 <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span><span>Riwayat</span></div>
                 <div style="width:50px;"></div>
                 <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span><span>Asisten</span></div>
                 <div class="nav-item active" onclick="nav('reportScreen')"><span class="material-icons-round">description</span><span>Laporan</span></div>
+                <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
             </div>
         </div>
     </div>
