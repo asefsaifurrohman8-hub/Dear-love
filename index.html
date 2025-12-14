@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DEAR LOVE - Ultimate POS v4.8</title>
+    <title>DEAR LOVE - Ultimate POS v4.9</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -251,7 +251,7 @@
         <img src="logo.png" class="splash-img" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
         <div style="color:white; font-weight:700; font-size:24px; margin-top:5px;">DEAR LOVE</div>
         <div style="color:rgba(255,255,255,0.9); font-size:14px; margin-top:5px; font-weight:500; letter-spacing:0.5px;">Solusi Bisnis Masa Depan</div>
-        <div style="color:rgba(255,255,255,0.6); font-size:11px; margin-top:20px;">System v4.8</div>
+        <div style="color:rgba(255,255,255,0.6); font-size:11px; margin-top:20px;">System v4.9</div>
     </div>
 
     <div id="loginScreen" class="screen active">
@@ -304,6 +304,14 @@
                     <div class="tool-icon" style="color:#7F3DFF;"><span class="material-icons-round">ssid_chart</span></div>
                     <span class="tool-label">Analisa</span>
                 </div>
+            </div>
+
+            <div class="stat-card" style="margin-bottom:15px; padding:15px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:11px; color:#91919F; font-weight:600; margin-bottom:4px;">TERJUAL HARI INI</div>
+                    <div style="font-size:20px; font-weight:800; color:#F59E0B;" id="todayLiter">0 L</div>
+                </div>
+                <span class="material-icons-round" style="font-size:36px; color:#F59E0B; opacity:0.15;">timeline</span>
             </div>
 
             <div class="stock-monitor" onclick="alert('Jika stok fisik kosong tapi aplikasi masih ada sisa, berarti ada kebocoran (Rugi)!')">
@@ -795,6 +803,9 @@
 
             document.getElementById('netProfit').innerText = fmtMoney(profit);
             document.getElementById('marginPerLiter').innerText = fmtMoney(margin) + "/L";
+            
+            // UPDATE BOX BARU: TERJUAL HARI INI
+            document.getElementById('todayLiter').innerText = dLit.toFixed(2) + " L";
 
             document.getElementById('totInc').innerText = fmtMoney(dInc);
             document.getElementById('totBuy').innerText = fmtMoney(dBuy);
