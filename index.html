@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DEAR LOVE - Ultimate POS v4.7</title>
+    <title>DEAR LOVE - Ultimate POS v4.8</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -251,7 +251,7 @@
         <img src="logo.png" class="splash-img" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
         <div style="color:white; font-weight:700; font-size:24px; margin-top:5px;">DEAR LOVE</div>
         <div style="color:rgba(255,255,255,0.9); font-size:14px; margin-top:5px; font-weight:500; letter-spacing:0.5px;">Solusi Bisnis Masa Depan</div>
-        <div style="color:rgba(255,255,255,0.6); font-size:11px; margin-top:20px;">System v4.7</div>
+        <div style="color:rgba(255,255,255,0.6); font-size:11px; margin-top:20px;">System v4.8</div>
     </div>
 
     <div id="loginScreen" class="screen active">
@@ -280,9 +280,11 @@
 
         <div class="scroll-content">
             <div class="main-balance-card">
-                <div class="mb-label">OMSET HARI INI</div>
+                <div class="mb-label">PROFIT BERSIH (HARI INI)</div>
                 <div class="mb-value" id="netProfit">Rp 0</div>
-                <div class="mb-pill" id="cashflowInfo">Penjualan Kotor</div>
+                <div style="margin-top:15px; background:rgba(255,255,255,0.2); border-radius:12px; padding:8px; font-size:12px; display:flex; justify-content:center; gap:15px;">
+                    <span>Margin: <b id="marginPerLiter">Rp 0/L</b></span>
+                </div>
             </div>
 
             <div class="tools-grid">
@@ -774,15 +776,26 @@
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
             let today = new Date().toLocaleDateString();
-            let dInc = 0, dBuy = 0, dExp = 0; 
+            let dInc = 0, dBuy = 0, dExp = 0, dLit = 0; 
             data.trans.forEach(t => { 
                 if(t.date === today) { 
-                    if(t.type === 'inc') dInc += t.n; 
+                    if(t.type === 'inc') {
+                        dInc += t.n; 
+                        dLit += (t.l || 0);
+                    }
                     else if(t.type === 'buy') dBuy += t.n;
                     else dExp += t.n; 
                 } 
             });
-            document.getElementById('netProfit').innerText = fmtMoney(dInc);
+
+            // HITUNG PROFIT BERSIH & MARGIN
+            let currentModal = data.modalPrice || 0;
+            let profit = dInc - (dLit * currentModal) - dExp;
+            let margin = data.price - currentModal;
+
+            document.getElementById('netProfit').innerText = fmtMoney(profit);
+            document.getElementById('marginPerLiter').innerText = fmtMoney(margin) + "/L";
+
             document.getElementById('totInc').innerText = fmtMoney(dInc);
             document.getElementById('totBuy').innerText = fmtMoney(dBuy);
             document.getElementById('totExp').innerText = fmtMoney(dExp);
