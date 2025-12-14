@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DEAR LOVE - Ultimate POS</title>
+    <title>DEAR LOVE - Ultimate POS v4.7</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="console.warn('ChartJS gagal load')"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" onerror="console.warn('Firebase gagal load')"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" onerror="console.warn('Firestore gagal load')"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" onerror="console.warn('Marked gagal load')"></script>
 
     <style>
         /* --- THEME VARIABLES --- */
@@ -26,6 +26,7 @@
             --danger: #FD3C4A;
             --warning: #FCAC12;
             --info: #0077FF;
+            --modal-color: #7e22ce; 
             --radius-l: 24px;
             --radius-m: 16px;
             --shadow: 0px 8px 25px rgba(0, 0, 0, 0.05);
@@ -45,9 +46,15 @@
         #splashScreen {
             position: fixed; inset: 0; background: var(--primary); z-index: 9999;
             display: flex; align-items: center; justify-content: center; flex-direction: column;
-            transition: opacity 0.6s ease-out, visibility 0.6s;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
         }
-        .splash-logo { width: 80px; height: 80px; border-radius: 20px; background: white; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--primary); font-size: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .splash-img { 
+            width: 100px; height: 100px; border-radius: 50%; object-fit: cover; 
+            border: 4px solid rgba(255,255,255,0.3); margin-bottom: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
 
         /* --- LAYOUT UTILS --- */
         .screen { display: none; height: 100%; flex-direction: column; position: relative; }
@@ -105,14 +112,14 @@
         .tool-item:active .tool-icon { transform: scale(0.95); }
         .tool-label { font-size: 11px; color: var(--text-dark); font-weight: 600; text-align: center; }
 
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
         .stat-card {
-            background: white; border-radius: 20px; padding: 16px;
+            background: white; border-radius: 20px; padding: 12px;
             box-shadow: var(--shadow); border: 1px solid #f5f5f5; position: relative; overflow: hidden;
         }
-        .sc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--text-grey); font-weight: 600; }
-        .sc-val { font-size: 16px; font-weight: 700; color: var(--text-dark); }
-        .sc-icon { width: 8px; height: 8px; border-radius: 50%; }
+        .sc-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 10px; color: var(--text-grey); font-weight: 600; text-transform: uppercase; }
+        .sc-val { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+        .sc-icon { width: 6px; height: 6px; border-radius: 50%; }
 
         .stock-monitor {
             background: #E0F2FE; border: 1px solid #BAE6FD; border-radius: 20px;
@@ -123,6 +130,7 @@
             background: white; border-radius: 20px; padding: 15px; margin-bottom: 10px;
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #fcfcfc;
+            position: relative;
         }
         .ti-icon {
             width: 42px; height: 42px; border-radius: 14px; background: #eee;
@@ -130,19 +138,21 @@
             margin-right: 12px; flex-shrink: 0;
         }
         .ti-icon.inc { background: #D1FAE5; color: var(--success); }
-        .ti-icon.buy { background: #DBEAFE; color: var(--info); }
+        .ti-icon.buy { background: #f3e8ff; color: var(--modal-color); }
         .ti-icon.exp { background: #FEE2E2; color: var(--danger); }
 
         .ti-info h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: var(--text-dark); }
         .ti-info p { margin: 0; font-size: 11px; color: var(--text-grey); }
-        .ti-amount { text-align: right; }
+        .ti-amount { text-align: right; margin-right: 10px; }
         .ti-val { display: block; font-size: 14px; font-weight: 700; }
         .ti-time { font-size: 10px; color: var(--text-grey); margin-top: 4px; display: block; }
+        .ti-edit { color: var(--primary); padding: 5px; cursor: pointer; }
 
         /* --- FLOATING BOTTOM NAV --- */
         .bottom-nav-wrap {
             position: fixed; bottom: 50px; left: 0; right: 0;
             display: flex; justify-content: center; z-index: 999; pointer-events: none;
+            transition: transform 0.3s ease;
         }
         .bottom-nav {
             pointer-events: auto; background: #FFFFFF; width: 90%; max-width: 400px; height: 70px;
@@ -165,10 +175,11 @@
         .nav-item.active { color: var(--primary); }
         .nav-item .material-icons-round { font-size: 26px; margin-bottom: 4px; transition: 0.3s; }
         
-        /* --- REPORT STYLES (NEW) --- */
+        /* --- REPORT STYLES --- */
         .report-tabs {
             background: #e2e8f0; padding: 4px; border-radius: 16px; 
             display: flex; margin-bottom: 20px;
+            margin-top: 15px;
         }
         .rt-btn {
             flex: 1; text-align: center; padding: 12px; border-radius: 12px;
@@ -177,21 +188,19 @@
         }
         .rt-btn.active { background: white; color: var(--text-dark); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        .net-card {
-            background: white; border-radius: 20px; padding: 20px; 
-            border: 1px solid #eee; margin-bottom: 15px;
-            position: relative; overflow: hidden;
+        .margin-card {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white; border-radius: 20px; padding: 20px;
+            margin-bottom: 15px; position: relative; overflow: hidden;
         }
-        .net-card::after {
-            content: ''; position: absolute; right: -20px; top: -20px; 
-            width: 100px; height: 100px; background: currentColor; 
-            opacity: 0.05; border-radius: 50%; pointer-events: none;
-        }
-        .net-val { font-size: 28px; font-weight: 800; margin: 5px 0 15px; letter-spacing: -1px; }
-        
-        .net-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px dashed #eee; padding-top: 15px; }
-        .ng-item { font-size: 11px; color: #666; font-weight: 600; text-transform: uppercase; }
-        .ng-val { font-size: 14px; font-weight: 700; color: #333; margin-top: 2px; }
+        .margin-title { font-size: 11px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .margin-val { font-size: 28px; font-weight: 800; margin: 5px 0; }
+        .margin-desc { font-size: 11px; opacity: 0.8; }
+
+        .net-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .net-item { background: white; border-radius: 16px; padding: 12px; border: 1px solid #eee; text-align: center; }
+        .net-item h5 { margin: 0 0 5px 0; font-size: 10px; color: #666; text-transform: uppercase; }
+        .net-item p { margin: 0; font-size: 13px; font-weight: 700; }
 
         .report-row {
             background: white; border-radius: 16px; padding: 15px; margin-bottom: 8px;
@@ -231,14 +240,18 @@
         .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
         .chat-user { background: var(--primary); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
         .chat-ai { background: white; color: var(--text-dark); margin-right: auto; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        .section-title { font-size: 14px; font-weight:700; margin: 20px 0 10px; color:var(--text-dark); }
+        .delete-btn { background: #FEE2E2; color: var(--danger); width: 100%; padding: 12px; border: none; border-radius: 12px; font-weight: 600; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="splashScreen">
-        <div class="splash-logo">DL</div>
-        <div style="color:white; font-weight:700; font-size:20px;">DEAR LOVE</div>
-        <div style="color:rgba(255,255,255,0.8); font-size:12px; margin-top:5px;">System v4.4 (Reports)</div>
+        <img src="logo.png" class="splash-img" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
+        <div style="color:white; font-weight:700; font-size:24px; margin-top:5px;">DEAR LOVE</div>
+        <div style="color:rgba(255,255,255,0.9); font-size:14px; margin-top:5px; font-weight:500; letter-spacing:0.5px;">Solusi Bisnis Masa Depan</div>
+        <div style="color:rgba(255,255,255,0.6); font-size:11px; margin-top:20px;">System v4.7</div>
     </div>
 
     <div id="loginScreen" class="screen active">
@@ -267,9 +280,9 @@
 
         <div class="scroll-content">
             <div class="main-balance-card">
-                <div class="mb-label">KEUNTUNGAN BERSIH</div>
+                <div class="mb-label">OMSET HARI INI</div>
                 <div class="mb-value" id="netProfit">Rp 0</div>
-                <div class="mb-pill" id="cashflowInfo">Real Time (Periode Aktif)</div>
+                <div class="mb-pill" id="cashflowInfo">Penjualan Kotor</div>
             </div>
 
             <div class="tools-grid">
@@ -305,7 +318,11 @@
                     <div class="sc-val" id="totInc">Rp 0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="sc-head"><div class="sc-icon" style="background:var(--danger);"></div>Modal/Biaya</div>
+                    <div class="sc-head"><div class="sc-icon" style="background:var(--modal-color);"></div>Beli Stok</div>
+                    <div class="sc-val" id="totBuy">Rp 0</div>
+                </div>
+                 <div class="stat-card">
+                    <div class="sc-head"><div class="sc-icon" style="background:var(--danger);"></div>Biaya Ops</div>
                     <div class="sc-val" id="totExp">Rp 0</div>
                 </div>
             </div>
@@ -396,6 +413,7 @@
             <span class="material-icons-round" onclick="clearData()" style="color:var(--danger); cursor:pointer;">delete_forever</span>
         </div>
         <div class="scroll-content" style="padding-top:15px;">
+            <div style="font-size:11px; color:#666; text-align:center; margin-bottom:10px;">Klik ikon pensil di kanan untuk EDIT transaksi.</div>
             <div id="fullHistoryList"></div>
         </div>
         <div class="bottom-nav-wrap">
@@ -423,22 +441,28 @@
                 <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Tahunan</div>
             </div>
 
-            <div class="net-card" style="color: var(--success); background: #f0fdf4; border-color: #bbf7d0;">
-                <div class="ng-item" style="color:#166534;">PROFIT BERSIH (PERIODE INI)</div>
-                <div class="net-val" id="repNet">Rp 0</div>
-                <div class="net-grid">
-                    <div>
-                        <div class="ng-item">TOTAL MASUK</div>
-                        <div class="ng-val" style="color:var(--success);" id="repInc">Rp 0</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div class="ng-item">TOTAL KELUAR</div>
-                        <div class="ng-val" style="color:var(--danger);" id="repExp">Rp 0</div>
-                    </div>
+            <div class="margin-card">
+                <div class="margin-title">PROFIT BERSIH (ESTIMASI)</div>
+                <div class="margin-val" id="repMargin">Rp 0</div>
+                <div class="margin-desc">Dari selisih Harga Jual & Harga Modal</div>
+            </div>
+
+            <div class="net-grid">
+                <div class="net-item">
+                    <h5>Penjualan</h5>
+                    <p style="color:var(--success);" id="repInc">Rp 0</p>
+                </div>
+                <div class="net-item">
+                    <h5>Beli Stok</h5>
+                    <p style="color:var(--modal-color);" id="repBuy">Rp 0</p>
+                </div>
+                <div class="net-item">
+                    <h5>Biaya Ops</h5>
+                    <p style="color:var(--danger);" id="repExp">Rp 0</p>
                 </div>
             </div>
             
-            <h4 style="margin:20px 0 15px 0;">Rincian Lengkap</h4>
+            <h4 style="margin:20px 0 15px 0;">Rincian Arus Kas</h4>
             <div id="reportContent"></div>
         </div>
         <div class="bottom-nav-wrap">
@@ -474,17 +498,25 @@
                 <h4 style="margin:0 0 15px 0; font-size:12px; color:var(--text-grey); text-transform:uppercase;">Identitas & Harga</h4>
                 <input type="text" id="setStore" class="clean-input" placeholder="Nama Toko">
                 <input type="text" id="setAddr" class="clean-input" placeholder="Alamat Toko (Untuk Struk)">
+                
+                <div class="section-title">HARGA & MODAL (Penting untuk Laporan)</div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                     <div>
-                        <label style="font-size:10px; font-weight:bold; color:var(--success);">HARGA JUAL</label>
-                        <input type="number" id="setPrice" class="clean-input" placeholder="Rp">
+                        <label style="font-size:10px; font-weight:bold; color:var(--success);">HARGA JUAL / LITER</label>
+                        <input type="number" id="setPrice" class="clean-input" placeholder="Jual">
+                    </div>
+                    <div>
+                        <label style="font-size:10px; font-weight:bold; color:var(--modal-color);">MODAL / LITER</label>
+                        <input type="number" id="setModalPrice" class="clean-input" placeholder="Modal">
                     </div>
                 </div>
+                <div style="font-size:10px; color:#888; margin-top:-10px;">*Masukkan rata-rata harga kulakan per liter.</div>
             </div>
 
             <div class="stat-card" style="margin-bottom:15px;">
-                <h4 style="margin:0 0 15px 0; font-size:12px; color:var(--text-grey); text-transform:uppercase;">Stok Awal</h4>
+                <h4 style="margin:0 0 15px 0; font-size:12px; color:var(--text-grey); text-transform:uppercase;">Stok Fisik</h4>
                 <input type="number" id="setStok" class="clean-input" placeholder="Stok (L)">
+                <div style="font-size:10px; color:#888; margin-top:-10px;">*Ubah manual jika stok di aplikasi berbeda dengan tangki.</div>
             </div>
 
             <div class="stat-card" style="margin-bottom:20px;">
@@ -506,7 +538,7 @@
             
             <div class="mode-wrapper">
                 <button id="mtInc" class="mode-btn active" onclick="setMode('inc')">JUAL</button>
-                <button id="mtBuy" class="mode-btn" onclick="setMode('buy')">BELI</button>
+                <button id="mtBuy" class="mode-btn" onclick="setMode('buy')">BELI STOK</button>
                 <button id="mtExp" class="mode-btn" onclick="setMode('exp')">BIAYA</button>
             </div>
 
@@ -526,21 +558,57 @@
             </div>
 
             <div id="formBuy" style="display:none;">
+                <div style="background:#f3e8ff; padding:10px; border-radius:10px; margin-bottom:15px; font-size:11px; color:#6b21a8;">
+                    Catatan: Uang keluar untuk belanja BBM.
+                </div>
                 <label style="font-size:12px; font-weight:bold;">Total Bayar (Modal)</label>
                 <input type="number" id="buyNom" class="clean-input" placeholder="Contoh: 500000">
                 <label style="font-size:12px; font-weight:bold;">Liter Didapat</label>
                 <input type="number" id="buyLit" class="clean-input" placeholder="Contoh: 50">
-                <button class="btn-primary" style="background:var(--info);" onclick="saveTrans('buy')">SIMPAN STOK</button>
+                <button class="btn-primary" style="background:var(--modal-color);" onclick="saveTrans('buy')">SIMPAN STOK</button>
             </div>
 
             <div id="formExp" style="display:none;">
-                <input type="text" id="descInput" class="clean-input" placeholder="Keterangan">
+                <div style="background:#fee2e2; padding:10px; border-radius:10px; margin-bottom:15px; font-size:11px; color:#991b1b;">
+                    Catatan: Listrik, Gaji, Plastik, Makan, dll.
+                </div>
+                <input type="text" id="descInput" class="clean-input" placeholder="Keterangan (Cth: Listrik)">
                 <div style="position:relative;">
                     <span style="position:absolute; top:16px; left:16px; font-weight:700;">Rp</span>
                     <input type="number" id="expNom" class="clean-input" style="padding-left:50px; font-size:22px; font-weight:700;" placeholder="0">
                 </div>
                 <button class="btn-primary" style="background:var(--danger);" onclick="saveTrans('exp')">SIMPAN PENGELUARAN</button>
             </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="sheet-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:18px; font-weight:700;">Edit Transaksi</h3>
+                <span class="material-icons-round" onclick="closeModal('editModal')" style="cursor:pointer; color:var(--text-grey); font-size:28px;">close</span>
+            </div>
+            <input type="hidden" id="editId">
+            <label style="font-size:12px; font-weight:bold;">Tipe</label>
+            <select id="editType" class="clean-input" onchange="toggleEditFields()">
+                <option value="inc">Penjualan</option>
+                <option value="buy">Beli Stok</option>
+                <option value="exp">Pengeluaran</option>
+            </select>
+            
+            <label style="font-size:12px; font-weight:bold;">Nominal (Rp)</label>
+            <input type="number" id="editNom" class="clean-input">
+            
+            <div id="editLiterWrap">
+                <label style="font-size:12px; font-weight:bold;">Volume (Liter)</label>
+                <input type="number" id="editLit" class="clean-input">
+            </div>
+
+            <label style="font-size:12px; font-weight:bold;">Keterangan / Metode</label>
+            <input type="text" id="editDesc" class="clean-input">
+
+            <button class="btn-primary" onclick="saveEditTrans()">Simpan Perubahan</button>
+            <button class="delete-btn" onclick="deleteTrans()">Hapus Transaksi</button>
         </div>
     </div>
 
@@ -607,15 +675,35 @@
     </div>
 
     <script>
+        // FIREBASE SETUP
         const firebaseConfig = { apiKey: "AIzaSyBpwNPIYhelOhkPvJsBmKvlZnaH9FVnmM4", authDomain: "pom-mini-50b1e.firebaseapp.com", projectId: "pom-mini-50b1e", storageBucket: "pom-mini-50b1e.firebasestorage.app", messagingSenderId: "77499696502", appId: "1:77499696502:web:8080c37da62a12c9566657", measurementId: "G-KRRHTTGBRF" };
-        let db; try { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } catch(e) {}
+        let db; 
+        try { 
+            if(typeof firebase !== 'undefined') {
+                firebase.initializeApp(firebaseConfig); 
+                db = firebase.firestore(); 
+                db.settings({ experimentalForceLongPolling: true, merge: true });
+            }
+        } catch(e) { console.log("Firebase Offline mode"); }
 
-        let data = JSON.parse(localStorage.getItem('dl_super_v4')) || { 
+        // LOAD DATA SAFELY
+        let data = { 
             pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", 
-            price: 10000, photo: "logo.png", stokLiter: 0, 
+            price: 10000, modalPrice: 9000, photo: "logo.png", stokLiter: 0, 
             trans: [], kasbon: [], groqKey: "" 
         };
-        if(!data.kasbon) data.kasbon = [];
+
+        try {
+            let saved = localStorage.getItem('dl_super_v4');
+            if(saved) {
+                let parsed = JSON.parse(saved);
+                if(parsed) data = { ...data, ...parsed }; // Merge safe defaults
+            }
+        } catch(e) { console.log("Data corrupted, resetting..."); }
+        
+        // Ensure arrays exist
+        if(!Array.isArray(data.trans)) data.trans = [];
+        if(!Array.isArray(data.kasbon)) data.kasbon = [];
 
         let currentMode = 'inc';
         let reportMode = 'daily';
@@ -625,6 +713,12 @@
         let currentWeather = 'sunny'; 
 
         const fmtMoney = (n) => "Rp " + parseInt(n).toLocaleString('id-ID');
+
+        /* --- UI HELPERS --- */
+        const toggleNav = (show) => {
+            const el = document.querySelector('.bottom-nav-wrap');
+            if(el) el.style.transform = show ? 'translateY(0)' : 'translateY(200%)';
+        }
 
         window.toggleWeather = () => {
             const btn = document.getElementById('weatherBtn');
@@ -658,8 +752,15 @@
             else if(id === 'settingScreen') { renderSet(); }
         }
 
-        window.openInputModal = () => { document.getElementById('inputModal').style.display='flex'; setMode('inc'); }
-        window.closeModal = (id) => document.getElementById(id).style.display='none';
+        window.openInputModal = () => { 
+            document.getElementById('inputModal').style.display='flex'; 
+            setMode('inc'); 
+            toggleNav(false);
+        }
+        window.closeModal = (id) => { 
+            document.getElementById(id).style.display='none';
+            toggleNav(true);
+        }
 
         window.setMode = (m) => {
             currentMode = m;
@@ -673,10 +774,17 @@
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
             let today = new Date().toLocaleDateString();
-            let dInc = 0, dExp = 0; 
-            data.trans.forEach(t => { if(t.date === today) { if(t.type === 'inc') dInc += t.n; else dExp += t.n; } });
-            document.getElementById('netProfit').innerText = fmtMoney(dInc - dExp);
+            let dInc = 0, dBuy = 0, dExp = 0; 
+            data.trans.forEach(t => { 
+                if(t.date === today) { 
+                    if(t.type === 'inc') dInc += t.n; 
+                    else if(t.type === 'buy') dBuy += t.n;
+                    else dExp += t.n; 
+                } 
+            });
+            document.getElementById('netProfit').innerText = fmtMoney(dInc);
             document.getElementById('totInc').innerText = fmtMoney(dInc);
+            document.getElementById('totBuy').innerText = fmtMoney(dBuy);
             document.getElementById('totExp').innerText = fmtMoney(dExp);
             document.getElementById('stokVal').innerText = data.stokLiter.toFixed(2) + " L";
             document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
@@ -707,7 +815,7 @@
                 document.getElementById('rcStore').innerText = data.store; document.getElementById('rcAddr').innerText = data.addr; document.getElementById('rcTotal').innerText = fmtMoney(n); document.getElementById('rcDet').innerText = l + " Liter"; document.getElementById('rcTime').innerText = now.toLocaleString(); document.getElementById('receiptModal').style.display = 'flex';
             } else if (type === 'buy') {
                 let n = parseInt(document.getElementById('buyNom').value); let l = parseFloat(document.getElementById('buyLit').value); if(!n || !l) return alert("Lengkap!");
-                tx.n = n; tx.l = l; tx.desc = "Kulakan BBM"; data.stokLiter += l;
+                tx.n = n; tx.l = l; tx.desc = "Beli Stok"; data.stokLiter += l;
             } else if (type === 'exp') {
                 let n = parseInt(document.getElementById('expNom').value); let d = document.getElementById('descInput').value; if(!n) return;
                 tx.n = n; tx.desc = d || "Biaya Operasional";
@@ -715,6 +823,74 @@
             data.trans.unshift(tx); localStorage.setItem('dl_super_v4', JSON.stringify(data));
             document.getElementById('admNom').value=''; document.getElementById('buyNom').value=''; document.getElementById('buyLit').value=''; document.getElementById('expNom').value=''; document.getElementById('descInput').value='';
             closeModal('inputModal'); renderDash();
+        }
+
+        /* --- EDIT TRANSACTION LOGIC --- */
+        window.openEdit = (id) => {
+            let t = data.trans.find(x => x.id === id);
+            if(!t) return;
+            document.getElementById('editId').value = id;
+            document.getElementById('editType').value = t.type;
+            document.getElementById('editNom').value = t.n;
+            document.getElementById('editLit').value = t.l || 0;
+            document.getElementById('editDesc').value = t.desc || t.metode || '';
+            toggleEditFields();
+            document.getElementById('editModal').style.display = 'flex';
+            toggleNav(false);
+        }
+
+        window.toggleEditFields = () => {
+            let t = document.getElementById('editType').value;
+            if(t === 'exp') document.getElementById('editLiterWrap').style.display = 'none';
+            else document.getElementById('editLiterWrap').style.display = 'block';
+        }
+
+        window.saveEditTrans = () => {
+            let id = parseInt(document.getElementById('editId').value);
+            let idx = data.trans.findIndex(x => x.id === id);
+            if(idx < 0) return;
+
+            // Revert old stock effect
+            let oldT = data.trans[idx];
+            if(oldT.type === 'inc') data.stokLiter += (oldT.l || 0);
+            if(oldT.type === 'buy') data.stokLiter -= (oldT.l || 0);
+
+            // Update data
+            let type = document.getElementById('editType').value;
+            let n = parseInt(document.getElementById('editNom').value);
+            let l = parseFloat(document.getElementById('editLit').value) || 0;
+            let d = document.getElementById('editDesc').value;
+
+            data.trans[idx].type = type;
+            data.trans[idx].n = n;
+            data.trans[idx].l = l;
+            
+            if(type === 'inc') { data.trans[idx].metode = d; data.stokLiter -= l; }
+            else if(type === 'buy') { data.trans[idx].desc = "Beli Stok"; data.stokLiter += l; }
+            else { data.trans[idx].desc = d; }
+
+            localStorage.setItem('dl_super_v4', JSON.stringify(data));
+            alert("Data diperbarui!");
+            closeModal('editModal');
+            if(document.getElementById('historyScreen').classList.contains('active')) renderHistory();
+            renderDash();
+        }
+
+        window.deleteTrans = () => {
+            if(!confirm("Hapus transaksi ini permanen?")) return;
+            let id = parseInt(document.getElementById('editId').value);
+            let idx = data.trans.findIndex(x => x.id === id);
+            
+            // Revert stock
+            let oldT = data.trans[idx];
+            if(oldT.type === 'inc') data.stokLiter += (oldT.l || 0);
+            if(oldT.type === 'buy') data.stokLiter -= (oldT.l || 0);
+
+            data.trans.splice(idx, 1);
+            localStorage.setItem('dl_super_v4', JSON.stringify(data));
+            closeModal('editModal');
+            if(document.getElementById('historyScreen').classList.contains('active')) renderHistory();
+            renderDash();
         }
 
         window.renderPola = () => {
@@ -741,7 +917,6 @@
             window[id+'Instance'] = new Chart(ctx, { type: type, data: { labels: labels, datasets: [{ label: label, data: dataArr, backgroundColor: '#7F3DFF', borderColor: '#7F3DFF', borderWidth: 1, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false } });
         }
 
-        /* --- NEW REPORT LOGIC --- */
         window.setReportMode = (m) => {
             reportMode = m;
             document.querySelectorAll('.rt-btn').forEach(b => b.classList.remove('active'));
@@ -753,7 +928,9 @@
 
         window.renderReport = () => {
             let groups = {};
-            let tInc = 0, tExp = 0;
+            let tInc = 0, tBuy = 0, tExp = 0;
+            let tLiterSold = 0;
+            let currentModal = data.modalPrice || 9000;
 
             data.trans.forEach(t => {
                 let k = "";
@@ -761,57 +938,90 @@
                 else if(reportMode === 'monthly') k = getCustomPeriod(t.ts);
                 else k = new Date(t.ts).getFullYear().toString();
 
-                if(!groups[k]) groups[k] = { i:0, e:0 };
+                if(!groups[k]) groups[k] = { i:0, b:0, e:0 };
                 
                 if(t.type === 'inc') { 
-                    groups[k].i += t.n;
-                    tInc += t.n;
+                    groups[k].i += t.n; tInc += t.n; tLiterSold += (t.l || 0);
+                } else if(t.type === 'buy') {
+                    groups[k].b += t.n; tBuy += t.n;
                 } else { 
-                    groups[k].e += t.n;
-                    tExp += t.n;
+                    groups[k].e += t.n; tExp += t.n;
                 }
             });
 
-            // Update Net Card
-            let net = tInc - tExp;
-            document.getElementById('repNet').innerText = fmtMoney(net);
-            document.getElementById('repNet').style.color = net >= 0 ? 'var(--success)' : 'var(--danger)';
+            // Calculate Margin Profit
+            let totalHPP = tLiterSold * currentModal;
+            let estMargin = tInc - totalHPP;
+            
+            document.getElementById('repMargin').innerText = fmtMoney(estMargin);
             document.getElementById('repInc').innerText = fmtMoney(tInc);
+            document.getElementById('repBuy').innerText = fmtMoney(tBuy);
             document.getElementById('repExp').innerText = fmtMoney(tExp);
 
             // Render List
             document.getElementById('reportContent').innerHTML = Object.keys(groups).map(k => {
-                let profit = groups[k].i - groups[k].e;
-                let cls = profit >= 0 ? 'plus' : 'minus';
-                let sign = profit >= 0 ? '+' : '';
                 return `
                 <div class="report-row">
-                    <div>
+                    <div style="flex:1;">
                         <div class="rr-date">${k}</div>
-                        <div class="rr-sub">In: ${fmtMoney(groups[k].i)} | Out: ${fmtMoney(groups[k].e)}</div>
+                        <div class="rr-sub">
+                            <span style="color:var(--success)">In: ${fmtMoney(groups[k].i)}</span> | 
+                            <span style="color:var(--modal-color)">Stok: ${fmtMoney(groups[k].b)}</span> | 
+                            <span style="color:var(--danger)">Ops: ${fmtMoney(groups[k].e)}</span>
+                        </div>
                     </div>
-                    <div class="rr-val ${cls}">${sign} ${fmtMoney(profit)}</div>
                 </div>`;
             }).join('');
         }
 
-        window.openKasbon = () => { document.getElementById('kasbonModal').style.display='flex'; renderKasbon(); }
+        window.openKasbon = () => { 
+            document.getElementById('kasbonModal').style.display='flex'; 
+            renderKasbon();
+            toggleNav(false);
+        }
         window.renderKasbon = () => { document.getElementById('kasbonList').innerHTML = data.kasbon.map((k, i) => `<div class="kasbon-item"><div><div style="font-weight:700;">${k.name}</div><div style="font-size:11px;color:#888;">${k.date}</div></div><div style="text-align:right;"><div style="font-weight:700;color:var(--danger);">${fmtMoney(k.nom)}</div><span class="${k.lunas?'tag-lunas':'tag-belum'}" onclick="toggleLunas(${i})">${k.lunas?'LUNAS':'BELUM'}</span></div></div>`).join('') || '<div style="text-align:center;color:#ccc;margin-top:20px;">Belum ada kasbon</div>'; }
         window.addKasbon = () => { let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); if(nm&&no){data.kasbon.unshift({name:nm,nom:no,date:new Date().toLocaleDateString(),lunas:false});localStorage.setItem('dl_super_v4',JSON.stringify(data));document.getElementById('kasbonName').value='';renderKasbon();} }
         window.toggleLunas = (i) => { if(confirm("Ubah status?")) { data.kasbon[i].lunas=!data.kasbon[i].lunas; localStorage.setItem('dl_super_v4',JSON.stringify(data)); renderKasbon(); } }
 
         let calcVal = "0";
-        window.openCalc = () => { document.getElementById('calcModal').style.display='flex'; calcVal="0"; updateCalc(); }
+        window.openCalc = () => { 
+            document.getElementById('calcModal').style.display='flex'; 
+            calcVal="0"; updateCalc();
+            toggleNav(false);
+        }
         window.appCalc = (v) => { if(v==='C') calcVal="0"; else if(v==='=') {try{calcVal=eval(calcVal).toString()}catch{calcVal="Error"}} else {if(calcVal==="0")calcVal=v; else calcVal+=v;} updateCalc(); }
         const updateCalc = () => document.getElementById('calcScreen').innerText = calcVal;
 
         window.makeTransItem = (t) => {
             let iconClass = 'inc'; let iconName = 'local_gas_station'; let sign = '+'; let col = 'var(--success)';
             let title = "Penjualan"; let sub = (t.l||0) + " L";
-            if(t.type === 'buy') { iconClass = 'buy'; iconName = 'water_drop'; sign = '-'; col = 'var(--text-dark)'; title = "Kulakan BBM"; sub = "+" + t.l + " L"; } 
-            else if (t.type === 'exp') { iconClass = 'exp'; iconName = 'payments'; sign = '-'; col = 'var(--danger)'; title = t.desc; sub = "Pengeluaran"; } 
-            else { title = t.metode || "Tunai"; }
-            return `<div class="trans-item"><div style="display:flex; align-items:center;"><div class="ti-icon ${iconClass}"><span class="material-icons-round">${iconName}</span></div><div class="ti-info"><h4>${title}</h4><p>${sub}</p></div></div><div class="ti-amount"><span class="ti-val" style="color:${col}">${sign} ${t.n/1000}k</span><span class="ti-time">${t.time}</span></div></div>`;
+            
+            if(t.type === 'buy') { 
+                iconClass = 'buy'; iconName = 'water_drop'; sign = '-'; col = 'var(--modal-color)'; 
+                title = "Beli Stok"; sub = "+" + t.l + " L"; 
+            } else if (t.type === 'exp') { 
+                iconClass = 'exp'; iconName = 'payments'; sign = '-'; col = 'var(--danger)'; 
+                title = t.desc; sub = "Biaya Ops"; 
+            } else { 
+                title = t.metode || "Tunai"; 
+            }
+
+            return `
+            <div class="trans-item">
+                <div style="display:flex; align-items:center;">
+                    <div class="ti-icon ${iconClass}"><span class="material-icons-round">${iconName}</span></div>
+                    <div class="ti-info"><h4>${title}</h4><p>${sub}</p></div>
+                </div>
+                <div style="display:flex; align-items:center;">
+                    <div class="ti-amount">
+                        <span class="ti-val" style="color:${col}">${sign} ${t.n/1000}k</span>
+                        <span class="ti-time">${t.time}</span>
+                    </div>
+                    <div class="ti-edit" onclick="openEdit(${t.id})">
+                        <span class="material-icons-round" style="font-size:20px;">edit</span>
+                    </div>
+                </div>
+            </div>`;
         }
         
         window.renderHistory = () => document.getElementById('fullHistoryList').innerHTML = data.trans.map(t => makeTransItem(t)).join('');
@@ -820,6 +1030,7 @@
             document.getElementById('setStore').value = data.store;
             document.getElementById('setAddr').value = data.addr;
             document.getElementById('setPrice').value = data.price;
+            document.getElementById('setModalPrice').value = data.modalPrice;
             document.getElementById('setStok').value = data.stokLiter;
             document.getElementById('setGroqKey').value = data.groqKey || "";
             document.getElementById('setPhoto').src = data.photo;
@@ -829,6 +1040,7 @@
             data.store = document.getElementById('setStore').value;
             data.addr = document.getElementById('setAddr').value;
             data.price = parseInt(document.getElementById('setPrice').value);
+            data.modalPrice = parseInt(document.getElementById('setModalPrice').value);
             data.stokLiter = parseFloat(document.getElementById('setStok').value);
             data.groqKey = document.getElementById('setGroqKey').value;
             localStorage.setItem('dl_super_v4', JSON.stringify(data));
@@ -837,7 +1049,7 @@
 
         window.exportExcel = () => {
             let csv = "Tanggal,Jam,Tipe,Ket,Nominal,Liter,Cuaca\n";
-            data.trans.forEach(t => { let ket = t.type==='inc'?t.metode:(t.type==='buy'?'Kulakan':t.desc); csv += `${t.date},${t.time},${t.type},${ket},${t.n},${t.l||0},${t.weather||'-'}\n`; });
+            data.trans.forEach(t => { let ket = t.type==='inc'?t.metode:(t.type==='buy'?'Stok':t.desc); csv += `${t.date},${t.time},${t.type},${ket},${t.n},${t.l||0},${t.weather||'-'}\n`; });
             let link = document.createElement("a"); link.href = "data:text/csv;charset=utf-8," + encodeURI(csv); link.download = "Laporan.csv"; link.click();
         }
 
@@ -857,7 +1069,26 @@
             } catch(e) { b.innerHTML+=`<div style="color:red;">Error</div>`; }
         }
 
-        window.onload = () => { setTimeout(()=>document.getElementById('splashScreen').style.display='none', 2000); if(localStorage.getItem('dl_log')) nav('adminScreen'); }
+        // --- STARTUP LOGIC (ANTI-STUCK FIX) ---
+        const startApp = () => {
+            document.getElementById('splashScreen').style.opacity = '0';
+            setTimeout(() => document.getElementById('splashScreen').style.display='none', 500);
+            if(localStorage.getItem('dl_log')) nav('adminScreen');
+        }
+
+        // Main startup
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(startApp, 2000); // Normal start
+        });
+
+        // Failsafe: Force start if stuck > 5 seconds
+        setTimeout(() => {
+            if(document.getElementById('splashScreen').style.display !== 'none') {
+                console.log("Forcing start...");
+                startApp();
+            }
+        }, 5000);
+
     </script>
 </body>
 </html>
