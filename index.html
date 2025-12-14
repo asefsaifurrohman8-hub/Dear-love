@@ -129,15 +129,40 @@
         .clean-input:focus { border-color: var(--primary); background: rgba(0,0,0,0.3); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-        /* --- BOTTOM NAV --- */
-        .bottom-nav-wrap { position: fixed; bottom: 50; left: 0; right: 0; display: flex; justify-content: center; z-index: 999; pointer-events: none; padding-bottom: var(--safe-bottom); background: linear-gradient(180deg, transparent, #1F202F 40%); }
-        .bottom-nav { pointer-events: auto; background: #26273B; width: 90%; max-width: 400px; height: 70px; border-radius: 30px; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6E6F89; height: 100%; cursor: pointer; min-width: 0; }
+        /* --- BOTTOM NAV (DIUBAH KE 50PX) --- */
+        .bottom-nav-wrap { position: fixed; bottom: 40; left: 0; right: 0; display: flex; justify-content: center; z-index: 999; pointer-events: none; padding-bottom: var(--safe-bottom); background: linear-gradient(180deg, transparent, #1F202F 40%); }
+        .bottom-nav { 
+            pointer-events: auto; background: #26273B; width: 90%; max-width: 400px; 
+            height: 50px; /* <--- DIUBAH DARI 70PX KE 50PX */
+            border-radius: 30px; display: flex; justify-content: space-around; 
+            align-items: center; padding: 0 10px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); 
+            border: 1px solid rgba(255,255,255,0.05); 
+        }
+        .nav-item { 
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            color: #6E6F89; 
+            height: 50px; /* <--- DIUBAH DARI 100% KE 50PX */
+            cursor: pointer; min-width: 0; 
+        }
         .nav-item .material-icons-round { font-size: 24px; transition: 0.3s; }
         .nav-item.active { color: var(--text-main); }
         .nav-item.active .material-icons-round { color: var(--primary); text-shadow: 0 0 15px rgba(74, 108, 250, 0.6); transform: translateY(-2px); }
         .fab-container { width: 75px; display: flex; justify-content: center; align-self: flex-start; }
-        .fab-add { width: 56px; height: 56px; background: var(--accent-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(46, 204, 113, 0.4); cursor: pointer; transition: transform 0.2s; color: #0f1c15; position: absolute; top: -20px; }
+        .fab-add { 
+            width: 50px; /* <--- DIUBAH DARI 56PX */
+            height: 50px; /* <--- DIUBAH DARI 56PX */
+            background: var(--accent-green); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4); 
+            cursor: pointer; 
+            transition: transform 0.2s; 
+            color: #0f1c15; 
+            position: absolute; 
+            top: -15px; /* <--- DIUBAH DARI -20PX */
+        }
         .fab-add:active { transform: scale(0.9); }
         .nav-section { display: flex; flex: 1; justify-content: space-around; }
 
