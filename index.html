@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DEAR LOVE - Ultimate POS v4.9</title>
+    <title>DEAR LOVE - Cyber POS</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -14,22 +14,19 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" onerror="console.warn('Marked gagal load')"></script>
 
     <style>
-        /* --- THEME VARIABLES --- */
+        /* --- CYBER THEME VARIABLES --- */
         :root {
-            --primary: #7F3DFF;
-            --primary-dark: #5d26c9;
-            --bg-scaffold: #F2F4F7;
-            --bg-card: #FFFFFF;
-            --text-dark: #161719;
-            --text-grey: #91919F;
-            --success: #00A86B;
-            --danger: #FD3C4A;
-            --warning: #FCAC12;
-            --info: #0077FF;
-            --modal-color: #7e22ce; 
+            --bg-body: #1F202F;
+            --bg-gradient: linear-gradient(180deg, #2C2D45 0%, #151620 100%);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: 1px solid rgba(255, 255, 255, 0.08);
+            --primary: #4A6CFA;
+            --accent-purple: #9D59F5;
+            --accent-pink: #F54EA2;
+            --accent-green: #2ECC71;
+            --text-main: #FFFFFF;
+            --text-muted: #8F90A6;
             --radius-l: 24px;
-            --radius-m: 16px;
-            --shadow: 0px 8px 25px rgba(0, 0, 0, 0.05);
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
@@ -38,648 +35,545 @@
         
         body { 
             margin: 0; font-family: 'Inter', sans-serif; 
-            background: var(--bg-scaffold); color: var(--text-dark);
+            background: var(--bg-body); 
+            background-image: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
             height: 100vh; overflow: hidden; font-size: 14px;
         }
-
-        /* --- SPLASH SCREEN --- */
-        #splashScreen {
-            position: fixed; inset: 0; background: var(--primary); z-index: 9999;
-            display: flex; align-items: center; justify-content: center; flex-direction: column;
-            transition: opacity 0.5s ease-out, visibility 0.5s;
-        }
-        .splash-img { 
-            width: 100px; height: 100px; border-radius: 50%; object-fit: cover; 
-            border: 4px solid rgba(255,255,255,0.3); margin-bottom: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
 
         /* --- LAYOUT UTILS --- */
         .screen { display: none; height: 100%; flex-direction: column; position: relative; }
         .screen.active { display: flex; }
         
         .top-header {
-            padding: calc(var(--safe-top) + 15px) 20px 15px;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            padding: calc(var(--safe-top) + 20px) 24px 10px;
             display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 50; border-bottom: 1px solid #eee;
+            position: sticky; top: 0; z-index: 50; 
+            background: transparent;
         }
-        .header-title { font-size: 18px; font-weight: 700; color: var(--text-dark); }
-        .profile-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); cursor: pointer; }
+
+        .header-profile-wrap { display: flex; align-items: center; gap: 12px; }
+        .profile-pic { width: 42px; height: 42px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.2); }
+        .header-title { font-size: 16px; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px; }
+        .header-sub { font-size: 12px; color: var(--text-muted); }
+        .icon-btn { color: var(--text-main); background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); border: var(--card-border); transition: 0.2s; cursor: pointer; }
+        .icon-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
 
         .scroll-content {
-            flex: 1; overflow-y: auto; padding: 0 20px 120px;
+            flex: 1; overflow-y: auto; padding: 10px 24px 120px;
             scrollbar-width: none;
         }
         .scroll-content::-webkit-scrollbar { display: none; }
 
-        /* --- WEATHER WIDGET --- */
-        .weather-toggle {
-            display: flex; align-items: center; gap: 8px; 
-            background: white; padding: 6px 12px; border-radius: 20px;
-            border: 1px solid #eee; cursor: pointer; transition: 0.3s;
-        }
-        .weather-toggle.rain { background: #E0F2FE; border-color: #BAE6FD; }
-        .wt-icon { font-size: 18px; }
-        .wt-text { font-size: 11px; font-weight: 600; }
-
-        /* --- CARDS --- */
-        .main-balance-card {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        /* --- CARDS & WIDGETS --- */
+        .cyber-card {
+            background: var(--card-bg);
+            border: var(--card-border);
             border-radius: var(--radius-l);
-            padding: 24px; margin-top: 15px; margin-bottom: 20px;
-            text-align: center; color: white;
-            box-shadow: 0 10px 25px rgba(127, 61, 255, 0.4);
-            position: relative; overflow: hidden;
-        }
-        .mb-label { font-size: 13px; opacity: 0.9; margin-bottom: 5px; font-weight: 500; }
-        .mb-value { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; }
-        .mb-pill { 
-            background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
-            padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; 
-            display: inline-block; margin-top: 10px; border: 1px solid rgba(255,255,255,0.3);
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
         }
 
-        .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; }
-        .tool-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .tool-icon {
-            width: 52px; height: 52px; border-radius: 18px; background: white;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: var(--shadow); margin-bottom: 8px; border: 1px solid #f0f0f0; transition: transform 0.1s;
-        }
+        .main-balance-card { text-align: center; color: white; padding: 10px 0; margin-bottom: 25px; margin-top: 10px; }
+        .mb-label { font-size: 14px; color: var(--text-muted); margin-bottom: 5px; }
+        .mb-value { font-size: 42px; font-weight: 700; text-shadow: 0 0 20px rgba(74, 108, 250, 0.4); margin-bottom: 5px; }
+        .realtime-pill { display: inline-flex; align-items: center; gap: 8px; background: rgba(46, 204, 113, 0.15); border: 1px solid rgba(46, 204, 113, 0.3); padding: 6px 16px; border-radius: 20px; margin-top: 10px; }
+        .rt-dot { width: 6px; height: 6px; background: #2ECC71; border-radius: 50%; box-shadow: 0 0 8px #2ECC71; }
+        .rt-text { font-size: 12px; font-weight: 600; color: #2ECC71; }
+
+        .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 30px; }
+        .tool-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+        .tool-icon { width: 100%; aspect-ratio: 1/1; border-radius: 20px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.2s; }
         .tool-item:active .tool-icon { transform: scale(0.95); }
-        .tool-label { font-size: 11px; color: var(--text-dark); font-weight: 600; text-align: center; }
+        .t-blue { background: linear-gradient(135deg, #4A6CFA 0%, #354dbd 100%); box-shadow: 0 8px 20px rgba(74, 108, 250, 0.25); }
+        .t-purple { background: linear-gradient(135deg, #9D59F5 0%, #7B3DD1 100%); box-shadow: 0 8px 20px rgba(157, 89, 245, 0.25); }
+        .t-pink { background: linear-gradient(135deg, #F54EA2 0%, #D12C85 100%); box-shadow: 0 8px 20px rgba(245, 78, 162, 0.25); }
+        .t-dark { background: rgba(255,255,255,0.08); }
+        .tool-icon span { font-size: 26px; color: white; }
+        .tool-label { font-size: 11px; color: var(--text-main); font-weight: 500; }
 
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .stat-card {
-            background: white; border-radius: 20px; padding: 12px;
-            box-shadow: var(--shadow); border: 1px solid #f5f5f5; position: relative; overflow: hidden;
-        }
-        .sc-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 10px; color: var(--text-grey); font-weight: 600; text-transform: uppercase; }
-        .sc-val { font-size: 13px; font-weight: 700; color: var(--text-dark); }
-        .sc-icon { width: 6px; height: 6px; border-radius: 50%; }
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+        .stat-card { background: var(--card-bg); border: var(--card-border); border-radius: 20px; padding: 16px; position: relative; backdrop-filter: blur(10px); }
+        .sc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: var(--text-muted); }
+        .sc-val { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .sc-icon { font-size: 20px; opacity: 0.8; }
 
-        .stock-monitor {
-            background: #E0F2FE; border: 1px solid #BAE6FD; border-radius: 20px;
-            padding: 15px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;
-        }
+        .stock-monitor { background: linear-gradient(90deg, rgba(74, 108, 250, 0.1), rgba(157, 89, 245, 0.1)); border: 1px solid rgba(74, 108, 250, 0.2); border-radius: 20px; padding: 16px 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; }
 
-        .trans-item {
-            background: white; border-radius: 20px; padding: 15px; margin-bottom: 10px;
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #fcfcfc;
-            position: relative;
-        }
-        .ti-icon {
-            width: 42px; height: 42px; border-radius: 14px; background: #eee;
-            display: flex; align-items: center; justify-content: center; color: #555;
-            margin-right: 12px; flex-shrink: 0;
-        }
-        .ti-icon.inc { background: #D1FAE5; color: var(--success); }
-        .ti-icon.buy { background: #f3e8ff; color: var(--modal-color); }
-        .ti-icon.exp { background: #FEE2E2; color: var(--danger); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .sh-title { font-size: 16px; font-weight: 600; color: var(--text-main); }
+        .sh-link { font-size: 12px; color: var(--primary); cursor: pointer; }
 
-        .ti-info h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: var(--text-dark); }
-        .ti-info p { margin: 0; font-size: 11px; color: var(--text-grey); }
-        .ti-amount { text-align: right; margin-right: 10px; }
-        .ti-val { display: block; font-size: 14px; font-weight: 700; }
-        .ti-time { font-size: 10px; color: var(--text-grey); margin-top: 4px; display: block; }
-        .ti-edit { color: var(--primary); padding: 5px; cursor: pointer; }
+        .trans-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border-radius: 20px; padding: 12px 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.03); transition: 0.2s; }
+        .trans-item:active { background: rgba(255,255,255,0.08); }
+        .ti-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 14px; flex-shrink: 0; font-size: 20px; }
+        .ti-icon.inc { background: rgba(46, 204, 113, 0.15); color: #2ECC71; }
+        .ti-icon.buy { background: rgba(157, 89, 245, 0.15); color: #9D59F5; }
+        .ti-icon.exp { background: rgba(245, 78, 162, 0.15); color: #F54EA2; }
+        .ti-info h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .ti-info p { margin: 0; font-size: 11px; color: var(--text-muted); }
+        .ti-val { font-size: 14px; font-weight: 700; display: block; text-align: right; }
+        .ti-time { font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 4px; display: block; }
+        .val-plus { color: #2ECC71; } .val-minus { color: var(--text-main); }
 
-        /* --- FLOATING BOTTOM NAV --- */
-        .bottom-nav-wrap {
-            position: fixed; bottom: 50px; left: 0; right: 0;
-            display: flex; justify-content: center; z-index: 999; pointer-events: none;
-            transition: transform 0.3s ease;
+        /* --- INPUTS & FORMS --- */
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .clean-input { 
+            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); 
+            color: white; border-radius: 16px; padding: 14px 16px; font-size: 14px; 
+            font-family: 'Inter', sans-serif; outline: none; transition: 0.3s;
         }
-        .bottom-nav {
-            pointer-events: auto; background: #FFFFFF; width: 90%; max-width: 400px; height: 70px;
-            border-radius: 35px; display: flex; justify-content: space-between; align-items: center;
-            padding: 0 25px; box-shadow: 0 10px 40px rgba(127, 61, 255, 0.2); position: relative;
-        }
-        .fab-container {
-            position: absolute; left: 50%; top: -35px; transform: translateX(-50%);
-            width: 75px; height: 75px; background: var(--bg-scaffold); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.03); z-index: 1001;
-        }
-        .fab-add {
-            width: 56px; height: 56px; background: var(--text-dark); color: white;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.2s;
-            border: 3px solid #FFFFFF;
-        }
+        .clean-input:focus { border-color: var(--primary); background: rgba(0,0,0,0.3); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav-wrap { position: fixed; bottom: 50; left: 0; right: 0; display: flex; justify-content: center; z-index: 999; pointer-events: none; padding-bottom: var(--safe-bottom); background: linear-gradient(180deg, transparent, #1F202F 40%); }
+        .bottom-nav { pointer-events: auto; background: #26273B; width: 90%; max-width: 400px; height: 70px; border-radius: 30px; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6E6F89; height: 100%; cursor: pointer; min-width: 0; }
+        .nav-item .material-icons-round { font-size: 24px; transition: 0.3s; }
+        .nav-item.active { color: var(--text-main); }
+        .nav-item.active .material-icons-round { color: var(--primary); text-shadow: 0 0 15px rgba(74, 108, 250, 0.6); transform: translateY(-2px); }
+        .fab-container { width: 75px; display: flex; justify-content: center; align-self: flex-start; }
+        .fab-add { width: 56px; height: 56px; background: var(--accent-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(46, 204, 113, 0.4); cursor: pointer; transition: transform 0.2s; color: #0f1c15; position: absolute; top: -20px; }
         .fab-add:active { transform: scale(0.9); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #C6C6C6; font-size: 10px; font-weight: 600; cursor: pointer; width: 50px; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item .material-icons-round { font-size: 26px; margin-bottom: 4px; transition: 0.3s; }
-        
-        /* --- REPORT STYLES --- */
-        .report-tabs {
-            background: #e2e8f0; padding: 4px; border-radius: 16px; 
-            display: flex; margin-bottom: 20px;
-            margin-top: 15px;
-        }
-        .rt-btn {
-            flex: 1; text-align: center; padding: 12px; border-radius: 12px;
-            font-size: 12px; font-weight: 600; color: var(--text-grey); 
-            cursor: pointer; transition: 0.3s;
-        }
-        .rt-btn.active { background: white; color: var(--text-dark); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
-        .margin-card {
-            background: linear-gradient(135deg, #059669, #10b981);
-            color: white; border-radius: 20px; padding: 20px;
-            margin-bottom: 15px; position: relative; overflow: hidden;
-        }
-        .margin-title { font-size: 11px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-        .margin-val { font-size: 28px; font-weight: 800; margin: 5px 0; }
-        .margin-desc { font-size: 11px; opacity: 0.8; }
-
-        .net-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-        .net-item { background: white; border-radius: 16px; padding: 12px; border: 1px solid #eee; text-align: center; }
-        .net-item h5 { margin: 0 0 5px 0; font-size: 10px; color: #666; text-transform: uppercase; }
-        .net-item p { margin: 0; font-size: 13px; font-weight: 700; }
-
-        .report-row {
-            background: white; border-radius: 16px; padding: 15px; margin-bottom: 8px;
-            display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid #f9f9f9;
-        }
-        .rr-date { font-weight: 700; font-size: 13px; color: var(--text-dark); }
-        .rr-sub { font-size: 10px; color: var(--text-grey); margin-top: 2px; }
-        .rr-val { font-weight: 800; font-size: 13px; }
-        .rr-val.plus { color: var(--success); }
-        .rr-val.minus { color: var(--danger); }
-
-        /* --- CHARTS --- */
-        .chart-card { background: white; border-radius: 20px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; height: 300px; position: relative; }
-        .weather-stat-card { background: linear-gradient(135deg, #0ea5e9, #2563eb); color: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-section { display: flex; flex: 1; justify-content: space-around; }
 
         /* --- MODALS --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; align-items: flex-end; }
-        .modal-overlay.center { align-items: center; justify-content: center; }
-        .sheet-content { background: white; width: 100%; border-radius: 30px 30px 0 0; padding: 25px 25px calc(var(--safe-bottom) + 20px); animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); max-height: 90vh; overflow-y: auto; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; position: fixed; inset: 0; z-index: 1000; }
+        .sheet-content { background: #26273B; border-top: 1px solid rgba(255,255,255,0.1); padding: 24px; position: absolute; bottom: 0; left: 0; right: 0; border-top-left-radius: 30px; border-top-right-radius: 30px; max-height: 90vh; overflow-y: auto; }
+        .popup-content { background: #26273B; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* --- BUTTONS --- */
+        .btn-primary { background: linear-gradient(135deg, var(--primary), #354dbd); box-shadow: 0 10px 25px rgba(74, 108, 250, 0.3); padding: 14px; border-radius: 16px; width: 100%; border: none; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        .btn-primary:active { transform: scale(0.98); }
         
-        .clean-input { width: 100%; border: 1px solid #E3E5E5; border-radius: 16px; background: #FCFCFC; padding: 16px; font-size: 16px; margin-bottom: 15px; outline: none; font-family: 'Inter', sans-serif; color: var(--text-dark); transition: 0.2s; }
-        .clean-input:focus { border-color: var(--primary); background: white; }
-        .btn-primary { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 8px 20px rgba(127, 61, 255, 0.25); transition: 0.2s; }
-        .mode-wrapper { background: #F1F1FA; padding: 4px; border-radius: 16px; display: flex; margin-bottom: 20px; }
-        .mode-btn { flex: 1; border: none; background: transparent; padding: 12px; border-radius: 14px; font-weight: 600; color: var(--text-grey); transition: 0.3s; font-size: 12px; cursor: pointer; }
-        .mode-btn.active { background: white; color: var(--text-dark); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .btn-broadcast { background: #103d81; color: white; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
-        .receipt-paper { background: white; padding: 20px; border-radius: 10px; border: 1px dashed #ccc; font-family: 'Courier New', monospace; text-align: center; margin-bottom: 20px; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .calc-btn { background: #F1F1FA; border: none; border-radius: 12px; height: 50px; font-size: 18px; font-weight: 600; cursor: pointer; }
-        .calc-btn.eq { background: var(--primary); color: white; grid-column: span 2; }
-        .kasbon-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; }
-        .tag-lunas { background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; }
-        .tag-belum { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; }
-        .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
-        .chat-user { background: var(--primary); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
-        .chat-ai { background: white; color: var(--text-dark); margin-right: auto; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        
-        .section-title { font-size: 14px; font-weight:700; margin: 20px 0 10px; color:var(--text-dark); }
-        .delete-btn { background: #FEE2E2; color: var(--danger); width: 100%; padding: 12px; border: none; border-radius: 12px; font-weight: 600; margin-top: 10px; cursor: pointer; }
+        /* --- REPORT TABS --- */
+        .report-tabs { background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); display: flex; padding: 4px; margin-bottom: 25px; }
+        .report-tabs .rt-btn { flex: 1; text-align: center; padding: 10px 0; border-radius: 12px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .rt-btn.active { background: rgba(255,255,255,0.1); color: white; }
+
+        /* Helpers */
+        .text-green { color: var(--accent-green); } .text-red { color: var(--accent-pink); } .text-blue { color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <div id="splashScreen">
-        <img src="logo.png" class="splash-img" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
-        <div style="color:white; font-weight:700; font-size:24px; margin-top:5px;">DEAR LOVE</div>
-        <div style="color:rgba(255,255,255,0.9); font-size:14px; margin-top:5px; font-weight:500; letter-spacing:0.5px;">Solusi Bisnis Masa Depan</div>
-        <div style="color:rgba(255,255,255,0.6); font-size:11px; margin-top:20px;">System v4.9</div>
+    <div id="splashScreen" style="position:fixed; inset:0; background:#151620; z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; transition:0.5s;">
+        <img src="logo.png" style="width:100px; height:100px; border-radius:25px; object-fit:cover; margin-bottom:20px; box-shadow:0 0 50px rgba(74, 108, 250, 0.3);" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
+        <div style="color:white; font-weight:700; font-size:24px;">DEAR LOVE</div>
+        <div style="color:rgba(255,255,255,0.5); font-size:12px; margin-top:5px; letter-spacing:2px;">CYBER POS</div>
     </div>
 
     <div id="loginScreen" class="screen active">
         <div style="text-align:center; padding: 40px; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-            <div style="width:90px; height:90px; background:var(--primary-light); border-radius:30px; margin:0 auto 30px; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:36px; font-weight:800;">DL</div>
-            <h2 style="margin:0 0 10px; font-weight:800; font-size:24px;">Admin Panel</h2>
-            <input type="password" id="passInput" class="clean-input" placeholder="••••" maxlength="20" style="text-align:center; font-size:24px; letter-spacing:5px; font-weight:700; color:var(--primary);">
-            <button class="btn-primary" onclick="doLogin()">Masuk Aplikasi</button>
+            <div style="width:100px; height:100px; background:linear-gradient(135deg, var(--primary), var(--accent-purple)); border-radius:30px; margin:0 auto 40px; display:flex; align-items:center; justify-content:center; color:white; font-size:36px; font-weight:800; box-shadow: 0 0 40px rgba(74, 108, 250, 0.4);">DL</div>
+            <h2 style="margin:0 0 10px; font-weight:700; font-size:24px; color:white;">Welcome Back</h2>
+            <p style="color:var(--text-muted); margin-bottom:40px;">Enter your admin PIN to continue</p>
+            <input type="password" id="passInput" class="clean-input" placeholder="••••" maxlength="20" style="text-align:center; font-size:24px; letter-spacing:5px; font-weight:700; color:var(--primary); margin-bottom:20px; padding: 15px;">
+            <button class="btn-primary" onclick="doLogin()">Unlock System</button>
         </div>
     </div>
 
     <div id="adminScreen" class="screen">
         <div class="top-header">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <img id="dispPhoto" class="profile-pic" src="logo.png" onclick="nav('settingScreen')">
+            <div class="header-profile-wrap" onclick="nav('settingScreen')">
+                <img id="dispPhoto" class="profile-pic" src="logo.png" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
                 <div>
-                    <div style="font-size:10px; color:var(--text-grey); font-weight:600; text-transform:uppercase;">Admin Store</div>
+                    <div class="header-sub">Good Morning,</div>
                     <div class="header-title" id="dispStoreName">DEAR LOVE</div>
                 </div>
             </div>
-            <div id="weatherBtn" class="weather-toggle" onclick="toggleWeather()">
-                <span class="material-icons-round wt-icon" style="color:#F59E0B;">wb_sunny</span>
-                <span class="wt-text">CERAH</span>
+            <div id="weatherBtn" class="icon-btn" onclick="toggleWeather()">
+                <span class="material-icons-round wt-icon" style="color:#FFD700;">wb_sunny</span>
             </div>
         </div>
 
         <div class="scroll-content">
             <div class="main-balance-card">
-                <div class="mb-label">PROFIT BERSIH (HARI INI)</div>
-                <div class="mb-value" id="netProfit">Rp 0</div>
-                <div style="margin-top:15px; background:rgba(255,255,255,0.2); border-radius:12px; padding:8px; font-size:12px; display:flex; justify-content:center; gap:15px;">
-                    <span>Margin: <b id="marginPerLiter">Rp 0/L</b></span>
+                <div class="mb-label">UANG LACI (REAL TIME)</div>
+                <div class="mb-value" id="realTimeProfit">Rp 0</div>
+                <div class="realtime-pill">
+                    <div class="rt-dot"></div>
+                    <span class="rt-text">PROFIT HARI INI: <span id="netProfit">Rp 0</span></span>
                 </div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">Margin Est: <span id="marginPerLiter" style="color:white;">Rp 0/L</span></div>
             </div>
 
             <div class="tools-grid">
-                <div class="tool-item" onclick="openKasbon()">
-                    <div class="tool-icon" style="color:#0077FF;"><span class="material-icons-round">book</span></div>
-                    <span class="tool-label">Kasbon</span>
-                </div>
-                <div class="tool-item" onclick="openCalc()">
-                    <div class="tool-icon" style="color:#FCAC12;"><span class="material-icons-round">calculate</span></div>
-                    <span class="tool-label">Hitung</span>
-                </div>
-                <div class="tool-item" onclick="exportExcel()">
-                    <div class="tool-icon" style="color:#00A86B;"><span class="material-icons-round">file_download</span></div>
-                    <span class="tool-label">Export</span>
-                </div>
-                <div class="tool-item" onclick="nav('polaScreen')">
-                    <div class="tool-icon" style="color:#7F3DFF;"><span class="material-icons-round">ssid_chart</span></div>
-                    <span class="tool-label">Analisa</span>
-                </div>
+                <div class="tool-item" onclick="openKasbon()"><div class="tool-icon t-blue"><span class="material-icons-round">book</span></div><span class="tool-label">Kasbon</span></div>
+                <div class="tool-item" onclick="openCalc()"><div class="tool-icon t-purple"><span class="material-icons-round">calculate</span></div><span class="tool-label">Hitung</span></div>
+                <div class="tool-item" onclick="exportExcel()"><div class="tool-icon t-pink"><span class="material-icons-round">file_download</span></div><span class="tool-label">Export</span></div>
+                <div class="tool-item" onclick="nav('polaScreen')"><div class="tool-icon t-dark"><span class="material-icons-round" style="color:var(--text-muted)">ssid_chart</span></div><span class="tool-label">Analisa</span></div>
             </div>
 
-            <div class="stat-card" style="margin-bottom:15px; padding:15px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <div style="font-size:11px; color:#91919F; font-weight:600; margin-bottom:4px;">TERJUAL HARI INI</div>
-                    <div style="font-size:20px; font-weight:800; color:#F59E0B;" id="todayLiter">0 L</div>
-                </div>
-                <span class="material-icons-round" style="font-size:36px; color:#F59E0B; opacity:0.15;">timeline</span>
-            </div>
-
-            <div class="stock-monitor" onclick="alert('Jika stok fisik kosong tapi aplikasi masih ada sisa, berarti ada kebocoran (Rugi)!')">
-                <div>
-                    <div style="font-size:11px; font-weight:700; color:#0369a1; margin-bottom:2px;">SISA STOK (APLIKASI)</div>
-                    <div style="font-size:22px; font-weight:800; color:#0284c7;" id="stokVal">0 L</div>
-                </div>
-                <span class="material-icons-round" style="color:#0ea5e9; font-size:36px; opacity:0.8;">water_drop</span>
-            </div>
-
+            <div class="section-header"><span class="sh-title">Overview</span></div>
             <div class="stats-row">
                 <div class="stat-card">
-                    <div class="sc-head"><div class="sc-icon" style="background:var(--success);"></div>Uang Masuk</div>
+                    <div class="sc-head">IN <span class="material-icons-round sc-icon text-green">arrow_downward</span></div>
                     <div class="sc-val" id="totInc">Rp 0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="sc-head"><div class="sc-icon" style="background:var(--modal-color);"></div>Beli Stok</div>
-                    <div class="sc-val" id="totBuy">Rp 0</div>
-                </div>
-                 <div class="stat-card">
-                    <div class="sc-head"><div class="sc-icon" style="background:var(--danger);"></div>Biaya Ops</div>
+                    <div class="sc-head">OUT <span class="material-icons-round sc-icon text-red">arrow_upward</span></div>
                     <div class="sc-val" id="totExp">Rp 0</div>
                 </div>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; margin-top:20px;">
-                <h4 style="margin:0; font-size:16px;">Aktivitas Terakhir</h4>
-                <span onclick="nav('historyScreen')" style="font-size:12px; color:var(--primary); font-weight:600; cursor:pointer;">Lihat Semua</span>
+            <div class="stock-monitor" onclick="alert('Cek fisik tangki!')">
+                <div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">STOK TERSEDIA</div>
+                    <div style="font-size:20px; font-weight:700; color:var(--primary);" id="stokVal">0 L</div>
+                </div>
+                <div>
+                    <div style="font-size:11px; color:var(--text-muted); text-align:right; margin-bottom:4px;">TERJUAL</div>
+                    <div style="font-size:20px; font-weight:700; color:var(--accent-pink); text-align:right;" id="todayLiter">0 L</div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <span class="sh-title">Recent Transaction</span>
+                <span class="sh-link" onclick="nav('historyScreen')">See All</span>
             </div>
             <div id="recentTrans"></div>
         </div>
 
         <div class="bottom-nav-wrap">
             <div class="bottom-nav">
-                <div class="nav-item active" onclick="nav('adminScreen')"><span class="material-icons-round">home</span><span>Home</span></div>
-                <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span><span>Riwayat</span></div>
-                <div style="width:50px;"></div>
-                <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span><span>Asisten</span></div>
-                <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">description</span><span>Laporan</span></div>
+                <div class="nav-section">
+                    <div class="nav-item active" onclick="nav('adminScreen')"><span class="material-icons-round">grid_view</span></div>
+                    <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span></div>
+                </div>
                 <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
+                <div class="nav-section">
+                    <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span></div>
+                    <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">pie_chart</span></div>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="aiScreen" class="screen">
-        <div class="top-header" style="background:white; border-bottom:1px solid #eee;">
+        <div class="top-header">
             <div style="display:flex; align-items:center; gap:10px;">
-                <span class="material-icons-round" onclick="nav('adminScreen')" style="font-size:24px; cursor:pointer;">arrow_back</span>
+                <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
                 <div class="header-title">AI Assistant</div>
             </div>
-            <div style="background:#E0F2FE; color:#0369a1; padding:4px 10px; border-radius:10px; font-size:10px; font-weight:bold;">ONLINE</div>
+            <div style="background:rgba(46, 204, 113, 0.2); color:#2ECC71; padding:4px 10px; border-radius:10px; font-size:10px; font-weight:bold;">ONLINE</div>
         </div>
-        <div id="chatBox" style="flex:1; overflow-y:auto; padding:20px; background:#F8F9FA;">
-            <div style="text-align:center; color:#ccc; font-size:12px; margin-top:20px;">
-                Tanyakan strategi penjualan, analisa stok, atau prediksi omset.
+        <div id="chatBox" style="flex:1; overflow-y:auto; padding:20px;">
+            <div style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:20px;">
+                Ask about strategy, stock prediction, or sales analysis.
             </div>
         </div>
-        <div style="padding:15px; background:white; border-top:1px solid #eee; display:flex; gap:10px; padding-bottom:calc(var(--safe-bottom) + 15px);">
-            <input id="aiInput" class="clean-input" style="margin:0; padding:12px;" placeholder="Ketik pertanyaan...">
-            <button onclick="sendAIChat()" class="btn-primary" style="width:50px; padding:0; display:flex; align-items:center; justify-content:center;"><span class="material-icons-round">send</span></button>
+        <div style="padding:15px; background:#26273B; border-top:1px solid rgba(255,255,255,0.1); display:flex; gap:10px; padding-bottom:calc(var(--safe-bottom) + 15px);">
+            <input id="aiInput" class="clean-input" style="margin:0; padding:12px; flex:1;" placeholder="Type here...">
+            <button onclick="sendAIChat()" class="icon-btn" style="background:var(--primary); border:none;"><span class="material-icons-round">send</span></button>
         </div>
     </div>
 
     <div id="polaScreen" class="screen">
         <div class="top-header">
-            <span class="material-icons-round" onclick="nav('adminScreen')" style="font-size:24px; cursor:pointer;">arrow_back</span>
-            <span class="header-title">Analisa Penjualan</span>
-            <span style="width:24px;"></span>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <span class="header-title">Analytics</span>
+            <span style="width:40px;"></span>
         </div>
         <div class="scroll-content">
-            <p style="font-size:12px; color:#888; text-align:center; margin-bottom:20px;">Menganalisa kebiasaan pelanggan & cuaca.</p>
-            <div class="weather-stat-card">
+            <div class="cyber-card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <div style="font-size:12px; opacity:0.8; margin-bottom:5px;">DAMPAK CUACA</div>
-                    <div style="font-size:20px; font-weight:bold;">
-                        <span class="material-icons-round" style="font-size:18px; vertical-align:middle;">wb_sunny</span> <span id="sunnyAvg">0</span> L (Avg)
+                    <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; font-weight:600; text-transform:uppercase;">Weather Impact</div>
+                    <div style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                        <span class="material-icons-round" style="color:#FFD700; font-size:20px;">wb_sunny</span>
+                        <span style="font-size:18px; font-weight:700;">Avg: <span id="sunnyAvg" class="text-green">0</span> L</span>
                     </div>
-                    <div style="font-size:20px; font-weight:bold; margin-top:5px;">
-                        <span class="material-icons-round" style="font-size:18px; vertical-align:middle;">thunderstorm</span> <span id="rainAvg">0</span> L (Avg)
+                     <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="material-icons-round" style="color:var(--primary); font-size:20px;">thunderstorm</span>
+                        <span style="font-size:18px; font-weight:700;">Avg: <span id="rainAvg" class="text-blue">0</span> L</span>
                     </div>
                 </div>
-                <span class="material-icons-round" style="font-size:40px; opacity:0.5;">cloud_sync</span>
+                <div style="width:60px; height:60px; border-radius:50%; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center;">
+                    <span class="material-icons-round" style="font-size:32px; color:var(--text-muted);">cloud_sync</span>
+                </div>
             </div>
-            <div class="chart-card">
-                <h4 style="margin:0 0 15px 0; font-size:14px;">Jam Paling Rame</h4>
+            
+            <div class="cyber-card" style="height:300px;">
+                <div style="font-size:12px; color:var(--text-muted); margin-bottom:15px; font-weight:600; text-transform:uppercase;">Peak Sales Hours</div>
                 <canvas id="hourChart"></canvas>
             </div>
-            <div class="chart-card">
-                <h4 style="margin:0 0 15px 0; font-size:14px;">Hari Paling Rame</h4>
+            
+            <div class="cyber-card" style="height:300px;">
+                <div style="font-size:12px; color:var(--text-muted); margin-bottom:15px; font-weight:600; text-transform:uppercase;">Best Performance Days</div>
                 <canvas id="dayChart"></canvas>
             </div>
         </div>
-        <div class="bottom-nav-wrap">
-            <div class="bottom-nav">
-                <div class="nav-item" onclick="nav('adminScreen')"><span class="material-icons-round">home</span><span>Home</span></div>
-                <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span><span>Riwayat</span></div>
-                <div style="width:50px;"></div>
-                <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span><span>Asisten</span></div>
-                <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">description</span><span>Laporan</span></div>
-                <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
-            </div>
-        </div>
+        <div class="bottom-nav-wrap"><div class="bottom-nav"></div></div>
     </div>
 
     <div id="historyScreen" class="screen">
         <div class="top-header">
-            <span class="material-icons-round" onclick="nav('adminScreen')" style="font-size:24px; cursor:pointer;">arrow_back</span>
-            <span class="header-title">Riwayat Lengkap</span>
-            <span class="material-icons-round" onclick="clearData()" style="color:var(--danger); cursor:pointer;">delete_forever</span>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <span class="header-title">History</span>
+            <span class="material-icons-round icon-btn" onclick="clearData()" style="color:var(--accent-pink); background:rgba(245, 78, 162, 0.1);">delete</span>
         </div>
         <div class="scroll-content" style="padding-top:15px;">
-            <div style="font-size:11px; color:#666; text-align:center; margin-bottom:10px;">Klik ikon pensil di kanan untuk EDIT transaksi.</div>
             <div id="fullHistoryList"></div>
         </div>
-        <div class="bottom-nav-wrap">
-            <div class="bottom-nav">
-                <div class="nav-item" onclick="nav('adminScreen')"><span class="material-icons-round">home</span><span>Home</span></div>
-                <div class="nav-item active" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span><span>Riwayat</span></div>
-                <div style="width:50px;"></div>
-                <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span><span>Asisten</span></div>
-                <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">description</span><span>Laporan</span></div>
-                <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
-            </div>
-        </div>
+        <div class="bottom-nav-wrap"><div class="bottom-nav"></div></div>
     </div>
 
     <div id="reportScreen" class="screen">
          <div class="top-header">
-            <span class="material-icons-round" onclick="nav('adminScreen')" style="font-size:24px; cursor:pointer;">arrow_back</span>
-            <span class="header-title">Laporan Keuangan</span>
-            <span style="width:24px;"></span>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <span class="header-title">Financial Report</span>
+            <span style="width:40px;"></span>
         </div>
         <div class="scroll-content">
             <div class="report-tabs">
-                <div id="rtDay" class="rt-btn active" onclick="setReportMode('daily')">Harian</div>
-                <div id="rtMonth" class="rt-btn" onclick="setReportMode('monthly')">Bulanan</div>
-                <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Tahunan</div>
+                <div id="rtDay" class="rt-btn active" onclick="setReportMode('daily')">Daily</div>
+                <div id="rtMonth" class="rt-btn" onclick="setReportMode('monthly')">Monthly</div>
+                <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Yearly</div>
             </div>
 
-            <div class="margin-card">
-                <div class="margin-title">PROFIT BERSIH (ESTIMASI)</div>
-                <div class="margin-val" id="repMargin">Rp 0</div>
-                <div class="margin-desc">Dari selisih Harga Jual & Harga Modal</div>
+            <div class="cyber-card" style="background: linear-gradient(135deg, #2ECC71 0%, #27ae60 100%); color:black; position:relative; overflow:hidden;">
+                <div style="position:relative; z-index:2;">
+                    <div style="font-size:11px; font-weight:700; opacity:0.6; letter-spacing:1px; margin-bottom:5px;">NET PROFIT (EST)</div>
+                    <div style="font-size:32px; font-weight:800; letter-spacing:-1px;" id="repMargin">Rp 0</div>
+                    <div style="font-size:12px; margin-top:5px; opacity:0.8; font-weight:500;">(Total Sales - Capital Cost)</div>
+                </div>
+                <span class="material-icons-round" style="position:absolute; right:-10px; bottom:-10px; font-size:100px; opacity:0.1;">paid</span>
             </div>
 
-            <div class="net-grid">
-                <div class="net-item">
-                    <h5>Penjualan</h5>
-                    <p style="color:var(--success);" id="repInc">Rp 0</p>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:25px;">
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:20px; text-align:center; border:1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size:10px; color:var(--text-muted); margin-bottom:5px;">SALES</div>
+                    <div style="font-size:13px; font-weight:700; color:var(--accent-green);" id="repInc">0</div>
                 </div>
-                <div class="net-item">
-                    <h5>Beli Stok</h5>
-                    <p style="color:var(--modal-color);" id="repBuy">Rp 0</p>
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:20px; text-align:center; border:1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size:10px; color:var(--text-muted); margin-bottom:5px;">STOCK</div>
+                    <div style="font-size:13px; font-weight:700; color:var(--accent-purple);" id="repBuy">0</div>
                 </div>
-                <div class="net-item">
-                    <h5>Biaya Ops</h5>
-                    <p style="color:var(--danger);" id="repExp">Rp 0</p>
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:20px; text-align:center; border:1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size:10px; color:var(--text-muted); margin-bottom:5px;">COST</div>
+                    <div style="font-size:13px; font-weight:700; color:var(--accent-pink);" id="repExp">0</div>
                 </div>
             </div>
             
-            <h4 style="margin:20px 0 15px 0;">Rincian Arus Kas</h4>
+            <h4 style="margin:0 0 15px 0; color:var(--text-muted); font-size:12px; text-transform:uppercase;">Cashflow Details</h4>
             <div id="reportContent"></div>
         </div>
-        <div class="bottom-nav-wrap">
-            <div class="bottom-nav">
-                <div class="nav-item" onclick="nav('adminScreen')"><span class="material-icons-round">home</span><span>Home</span></div>
-                <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span><span>Riwayat</span></div>
-                <div style="width:50px;"></div>
-                <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span><span>Asisten</span></div>
-                <div class="nav-item active" onclick="nav('reportScreen')"><span class="material-icons-round">description</span><span>Laporan</span></div>
-                <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
-            </div>
-        </div>
+        <div class="bottom-nav-wrap"><div class="bottom-nav"></div></div>
     </div>
 
     <div id="settingScreen" class="screen">
         <div class="top-header">
-            <span class="material-icons-round" onclick="nav('adminScreen')" style="font-size:24px; cursor:pointer;">arrow_back</span>
-            <span class="header-title">Pengaturan</span>
-             <span style="width:24px;"></span>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <span class="header-title">Settings</span>
+             <span style="width:40px;"></span>
         </div>
         <div class="scroll-content">
-            <div style="text-align:center; margin:20px 0 30px;">
+            <div style="text-align:center; margin:20px 0 40px;">
                 <div style="position:relative; display:inline-block;">
-                    <img id="setPhoto" src="logo.png" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid var(--primary);">
-                    <label style="position:absolute; bottom:0; right:0; background:var(--text-dark); color:white; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid white;">
-                        <span class="material-icons-round" style="font-size:16px;">edit</span>
+                    <img id="setPhoto" src="logo.png" style="width:100px; height:100px; border-radius:30px; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 20px rgba(74, 108, 250, 0.3);" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
+                    <label style="position:absolute; bottom:-10px; right:-10px; background:var(--primary); color:white; width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 5px 15px rgba(0,0,0,0.3);">
+                        <span class="material-icons-round" style="font-size:18px;">edit</span>
                         <input type="file" onchange="updatePhoto(event)" style="display:none;">
                     </label>
                 </div>
             </div>
 
-            <div class="stat-card" style="margin-bottom:15px;">
-                <h4 style="margin:0 0 15px 0; font-size:12px; color:var(--text-grey); text-transform:uppercase;">Identitas & Harga</h4>
-                <input type="text" id="setStore" class="clean-input" placeholder="Nama Toko">
-                <input type="text" id="setAddr" class="clean-input" placeholder="Alamat Toko (Untuk Struk)">
-                
-                <div class="section-title">HARGA & MODAL (Penting untuk Laporan)</div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                    <div>
-                        <label style="font-size:10px; font-weight:bold; color:var(--success);">HARGA JUAL / LITER</label>
-                        <input type="number" id="setPrice" class="clean-input" placeholder="Jual">
+            <div class="cyber-card">
+                <div style="font-size:12px; font-weight:700; color:white; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons-round" style="color:var(--primary);">store</span> STORE INFO
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Store Name</label>
+                    <input type="text" id="setStore" class="clean-input" placeholder="Enter name">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Address</label>
+                    <input type="text" id="setAddr" class="clean-input" placeholder="Enter address for receipt">
+                </div>
+            </div>
+
+            <div class="cyber-card">
+                <div style="font-size:12px; font-weight:700; color:white; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons-round" style="color:var(--accent-green);">payments</span> PRICING & CAPITAL
+                </div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label class="input-label text-green">Sell Price / L</label>
+                        <input type="number" id="setPrice" class="clean-input" placeholder="0">
                     </div>
-                    <div>
-                        <label style="font-size:10px; font-weight:bold; color:var(--modal-color);">MODAL / LITER</label>
-                        <input type="number" id="setModalPrice" class="clean-input" placeholder="Modal">
+                    <div class="input-group">
+                        <label class="input-label text-red">Buy Price / L</label>
+                        <input type="number" id="setModalPrice" class="clean-input" placeholder="0">
                     </div>
                 </div>
-                <div style="font-size:10px; color:#888; margin-top:-10px;">*Masukkan rata-rata harga kulakan per liter.</div>
+                <div class="input-group">
+                    <label class="input-label">Current Stock (L)</label>
+                    <input type="number" id="setStok" class="clean-input" placeholder="0">
+                </div>
             </div>
 
-            <div class="stat-card" style="margin-bottom:15px;">
-                <h4 style="margin:0 0 15px 0; font-size:12px; color:var(--text-grey); text-transform:uppercase;">Stok Fisik</h4>
-                <input type="number" id="setStok" class="clean-input" placeholder="Stok (L)">
-                <div style="font-size:10px; color:#888; margin-top:-10px;">*Ubah manual jika stok di aplikasi berbeda dengan tangki.</div>
+            <div class="cyber-card">
+                 <div style="font-size:12px; font-weight:700; color:white; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons-round" style="color:var(--accent-purple);">smart_toy</span> AI CONNECTION
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Groq API Key</label>
+                    <input type="text" id="setGroqKey" class="clean-input" placeholder="sk-...">
+                </div>
             </div>
 
-            <div class="stat-card" style="margin-bottom:20px;">
-                <h4 style="margin:0 0 15px 0; font-size:12px; color:var(--text-grey); text-transform:uppercase;">Koneksi AI</h4>
-                <input type="text" id="setGroqKey" class="clean-input" placeholder="Groq API Key">
-            </div>
-
-            <button class="btn-primary" onclick="saveSet()">Simpan Perubahan</button>
-            <button class="btn-primary" onclick="doLogout()" style="background:#FEE2E2; color:var(--danger); margin-top:10px;">Keluar Aplikasi</button>
+            <button class="btn-primary" onclick="saveSet()">Save Changes</button>
+            <button class="btn-primary" onclick="doLogout()" style="background:rgba(245, 78, 162, 0.1); color:var(--accent-pink); margin-top:15px; box-shadow:none; border:1px solid rgba(245, 78, 162, 0.3);">Log Out</button>
         </div>
     </div>
 
     <div id="inputModal" class="modal-overlay">
         <div class="sheet-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0; font-size:18px; font-weight:700;">Input Data</h3>
-                <span class="material-icons-round" onclick="closeModal('inputModal')" style="cursor:pointer; color:var(--text-grey); font-size:28px;">close</span>
+                <h3 style="margin:0; font-size:18px; font-weight:700; color:white;">New Transaction</h3>
+                <span class="material-icons-round" onclick="closeModal('inputModal')" style="cursor:pointer; color:var(--text-muted);">close</span>
             </div>
             
-            <div class="mode-wrapper">
-                <button id="mtInc" class="mode-btn active" onclick="setMode('inc')">JUAL</button>
-                <button id="mtBuy" class="mode-btn" onclick="setMode('buy')">BELI STOK</button>
-                <button id="mtExp" class="mode-btn" onclick="setMode('exp')">BIAYA</button>
+            <div style="background:rgba(0,0,0,0.3); display:flex; border-radius:16px; padding:4px; margin-bottom:20px;">
+                <button id="mtInc" class="mode-btn active" onclick="setMode('inc')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">SALE</button>
+                <button id="mtBuy" class="mode-btn" onclick="setMode('buy')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">STOCK</button>
+                <button id="mtExp" class="mode-btn" onclick="setMode('exp')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">EXPENSE</button>
             </div>
+            <style> .mode-btn.active { background:rgba(255,255,255,0.1) !important; color:white !important; } </style>
 
             <div id="formInc">
                 <div style="position:relative;">
-                    <span style="position:absolute; top:16px; left:16px; font-weight:700; color:var(--text-dark);">Rp</span>
-                    <input type="number" id="admNom" class="clean-input" style="padding-left:50px; font-size:22px; font-weight:700;" placeholder="0" oninput="calcAdm()">
+                    <span style="position:absolute; top:16px; left:16px; font-weight:700; color:var(--text-muted);">Rp</span>
+                    <input type="number" id="admNom" class="clean-input" style="padding-left:50px; font-size:24px; font-weight:700; padding-top:15px; padding-bottom:15px;" placeholder="0" oninput="calcAdm()">
                 </div>
-                <div style="text-align:right; font-size:12px; color:var(--text-grey); margin-bottom:10px; margin-top:-10px;">
-                    Estimasi: <span id="admLit" style="color:var(--success); font-weight:700;">0L</span>
+                <div style="text-align:right; font-size:12px; color:var(--text-muted); margin-bottom:20px; margin-top:8px;">
+                    Volume: <span id="admLit" class="text-green" style="font-weight:700;">0L</span>
                 </div>
-                <button class="btn-broadcast" onclick="sendBillToCustomer()"><span class="material-icons-round">cast</span> TAMPILKAN TAGIHAN</button>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px;">
-                    <button class="btn-primary" style="background:var(--success);" onclick="saveTrans('inc','cash')">TUNAI</button>
-                    <button class="btn-primary" style="background:var(--warning); color:black;" onclick="saveTrans('inc','qris')">QRIS</button>
+                <button class="btn-primary" style="background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.1); box-shadow:none; margin-bottom:15px;" onclick="sendBillToCustomer()"><span class="material-icons-round" style="font-size:16px; margin-right:5px; vertical-align:middle;">cast</span> CAST BILL</button>
+                <div class="grid-2">
+                    <button class="btn-primary" style="background:var(--accent-green);" onclick="saveTrans('inc','cash')">CASH</button>
+                    <button class="btn-primary" style="background:var(--primary);" onclick="saveTrans('inc','qris')">QRIS</button>
                 </div>
             </div>
 
             <div id="formBuy" style="display:none;">
-                <div style="background:#f3e8ff; padding:10px; border-radius:10px; margin-bottom:15px; font-size:11px; color:#6b21a8;">
-                    Catatan: Uang keluar untuk belanja BBM.
+                <div class="input-group">
+                    <label class="input-label">Total Cost (Rp)</label>
+                    <input type="number" id="buyNom" class="clean-input" placeholder="0">
                 </div>
-                <label style="font-size:12px; font-weight:bold;">Total Bayar (Modal)</label>
-                <input type="number" id="buyNom" class="clean-input" placeholder="Contoh: 500000">
-                <label style="font-size:12px; font-weight:bold;">Liter Didapat</label>
-                <input type="number" id="buyLit" class="clean-input" placeholder="Contoh: 50">
-                <button class="btn-primary" style="background:var(--modal-color);" onclick="saveTrans('buy')">SIMPAN STOK</button>
+                <div class="input-group">
+                    <label class="input-label">Liters Received</label>
+                    <input type="number" id="buyLit" class="clean-input" placeholder="0">
+                </div>
+                <button class="btn-primary" style="background:var(--accent-purple);" onclick="saveTrans('buy')">ADD STOCK</button>
             </div>
 
             <div id="formExp" style="display:none;">
-                <div style="background:#fee2e2; padding:10px; border-radius:10px; margin-bottom:15px; font-size:11px; color:#991b1b;">
-                    Catatan: Listrik, Gaji, Plastik, Makan, dll.
+                <div class="input-group">
+                    <label class="input-label">Description</label>
+                    <input type="text" id="descInput" class="clean-input" placeholder="e.g. Electricity">
                 </div>
-                <input type="text" id="descInput" class="clean-input" placeholder="Keterangan (Cth: Listrik)">
-                <div style="position:relative;">
-                    <span style="position:absolute; top:16px; left:16px; font-weight:700;">Rp</span>
-                    <input type="number" id="expNom" class="clean-input" style="padding-left:50px; font-size:22px; font-weight:700;" placeholder="0">
+                <div class="input-group">
+                    <label class="input-label">Amount (Rp)</label>
+                    <input type="number" id="expNom" class="clean-input" placeholder="0">
                 </div>
-                <button class="btn-primary" style="background:var(--danger);" onclick="saveTrans('exp')">SIMPAN PENGELUARAN</button>
+                <button class="btn-primary" style="background:var(--accent-pink);" onclick="saveTrans('exp')">SAVE EXPENSE</button>
             </div>
         </div>
     </div>
 
     <div id="editModal" class="modal-overlay">
         <div class="sheet-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0; font-size:18px; font-weight:700;">Edit Transaksi</h3>
-                <span class="material-icons-round" onclick="closeModal('editModal')" style="cursor:pointer; color:var(--text-grey); font-size:28px;">close</span>
-            </div>
+            <h3 style="color:white; margin-bottom:20px;">Edit Transaction</h3>
             <input type="hidden" id="editId">
-            <label style="font-size:12px; font-weight:bold;">Tipe</label>
-            <select id="editType" class="clean-input" onchange="toggleEditFields()">
-                <option value="inc">Penjualan</option>
-                <option value="buy">Beli Stok</option>
-                <option value="exp">Pengeluaran</option>
-            </select>
-            
-            <label style="font-size:12px; font-weight:bold;">Nominal (Rp)</label>
-            <input type="number" id="editNom" class="clean-input">
-            
-            <div id="editLiterWrap">
-                <label style="font-size:12px; font-weight:bold;">Volume (Liter)</label>
+            <div class="input-group">
+                <label class="input-label">Type</label>
+                <select id="editType" class="clean-input" onchange="toggleEditFields()" style="background:#222;">
+                    <option value="inc">Sale</option>
+                    <option value="buy">Restock</option>
+                    <option value="exp">Expense</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Nominal</label>
+                <input type="number" id="editNom" class="clean-input">
+            </div>
+            <div id="editLiterWrap" class="input-group">
+                <label class="input-label">Liter</label>
                 <input type="number" id="editLit" class="clean-input">
             </div>
-
-            <label style="font-size:12px; font-weight:bold;">Keterangan / Metode</label>
-            <input type="text" id="editDesc" class="clean-input">
-
-            <button class="btn-primary" onclick="saveEditTrans()">Simpan Perubahan</button>
-            <button class="delete-btn" onclick="deleteTrans()">Hapus Transaksi</button>
+            <div class="input-group">
+                <label class="input-label">Note</label>
+                <input type="text" id="editDesc" class="clean-input">
+            </div>
+            <button class="btn-primary" onclick="saveEditTrans()">Update</button>
+            <button class="btn-primary" onclick="deleteTrans()" style="background:rgba(245, 78, 162, 0.1); color:var(--accent-pink); margin-top:10px; box-shadow:none;">Delete</button>
+            <button class="btn-primary" onclick="closeModal('editModal')" style="background:transparent; margin-top:5px; box-shadow:none;">Cancel</button>
         </div>
     </div>
 
-    <div id="receiptModal" class="modal-overlay center">
-        <div class="popup-content" style="background:white; width:85%; max-width:320px; padding:20px; border-radius:20px;">
-            <div style="text-align:center; margin-bottom:15px; font-weight:700; color:var(--success);">Transaksi Berhasil!</div>
-            <div class="receipt-paper">
+    <div id="receiptModal" class="modal-overlay" style="align-items:center; justify-content:center;">
+        <div class="popup-content" style="width:85%; max-width:320px; padding:20px; border-radius:20px; background:white; color:black;">
+            <div style="text-align:center; margin-bottom:15px; font-weight:700; color:#2ECC71;">TRANSACTION SUCCESS</div>
+            <div style="border:1px dashed #ccc; padding:15px; border-radius:10px; font-family:'Courier New', monospace; text-align:center;">
                 <div style="font-weight:bold; font-size:16px; margin-bottom:5px;" id="rcStore">DEAR LOVE</div>
                 <div style="font-size:10px; margin-bottom:15px;" id="rcAddr"></div>
-                <div style="border-bottom:1px dashed #aaa; margin-bottom:10px;"></div>
+                <div style="border-bottom:1px dashed #000; margin-bottom:10px;"></div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span id="rcItem">Bensin</span>
-                    <span id="rcTotal">Rp 10.000</span>
+                    <span id="rcItem">Fuel</span>
+                    <span id="rcTotal" style="font-weight:bold;">Rp 10.000</span>
                 </div>
-                <div style="text-align:left; font-size:10px; color:#666;" id="rcDet">1.00 Liter</div>
-                <div style="border-bottom:1px dashed #aaa; margin:10px 0;"></div>
-                <div style="font-size:10px; color:#888;" id="rcTime">12/12/2025</div>
+                <div style="text-align:left; font-size:10px;" id="rcDet">1.00 Liter</div>
+                <div style="border-bottom:1px dashed #000; margin:10px 0;"></div>
+                <div style="font-size:10px;" id="rcTime">12/12/2025</div>
             </div>
-            <button class="btn-primary" onclick="closeModal('receiptModal')">Tutup</button>
+            <button class="btn-primary" onclick="closeModal('receiptModal')" style="margin-top:20px;">Close</button>
         </div>
     </div>
-
+    
     <div id="kasbonModal" class="modal-overlay">
         <div class="sheet-content">
              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">Buku Kasbon</h3>
-                <span class="material-icons-round" onclick="closeModal('kasbonModal')">close</span>
+                <h3 style="margin:0; color:white;">Kasbon (Debt)</h3>
+                <span class="material-icons-round" onclick="closeModal('kasbonModal')" style="color:white;">close</span>
             </div>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <input type="text" id="kasbonName" class="clean-input" placeholder="Nama" style="margin:0; flex:1;">
+                <input type="text" id="kasbonName" class="clean-input" placeholder="Name" style="margin:0; flex:1;">
                 <input type="number" id="kasbonNom" class="clean-input" placeholder="Rp" style="margin:0; width:100px;">
-                <button onclick="addKasbon()" style="background:var(--primary); color:white; border:none; border-radius:12px; width:50px;"><span class="material-icons-round">add</span></button>
+                <button onclick="addKasbon()" style="background:var(--primary); color:white; border:none; border-radius:12px; width:50px; cursor:pointer;"><span class="material-icons-round">add</span></button>
             </div>
             <div id="kasbonList" style="max-height:300px; overflow-y:auto;"></div>
         </div>
     </div>
-
+    
     <div id="calcModal" class="modal-overlay">
         <div class="sheet-content">
             <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <h3 style="margin:0;">Kalkulator</h3>
-                <span class="material-icons-round" onclick="closeModal('calcModal')">close</span>
+                <h3 style="margin:0; color:white;">Calculator</h3>
+                <span class="material-icons-round" onclick="closeModal('calcModal')" style="color:white;">close</span>
             </div>
-            <div class="calc-display" id="calcScreen">0</div>
-            <div class="calc-grid">
-                <button class="calc-btn" onclick="appCalc('7')">7</button>
-                <button class="calc-btn" onclick="appCalc('8')">8</button>
-                <button class="calc-btn" onclick="appCalc('9')">9</button>
-                <button class="calc-btn" onclick="appCalc('/')" style="color:var(--primary);">/</button>
-                <button class="calc-btn" onclick="appCalc('4')">4</button>
-                <button class="calc-btn" onclick="appCalc('5')">5</button>
-                <button class="calc-btn" onclick="appCalc('6')">6</button>
-                <button class="calc-btn" onclick="appCalc('*')" style="color:var(--primary);">x</button>
-                <button class="calc-btn" onclick="appCalc('1')">1</button>
-                <button class="calc-btn" onclick="appCalc('2')">2</button>
-                <button class="calc-btn" onclick="appCalc('3')">3</button>
-                <button class="calc-btn" onclick="appCalc('-')" style="color:var(--primary);">-</button>
-                <button class="calc-btn" onclick="appCalc('0')">0</button>
-                <button class="calc-btn" onclick="appCalc('C')" style="color:var(--danger);">C</button>
-                <button class="calc-btn" onclick="appCalc('+')" style="color:var(--primary);">+</button>
-                <button class="calc-btn eq" onclick="appCalc('=')">=</button>
+            <div class="clean-input" id="calcScreen" style="text-align:right; font-size:24px; margin-bottom:15px; background:rgba(0,0,0,0.3); padding:15px;">0</div>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
+                <button class="icon-btn" onclick="appCalc('7')" style="width:100%; height:50px; font-weight:700;">7</button>
+                <button class="icon-btn" onclick="appCalc('8')" style="width:100%; height:50px; font-weight:700;">8</button>
+                <button class="icon-btn" onclick="appCalc('9')" style="width:100%; height:50px; font-weight:700;">9</button>
+                <button class="icon-btn" onclick="appCalc('/')" style="width:100%; height:50px; color:var(--primary); background:rgba(74, 108, 250, 0.1); border-color:var(--primary); font-weight:bold;">/</button>
+                <button class="icon-btn" onclick="appCalc('4')" style="width:100%; height:50px; font-weight:700;">4</button>
+                <button class="icon-btn" onclick="appCalc('5')" style="width:100%; height:50px; font-weight:700;">5</button>
+                <button class="icon-btn" onclick="appCalc('6')" style="width:100%; height:50px; font-weight:700;">6</button>
+                <button class="icon-btn" onclick="appCalc('*')" style="width:100%; height:50px; color:var(--primary); background:rgba(74, 108, 250, 0.1); border-color:var(--primary); font-weight:bold;">x</button>
+                <button class="icon-btn" onclick="appCalc('1')" style="width:100%; height:50px; font-weight:700;">1</button>
+                <button class="icon-btn" onclick="appCalc('2')" style="width:100%; height:50px; font-weight:700;">2</button>
+                <button class="icon-btn" onclick="appCalc('3')" style="width:100%; height:50px; font-weight:700;">3</button>
+                <button class="icon-btn" onclick="appCalc('-')" style="width:100%; height:50px; color:var(--primary); background:rgba(74, 108, 250, 0.1); border-color:var(--primary); font-weight:bold;">-</button>
+                <button class="icon-btn" onclick="appCalc('0')" style="width:100%; height:50px; font-weight:700;">0</button>
+                <button class="icon-btn" onclick="appCalc('C')" style="width:100%; height:50px; color:var(--accent-pink);">C</button>
+                <button class="icon-btn" onclick="appCalc('+')" style="width:100%; height:50px; color:var(--primary); background:rgba(74, 108, 250, 0.1); border-color:var(--primary); font-weight:bold;">+</button>
+                <button class="icon-btn" onclick="appCalc('=')" style="width:100%; height:50px; background:var(--primary); border-color:var(--primary); font-weight:bold;">=</button>
             </div>
         </div>
     </div>
@@ -688,127 +582,82 @@
         // FIREBASE SETUP
         const firebaseConfig = { apiKey: "AIzaSyBpwNPIYhelOhkPvJsBmKvlZnaH9FVnmM4", authDomain: "pom-mini-50b1e.firebaseapp.com", projectId: "pom-mini-50b1e", storageBucket: "pom-mini-50b1e.firebasestorage.app", messagingSenderId: "77499696502", appId: "1:77499696502:web:8080c37da62a12c9566657", measurementId: "G-KRRHTTGBRF" };
         let db; 
-        try { 
-            if(typeof firebase !== 'undefined') {
-                firebase.initializeApp(firebaseConfig); 
-                db = firebase.firestore(); 
-                db.settings({ experimentalForceLongPolling: true, merge: true });
-            }
-        } catch(e) { console.log("Firebase Offline mode"); }
+        try { if(typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } } catch(e) { console.log("Firebase Offline"); }
 
-        // LOAD DATA SAFELY
-        let data = { 
-            pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", 
-            price: 10000, modalPrice: 9000, photo: "logo.png", stokLiter: 0, 
-            trans: [], kasbon: [], groqKey: "" 
-        };
-
-        try {
-            let saved = localStorage.getItem('dl_super_v4');
-            if(saved) {
-                let parsed = JSON.parse(saved);
-                if(parsed) data = { ...data, ...parsed }; // Merge safe defaults
-            }
-        } catch(e) { console.log("Data corrupted, resetting..."); }
-        
-        // Ensure arrays exist
+        // LOAD DATA
+        let data = { pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", price: 10000, modalPrice: 9000, photo: "logo.png", stokLiter: 0, trans: [], kasbon: [], groqKey: "" };
+        try { let saved = localStorage.getItem('dl_super_v4'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
         if(!Array.isArray(data.trans)) data.trans = [];
         if(!Array.isArray(data.kasbon)) data.kasbon = [];
 
-        let currentMode = 'inc';
-        let reportMode = 'daily';
-        let expenseChartInstance = null;
-        let dayChartInstance = null;
-        let hourChartInstance = null;
-        let currentWeather = 'sunny'; 
-
+        let currentMode = 'inc', reportMode = 'daily', currentWeather = 'sunny'; 
         const fmtMoney = (n) => "Rp " + parseInt(n).toLocaleString('id-ID');
 
-        /* --- UI HELPERS --- */
-        const toggleNav = (show) => {
-            const el = document.querySelector('.bottom-nav-wrap');
-            if(el) el.style.transform = show ? 'translateY(0)' : 'translateY(200%)';
-        }
-
+        // NAV & UI
+        const toggleNav = (show) => document.querySelector('.bottom-nav-wrap').style.transform = show ? 'translateY(0)' : 'translateY(200%)';
+        
         window.toggleWeather = () => {
-            const btn = document.getElementById('weatherBtn');
-            const icon = btn.querySelector('.wt-icon');
-            const txt = btn.querySelector('.wt-text');
-            if(currentWeather === 'sunny') {
-                currentWeather = 'rain'; btn.classList.add('rain');
-                icon.innerText = 'thunderstorm'; icon.style.color = '#0ea5e9'; txt.innerText = 'HUJAN';
-            } else {
-                currentWeather = 'sunny'; btn.classList.remove('rain');
-                icon.innerText = 'wb_sunny'; icon.style.color = '#F59E0B'; txt.innerText = 'CERAH';
-            }
+            const i = document.querySelector('#weatherBtn .wt-icon');
+            if(currentWeather === 'sunny') { currentWeather = 'rain'; i.innerText = 'thunderstorm'; i.style.color = '#4A6CFA'; }
+            else { currentWeather = 'sunny'; i.innerText = 'wb_sunny'; i.style.color = '#FFD700'; }
         }
 
-        const getCustomPeriod = (ts) => {
-            let d = new Date(ts);
-            if (d.getDate() >= 18) d.setMonth(d.getMonth() + 1);
-            return d.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-        }
+        const getCustomPeriod = (ts) => { let d = new Date(ts); if (d.getDate() >= 18) d.setMonth(d.getMonth() + 1); return d.toLocaleString('id-ID', { month: 'long', year: 'numeric' }); }
 
         window.nav = (id) => {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            let navs = document.querySelectorAll('.bottom-nav-wrap .nav-item');
+            navs.forEach(n => n.classList.remove('active'));
             
-            if(id === 'adminScreen') { document.querySelector('.bottom-nav .nav-item:nth-child(1)').classList.add('active'); renderDash(); }
-            else if(id === 'historyScreen') { document.querySelector('.bottom-nav .nav-item:nth-child(2)').classList.add('active'); renderHistory(); }
-            else if(id === 'aiScreen') { document.querySelector('.bottom-nav .nav-item:nth-child(4)').classList.add('active'); }
-            else if(id === 'polaScreen') { renderPola(); }
-            else if(id === 'reportScreen') { document.querySelector('.bottom-nav .nav-item:nth-child(5)').classList.add('active'); renderReport(); }
-            else if(id === 'settingScreen') { renderSet(); }
+            if(id === 'adminScreen') navs[0].classList.add('active');
+            else if(id === 'historyScreen') navs[1].classList.add('active');
+            else if(id === 'aiScreen') navs[2].classList.add('active');
+            else if(id === 'reportScreen') navs[3].classList.add('active'); 
+
+            if(id === 'adminScreen') renderDash();
+            else if(id === 'historyScreen') renderHistory();
+            else if(id === 'polaScreen') renderPola();
+            else if(id === 'reportScreen') renderReport();
+            else if(id === 'settingScreen') renderSet();
+            
+            if(['polaScreen', 'historyScreen', 'reportScreen'].includes(id)) {
+                 let mainNav = document.querySelector('#adminScreen .bottom-nav').innerHTML;
+                 document.querySelector(`#${id} .bottom-nav`).innerHTML = mainNav;
+            }
+            toggleNav(!['loginScreen', 'editModal', 'inputModal', 'calcModal', 'kasbonModal'].includes(id));
         }
 
-        window.openInputModal = () => { 
-            document.getElementById('inputModal').style.display='flex'; 
-            setMode('inc'); 
-            toggleNav(false);
-        }
-        window.closeModal = (id) => { 
-            document.getElementById(id).style.display='none';
-            toggleNav(true);
-        }
+        // MODALS
+        window.openInputModal = () => { document.getElementById('inputModal').style.display='flex'; setMode('inc'); toggleNav(false); }
+        window.closeModal = (id) => { document.getElementById(id).style.display='none'; toggleNav(true); }
 
         window.setMode = (m) => {
-            currentMode = m;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-            if(m==='inc') { document.getElementById('mtInc').classList.add('active'); document.getElementById('formInc').style.display='block'; document.getElementById('formBuy').style.display='none'; document.getElementById('formExp').style.display='none'; } 
-            else if(m==='buy') { document.getElementById('mtBuy').classList.add('active'); document.getElementById('formInc').style.display='none'; document.getElementById('formBuy').style.display='block'; document.getElementById('formExp').style.display='none'; } 
-            else { document.getElementById('mtExp').classList.add('active'); document.getElementById('formInc').style.display='none'; document.getElementById('formBuy').style.display='none'; document.getElementById('formExp').style.display='block'; }
+            currentMode = m; document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(m==='inc'?'mtInc':(m==='buy'?'mtBuy':'mtExp')).classList.add('active');
+            ['formInc','formBuy','formExp'].forEach(f => document.getElementById(f).style.display = 'none');
+            document.getElementById(m==='inc'?'formInc':(m==='buy'?'formBuy':'formExp')).style.display = 'block';
         }
 
+        // RENDER FUNCTIONS
         window.renderDash = () => {
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
             let today = new Date().toLocaleDateString();
-            let dInc = 0, dBuy = 0, dExp = 0, dLit = 0; 
+            let dInc=0, dBuy=0, dExp=0, dLit=0, realTimeCash=0;
             data.trans.forEach(t => { 
                 if(t.date === today) { 
-                    if(t.type === 'inc') {
-                        dInc += t.n; 
-                        dLit += (t.l || 0);
-                    }
-                    else if(t.type === 'buy') dBuy += t.n;
-                    else dExp += t.n; 
+                    if(t.type === 'inc') { dInc+=t.n; dLit+=(t.l||0); if(t.metode==='Tunai') realTimeCash+=t.n; }
+                    else if(t.type === 'buy') { dBuy+=t.n; realTimeCash-=t.n; }
+                    else { dExp+=t.n; realTimeCash-=t.n; }
                 } 
             });
-
-            // HITUNG PROFIT BERSIH & MARGIN
-            let currentModal = data.modalPrice || 0;
-            let profit = dInc - (dLit * currentModal) - dExp;
-            let margin = data.price - currentModal;
-
+            let profit = dInc - (dLit * (data.modalPrice||0)) - dExp;
             document.getElementById('netProfit').innerText = fmtMoney(profit);
-            document.getElementById('marginPerLiter').innerText = fmtMoney(margin) + "/L";
-            
-            // UPDATE BOX BARU: TERJUAL HARI INI
+            document.getElementById('realTimeProfit').innerText = fmtMoney(realTimeCash);
+            document.getElementById('marginPerLiter').innerText = fmtMoney(data.price - (data.modalPrice||0)) + "/L";
             document.getElementById('todayLiter').innerText = dLit.toFixed(2) + " L";
-
             document.getElementById('totInc').innerText = fmtMoney(dInc);
-            document.getElementById('totBuy').innerText = fmtMoney(dBuy);
             document.getElementById('totExp').innerText = fmtMoney(dExp);
             document.getElementById('stokVal').innerText = data.stokLiter.toFixed(2) + " L";
             document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
@@ -817,302 +666,130 @@
         window.calcAdm = () => { let n=parseInt(document.getElementById('admNom').value)||0; document.getElementById('admLit').innerText=(n/data.price).toFixed(2)+"L"; }
 
         window.sendBillToCustomer = async () => {
-            let n = parseInt(document.getElementById('admNom').value);
-            if(!n) return alert("Nominal?");
-            let l = parseFloat((n / data.price).toFixed(2));
-            let now = new Date();
-            if(db) {
-                try { await db.collection("struk_public").doc("current").set({ nominal: n, liter: l, waktu: now.toLocaleString('id-ID'), status: "UNPAID", nama_toko: data.store, alamat_toko: data.addr }); alert("Terkirim!"); } catch(e) { alert("Gagal: " + e.message); }
-            } else { alert("Firebase Error"); }
+            let n = parseInt(document.getElementById('admNom').value); if(!n) return alert("Nominal?");
+            let l = parseFloat((n/data.price).toFixed(2));
+            if(db) { try { await db.collection("struk_public").doc("current").set({ nominal: n, liter: l, waktu: new Date().toLocaleString('id-ID'), status: "UNPAID", nama_toko: data.store, alamat_toko: data.addr }); alert("Broadcast Success!"); } catch(e) { alert("Error"); } }
         }
 
         window.saveTrans = async (type, method='cash') => {
             let now = new Date();
             let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), type:type, weather: currentWeather };
-            
             if(type === 'inc') {
-                let n = parseInt(document.getElementById('admNom').value); if(!n) return;
-                let l = parseFloat((n / data.price).toFixed(2));
-                tx.n = n; tx.l = l; tx.metode = method==='cash'?'Tunai':'QRIS';
-                data.stokLiter = Math.max(0, data.stokLiter - l);
+                let n=parseInt(document.getElementById('admNom').value); if(!n) return;
+                let l=parseFloat((n/data.price).toFixed(2)); tx.n=n; tx.l=l; tx.metode=method==='cash'?'Tunai':'QRIS'; data.stokLiter=Math.max(0, data.stokLiter-l);
                 if(db) await db.collection("struk_public").doc("current").set({ nominal: n, liter: l, waktu: now.toLocaleString('id-ID'), status: "PAID", nama_toko: data.store, alamat_toko: data.addr });
-                document.getElementById('rcStore').innerText = data.store; document.getElementById('rcAddr').innerText = data.addr; document.getElementById('rcTotal').innerText = fmtMoney(n); document.getElementById('rcDet').innerText = l + " Liter"; document.getElementById('rcTime').innerText = now.toLocaleString(); document.getElementById('receiptModal').style.display = 'flex';
+                document.getElementById('rcStore').innerText=data.store; document.getElementById('rcAddr').innerText=data.addr; document.getElementById('rcTotal').innerText=fmtMoney(n); document.getElementById('rcDet').innerText=l+" Liter"; document.getElementById('rcTime').innerText=now.toLocaleString(); document.getElementById('receiptModal').style.display='flex';
             } else if (type === 'buy') {
-                let n = parseInt(document.getElementById('buyNom').value); let l = parseFloat(document.getElementById('buyLit').value); if(!n || !l) return alert("Lengkap!");
-                tx.n = n; tx.l = l; tx.desc = "Beli Stok"; data.stokLiter += l;
+                let n=parseInt(document.getElementById('buyNom').value), l=parseFloat(document.getElementById('buyLit').value); if(!n||!l) return;
+                tx.n=n; tx.l=l; tx.desc="Restock"; data.stokLiter+=l;
             } else if (type === 'exp') {
-                let n = parseInt(document.getElementById('expNom').value); let d = document.getElementById('descInput').value; if(!n) return;
-                tx.n = n; tx.desc = d || "Biaya Operasional";
+                let n=parseInt(document.getElementById('expNom').value), d=document.getElementById('descInput').value; if(!n) return;
+                tx.n=n; tx.desc=d||"Expense";
             }
             data.trans.unshift(tx); localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            document.getElementById('admNom').value=''; document.getElementById('buyNom').value=''; document.getElementById('buyLit').value=''; document.getElementById('expNom').value=''; document.getElementById('descInput').value='';
+            ['admNom','buyNom','buyLit','expNom','descInput'].forEach(i=>document.getElementById(i).value='');
             closeModal('inputModal'); renderDash();
         }
 
-        /* --- EDIT TRANSACTION LOGIC --- */
-        window.openEdit = (id) => {
-            let t = data.trans.find(x => x.id === id);
-            if(!t) return;
-            document.getElementById('editId').value = id;
-            document.getElementById('editType').value = t.type;
-            document.getElementById('editNom').value = t.n;
-            document.getElementById('editLit').value = t.l || 0;
-            document.getElementById('editDesc').value = t.desc || t.metode || '';
-            toggleEditFields();
-            document.getElementById('editModal').style.display = 'flex';
-            toggleNav(false);
-        }
-
-        window.toggleEditFields = () => {
-            let t = document.getElementById('editType').value;
-            if(t === 'exp') document.getElementById('editLiterWrap').style.display = 'none';
-            else document.getElementById('editLiterWrap').style.display = 'block';
-        }
-
         window.saveEditTrans = () => {
-            let id = parseInt(document.getElementById('editId').value);
-            let idx = data.trans.findIndex(x => x.id === id);
-            if(idx < 0) return;
-
-            // Revert old stock effect
-            let oldT = data.trans[idx];
-            if(oldT.type === 'inc') data.stokLiter += (oldT.l || 0);
-            if(oldT.type === 'buy') data.stokLiter -= (oldT.l || 0);
-
-            // Update data
-            let type = document.getElementById('editType').value;
-            let n = parseInt(document.getElementById('editNom').value);
-            let l = parseFloat(document.getElementById('editLit').value) || 0;
-            let d = document.getElementById('editDesc').value;
-
-            data.trans[idx].type = type;
-            data.trans[idx].n = n;
-            data.trans[idx].l = l;
-            
-            if(type === 'inc') { data.trans[idx].metode = d; data.stokLiter -= l; }
-            else if(type === 'buy') { data.trans[idx].desc = "Beli Stok"; data.stokLiter += l; }
-            else { data.trans[idx].desc = d; }
-
-            localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            alert("Data diperbarui!");
-            closeModal('editModal');
-            if(document.getElementById('historyScreen').classList.contains('active')) renderHistory();
-            renderDash();
+            let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id); if(idx<0) return;
+            let oldT=data.trans[idx]; if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
+            let type=document.getElementById('editType').value, n=parseInt(document.getElementById('editNom').value), l=parseFloat(document.getElementById('editLit').value)||0, d=document.getElementById('editDesc').value;
+            data.trans[idx]={...data.trans[idx], type:type, n:n, l:l};
+            if(type==='inc') { data.trans[idx].metode=d; data.stokLiter-=l; } else if(type==='buy') { data.trans[idx].desc="Restock"; data.stokLiter+=l; } else data.trans[idx].desc=d;
+            localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
         }
-
         window.deleteTrans = () => {
-            if(!confirm("Hapus transaksi ini permanen?")) return;
-            let id = parseInt(document.getElementById('editId').value);
-            let idx = data.trans.findIndex(x => x.id === id);
-            
-            // Revert stock
-            let oldT = data.trans[idx];
-            if(oldT.type === 'inc') data.stokLiter += (oldT.l || 0);
-            if(oldT.type === 'buy') data.stokLiter -= (oldT.l || 0);
-
-            data.trans.splice(idx, 1);
-            localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            closeModal('editModal');
-            if(document.getElementById('historyScreen').classList.contains('active')) renderHistory();
-            renderDash();
+            if(!confirm("Delete?")) return; let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id);
+            let oldT=data.trans[idx]; if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
+            data.trans.splice(idx,1); localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
         }
+        window.openEdit = (id) => {
+            let t=data.trans.find(x=>x.id===id); if(!t) return;
+            document.getElementById('editId').value=id; document.getElementById('editType').value=t.type; document.getElementById('editNom').value=t.n; document.getElementById('editLit').value=t.l||0; document.getElementById('editDesc').value=t.desc||t.metode||'';
+            toggleEditFields(); document.getElementById('editModal').style.display='flex'; toggleNav(false);
+        }
+        window.toggleEditFields = () => document.getElementById('editLiterWrap').style.display = document.getElementById('editType').value==='exp'?'none':'block';
 
         window.renderPola = () => {
-            let sunnyL = 0, sunnyC = 0, rainL = 0, rainC = 0;
-            let hourCounts = Array(24).fill(0);
-            let dayCounts = { 'Minggu':0, 'Senin':0, 'Selasa':0, 'Rabu':0, 'Kamis':0, 'Jumat':0, 'Sabtu':0 };
-
+            let sL=0, sC=0, rL=0, rC=0, hC=Array(24).fill(0), dC={'Minggu':0,'Senin':0,'Selasa':0,'Rabu':0,'Kamis':0,'Jumat':0,'Sabtu':0};
             data.trans.forEach(t => {
-                if(t.type === 'inc') {
-                    if(t.weather === 'rain') { rainL += t.l; rainC++; } else { sunnyL += t.l; sunnyC++; }
-                    let h = parseInt(t.time.split(':')[0]); if(!isNaN(h)) hourCounts[h] += t.n;
-                    let d = new Date(t.ts).toLocaleDateString('id-ID', {weekday:'long'}); if(dayCounts[d] !== undefined) dayCounts[d] += t.n;
+                if(t.type==='inc') {
+                    if(t.weather==='rain') { rL+=t.l; rC++; } else { sL+=t.l; sC++; }
+                    let h=parseInt(t.time.split(':')[0]); if(!isNaN(h)) hC[h]+=t.n;
+                    let d=new Date(t.ts).toLocaleDateString('id-ID',{weekday:'long'}); if(dC[d]!==undefined) dC[d]+=t.n;
                 }
             });
-            document.getElementById('sunnyAvg').innerText = sunnyC > 0 ? (sunnyL/sunnyC).toFixed(1) : "0";
-            document.getElementById('rainAvg').innerText = rainC > 0 ? (rainL/rainC).toFixed(1) : "0";
-            updateChart('hourChart', hourChartInstance, 'line', Object.keys(hourCounts), hourCounts, 'Omset per Jam');
-            updateChart('dayChart', dayChartInstance, 'bar', Object.keys(dayCounts), Object.values(dayCounts), 'Omset per Hari');
+            document.getElementById('sunnyAvg').innerText = sC>0?(sL/sC).toFixed(1):"0"; document.getElementById('rainAvg').innerText = rC>0?(rL/rC).toFixed(1):"0";
+            updateChart('hourChart', 'hourChartInstance', 'line', Array.from({length:24},(_,i)=>`${i}:00`), hC, 'Sales');
+            updateChart('dayChart', 'dayChartInstance', 'bar', Object.keys(dC), Object.values(dC), 'Sales');
         }
 
-        function updateChart(id, instance, type, labels, dataArr, label) {
-            const ctx = document.getElementById(id).getContext('2d');
-            if(window[id+'Instance']) window[id+'Instance'].destroy();
-            window[id+'Instance'] = new Chart(ctx, { type: type, data: { labels: labels, datasets: [{ label: label, data: dataArr, backgroundColor: '#7F3DFF', borderColor: '#7F3DFF', borderWidth: 1, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false } });
-        }
-
-        window.setReportMode = (m) => {
-            reportMode = m;
-            document.querySelectorAll('.rt-btn').forEach(b => b.classList.remove('active'));
-            if(m==='daily') document.getElementById('rtDay').classList.add('active');
-            else if(m==='monthly') document.getElementById('rtMonth').classList.add('active');
-            else document.getElementById('rtYear').classList.add('active');
-            renderReport();
+        function updateChart(id, iN, t, l, d, lb) {
+            const ctx=document.getElementById(id).getContext('2d'); if(window[iN]) window[iN].destroy();
+            Chart.defaults.color='#8F90A6'; Chart.defaults.borderColor='rgba(255,255,255,0.05)';
+            window[iN] = new Chart(ctx, { type:t, data:{labels:l,datasets:[{label:lb,data:d,backgroundColor:t==='bar'?'#4A6CFA':'rgba(74,108,250,0.4)',borderColor:'#4A6CFA',borderWidth:2,tension:0.4,fill:t==='line',pointBackgroundColor:'#1F202F'}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}} });
         }
 
         window.renderReport = () => {
-            let groups = {};
-            let tInc = 0, tBuy = 0, tExp = 0;
-            let tLiterSold = 0;
-            let currentModal = data.modalPrice || 9000;
-
+            let gr={}, tInc=0, tBuy=0, tExp=0, tLit=0;
             data.trans.forEach(t => {
-                let k = "";
-                if(reportMode === 'daily') k = t.date;
-                else if(reportMode === 'monthly') k = getCustomPeriod(t.ts);
-                else k = new Date(t.ts).getFullYear().toString();
-
-                if(!groups[k]) groups[k] = { i:0, b:0, e:0 };
-                
-                if(t.type === 'inc') { 
-                    groups[k].i += t.n; tInc += t.n; tLiterSold += (t.l || 0);
-                } else if(t.type === 'buy') {
-                    groups[k].b += t.n; tBuy += t.n;
-                } else { 
-                    groups[k].e += t.n; tExp += t.n;
-                }
+                let k = reportMode==='daily'?t.date:(reportMode==='monthly'?getCustomPeriod(t.ts):new Date(t.ts).getFullYear().toString());
+                if(!gr[k]) gr[k]={i:0,b:0,e:0};
+                if(t.type==='inc') { gr[k].i+=t.n; tInc+=t.n; tLit+=(t.l||0); }
+                else if(t.type==='buy') { gr[k].b+=t.n; tBuy+=t.n; } else { gr[k].e+=t.n; tExp+=t.n; }
             });
-
-            // Calculate Margin Profit
-            let totalHPP = tLiterSold * currentModal;
-            let estMargin = tInc - totalHPP;
-            
-            document.getElementById('repMargin').innerText = fmtMoney(estMargin);
-            document.getElementById('repInc').innerText = fmtMoney(tInc);
-            document.getElementById('repBuy').innerText = fmtMoney(tBuy);
-            document.getElementById('repExp').innerText = fmtMoney(tExp);
-
-            // Render List
-            document.getElementById('reportContent').innerHTML = Object.keys(groups).map(k => {
-                return `
-                <div class="report-row">
-                    <div style="flex:1;">
-                        <div class="rr-date">${k}</div>
-                        <div class="rr-sub">
-                            <span style="color:var(--success)">In: ${fmtMoney(groups[k].i)}</span> | 
-                            <span style="color:var(--modal-color)">Stok: ${fmtMoney(groups[k].b)}</span> | 
-                            <span style="color:var(--danger)">Ops: ${fmtMoney(groups[k].e)}</span>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
+            document.getElementById('repMargin').innerText=fmtMoney(tInc-(tLit*(data.modalPrice||0))); document.getElementById('repInc').innerText=fmtMoney(tInc); document.getElementById('repBuy').innerText=fmtMoney(tBuy); document.getElementById('repExp').innerText=fmtMoney(tExp);
+            document.getElementById('reportContent').innerHTML=Object.keys(gr).map(k=>`<div class="trans-item"><div style="flex:1;"><div class="ti-info"><h4>${k}</h4></div><div style="font-size:10px; color:var(--text-muted); margin-top:5px; display:flex; justify-content:space-between;"><span class="text-green">In: ${fmtMoney(gr[k].i)}</span><span class="text-red">Out: ${fmtMoney(gr[k].e+gr[k].b)}</span></div></div></div>`).join('');
         }
+        window.setReportMode = (m) => { reportMode=m; document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active')); document.getElementById(m==='daily'?'rtDay':(m==='monthly'?'rtMonth':'rtYear')).classList.add('active'); renderReport(); }
 
-        window.openKasbon = () => { 
-            document.getElementById('kasbonModal').style.display='flex'; 
-            renderKasbon();
-            toggleNav(false);
-        }
-        window.renderKasbon = () => { document.getElementById('kasbonList').innerHTML = data.kasbon.map((k, i) => `<div class="kasbon-item"><div><div style="font-weight:700;">${k.name}</div><div style="font-size:11px;color:#888;">${k.date}</div></div><div style="text-align:right;"><div style="font-weight:700;color:var(--danger);">${fmtMoney(k.nom)}</div><span class="${k.lunas?'tag-lunas':'tag-belum'}" onclick="toggleLunas(${i})">${k.lunas?'LUNAS':'BELUM'}</span></div></div>`).join('') || '<div style="text-align:center;color:#ccc;margin-top:20px;">Belum ada kasbon</div>'; }
-        window.addKasbon = () => { let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); if(nm&&no){data.kasbon.unshift({name:nm,nom:no,date:new Date().toLocaleDateString(),lunas:false});localStorage.setItem('dl_super_v4',JSON.stringify(data));document.getElementById('kasbonName').value='';renderKasbon();} }
-        window.toggleLunas = (i) => { if(confirm("Ubah status?")) { data.kasbon[i].lunas=!data.kasbon[i].lunas; localStorage.setItem('dl_super_v4',JSON.stringify(data)); renderKasbon(); } }
-
-        let calcVal = "0";
-        window.openCalc = () => { 
-            document.getElementById('calcModal').style.display='flex'; 
-            calcVal="0"; updateCalc();
-            toggleNav(false);
-        }
-        window.appCalc = (v) => { if(v==='C') calcVal="0"; else if(v==='=') {try{calcVal=eval(calcVal).toString()}catch{calcVal="Error"}} else {if(calcVal==="0")calcVal=v; else calcVal+=v;} updateCalc(); }
-        const updateCalc = () => document.getElementById('calcScreen').innerText = calcVal;
-
-        window.makeTransItem = (t) => {
-            let iconClass = 'inc'; let iconName = 'local_gas_station'; let sign = '+'; let col = 'var(--success)';
-            let title = "Penjualan"; let sub = (t.l||0) + " L";
-            
-            if(t.type === 'buy') { 
-                iconClass = 'buy'; iconName = 'water_drop'; sign = '-'; col = 'var(--modal-color)'; 
-                title = "Beli Stok"; sub = "+" + t.l + " L"; 
-            } else if (t.type === 'exp') { 
-                iconClass = 'exp'; iconName = 'payments'; sign = '-'; col = 'var(--danger)'; 
-                title = t.desc; sub = "Biaya Ops"; 
-            } else { 
-                title = t.metode || "Tunai"; 
-            }
-
-            return `
-            <div class="trans-item">
-                <div style="display:flex; align-items:center;">
-                    <div class="ti-icon ${iconClass}"><span class="material-icons-round">${iconName}</span></div>
-                    <div class="ti-info"><h4>${title}</h4><p>${sub}</p></div>
-                </div>
-                <div style="display:flex; align-items:center;">
-                    <div class="ti-amount">
-                        <span class="ti-val" style="color:${col}">${sign} ${t.n/1000}k</span>
-                        <span class="ti-time">${t.time}</span>
-                    </div>
-                    <div class="ti-edit" onclick="openEdit(${t.id})">
-                        <span class="material-icons-round" style="font-size:20px;">edit</span>
-                    </div>
-                </div>
-            </div>`;
-        }
-        
-        window.renderHistory = () => document.getElementById('fullHistoryList').innerHTML = data.trans.map(t => makeTransItem(t)).join('');
-        
         window.renderSet = () => {
-            document.getElementById('setStore').value = data.store;
-            document.getElementById('setAddr').value = data.addr;
-            document.getElementById('setPrice').value = data.price;
-            document.getElementById('setModalPrice').value = data.modalPrice;
-            document.getElementById('setStok').value = data.stokLiter;
-            document.getElementById('setGroqKey').value = data.groqKey || "";
+            document.getElementById('setStore').value = data.store; document.getElementById('setAddr').value = data.addr;
+            document.getElementById('setPrice').value = data.price; document.getElementById('setModalPrice').value = data.modalPrice;
+            document.getElementById('setStok').value = data.stokLiter; document.getElementById('setGroqKey').value = data.groqKey || "";
             document.getElementById('setPhoto').src = data.photo;
         }
-
         window.saveSet = () => {
-            data.store = document.getElementById('setStore').value;
-            data.addr = document.getElementById('setAddr').value;
-            data.price = parseInt(document.getElementById('setPrice').value);
-            data.modalPrice = parseInt(document.getElementById('setModalPrice').value);
-            data.stokLiter = parseFloat(document.getElementById('setStok').value);
-            data.groqKey = document.getElementById('setGroqKey').value;
-            localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            alert("Disimpan!"); renderDash();
+            data.store=document.getElementById('setStore').value; data.addr=document.getElementById('setAddr').value;
+            data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value);
+            data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value;
+            localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("Saved!"); renderDash();
         }
 
-        window.exportExcel = () => {
-            let csv = "Tanggal,Jam,Tipe,Ket,Nominal,Liter,Cuaca\n";
-            data.trans.forEach(t => { let ket = t.type==='inc'?t.metode:(t.type==='buy'?'Stok':t.desc); csv += `${t.date},${t.time},${t.type},${ket},${t.n},${t.l||0},${t.weather||'-'}\n`; });
-            let link = document.createElement("a"); link.href = "data:text/csv;charset=utf-8," + encodeURI(csv); link.download = "Laporan.csv"; link.click();
+        window.makeTransItem = (t) => {
+            let ic='inc', iname='local_gas_station', s='+', c='val-plus', ti='Sale', su=(t.l||0)+" L";
+            if(t.type==='buy'){ ic='buy'; iname='water_drop'; s='-'; c='val-minus'; ti='Restock'; su="+"+t.l+" L"; }
+            else if(t.type==='exp'){ ic='exp'; iname='payments'; s='-'; c='val-minus'; ti=t.desc; su="Expense"; }
+            else ti=t.metode||"Cash";
+            return `<div class="trans-item" onclick="openEdit(${t.id})"><div style="display:flex; align-items:center;"><div class="ti-icon ${ic}"><span class="material-icons-round">${iname}</span></div><div class="ti-info"><h4>${ti}</h4><p>${su}</p></div></div><div><span class="ti-val ${c}">${s} ${t.n/1000}k</span><span class="ti-time">${t.time}</span></div></div>`;
+        }
+        window.renderHistory = () => document.getElementById('fullHistoryList').innerHTML = data.trans.map(t => makeTransItem(t)).join('');
+
+        window.openKasbon = () => { document.getElementById('kasbonModal').style.display='flex'; renderKasbon(); toggleNav(false); }
+        window.renderKasbon = () => document.getElementById('kasbonList').innerHTML = data.kasbon.map((k,i) => `<div class="trans-item"><div><div style="font-weight:600; color:white;">${k.name}</div><div style="font-size:11px; color:var(--text-muted);">${k.date}</div></div><div style="text-align:right;"><div style="font-weight:700; color:var(--accent-pink);">${fmtMoney(k.nom)}</div><span style="font-size:10px; padding:2px 8px; border-radius:4px; background:${k.lunas?'#2ECC71':'#333'}; color:white; cursor:pointer;" onclick="toggleLunas(${i})">${k.lunas?'PAID':'UNPAID'}</span></div></div>`).join('')||'<div style="text-align:center;color:#666;margin-top:20px;">No Data</div>';
+        window.addKasbon = () => { let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); if(nm&&no){data.kasbon.unshift({name:nm,nom:no,date:new Date().toLocaleDateString(),lunas:false});localStorage.setItem('dl_super_v4',JSON.stringify(data));document.getElementById('kasbonName').value='';renderKasbon();} }
+        window.toggleLunas = (i) => { if(confirm("Change?")) { data.kasbon[i].lunas=!data.kasbon[i].lunas; localStorage.setItem('dl_super_v4',JSON.stringify(data)); renderKasbon(); } }
+
+        let calcVal="0"; window.openCalc=()=>{document.getElementById('calcModal').style.display='flex';calcVal="0";updateCalc();toggleNav(false);}
+        window.appCalc=(v)=>{if(v==='C')calcVal="0";else if(v==='='){try{calcVal=eval(calcVal).toString()}catch{calcVal="Error"}}else{if(calcVal==="0")calcVal=v;else calcVal+=v;}updateCalc();}
+        const updateCalc=()=>document.getElementById('calcScreen').innerText=calcVal;
+
+        window.exportExcel=()=>{let c="Date,Time,Type,Desc,Nominal,Liter\n"; data.trans.forEach(t=>{c+=`${t.date},${t.time},${t.type},${t.desc||t.metode},${t.n},${t.l||0}\n`}); let l=document.createElement("a");l.href="data:text/csv;charset=utf-8,"+encodeURI(c);l.download="Report.csv";l.click();}
+        window.updatePhoto=(e)=>{let r=new FileReader(); r.onload=v=>{data.photo=v.target.result; renderSet();}; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]);}
+        window.doLogin=()=>{if(document.getElementById('passInput').value===data.pass){localStorage.setItem('dl_log','1');nav('adminScreen');}else alert("Wrong PIN");}
+        window.doLogout=()=>{localStorage.removeItem('dl_log');nav('loginScreen');}
+        window.clearData=()=>{if(confirm("RESET ALL?")){data.trans=[];data.kasbon=[];localStorage.setItem('dl_super_v4',JSON.stringify(data));renderDash();}}
+        
+        window.sendAIChat=async()=>{
+            let i=document.getElementById('aiInput'),m=i.value,b=document.getElementById('chatBox'); if(!m)return; i.value='';
+            b.innerHTML+=`<div style="background:var(--primary); color:white; margin-left:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px;">${m}</div>`;
+            if(!data.groqKey){b.innerHTML+=`<div style="color:var(--accent-pink); font-size:10px;">API Key Missing</div>`;return;}
+            try{let r=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`},body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:[{role:"system",content:`Role: AI POS Assistant. Stock: ${data.stokLiter}L`},{role:"user",content:m}]})});let j=await r.json();b.innerHTML+=`<div style="background:#333; color:white; margin-right:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px;">${marked.parse(j.choices[0].message.content)}</div>`;b.scrollTop=b.scrollHeight;}catch(e){b.innerHTML+=`<div style="color:red;">Error</div>`;}
         }
 
-        window.updatePhoto = (e) => { let r=new FileReader(); r.onload=v=>{data.photo=v.target.result; renderSet();}; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]); }
-        window.doLogin = () => { if(document.getElementById('passInput').value===data.pass){ localStorage.setItem('dl_log','1'); nav('adminScreen'); } else alert("PIN Salah"); }
-        window.doLogout = () => { localStorage.removeItem('dl_log'); nav('loginScreen'); }
-        window.clearData = () => { if(confirm("HAPUS SEMUA DATA?")) { data.trans=[]; data.kasbon=[]; localStorage.setItem('dl_super_v4', JSON.stringify(data)); renderDash(); } }
-
-        window.sendAIChat = async () => {
-            let i=document.getElementById('aiInput'), m=i.value, b=document.getElementById('chatBox'); if(!m)return; i.value='';
-            b.innerHTML+=`<div class="chat-bubble chat-user">${m}</div>`;
-            if(!data.groqKey) { b.innerHTML+=`<div style="color:red;font-size:10px;">Setup API Key di Setting</div>`; return; }
-            try {
-                let r = await fetch("https://api.groq.com/openai/v1/chat/completions", { method:"POST", headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`}, body:JSON.stringify({model:"llama-3.3-70b-versatile", messages:[{role:"system",content:`Role: Asisten Bisnis Pom Mini. Stok: ${data.stokLiter}L. Harga Jual: ${data.price}.`},{role:"user",content:m}]}) });
-                let j = await r.json(); b.innerHTML+=`<div class="chat-bubble chat-ai">${marked.parse(j.choices[0].message.content)}</div>`;
-                b.scrollTop = b.scrollHeight;
-            } catch(e) { b.innerHTML+=`<div style="color:red;">Error</div>`; }
-        }
-
-        // --- STARTUP LOGIC (ANTI-STUCK FIX) ---
-        const startApp = () => {
-            document.getElementById('splashScreen').style.opacity = '0';
-            setTimeout(() => document.getElementById('splashScreen').style.display='none', 500);
-            if(localStorage.getItem('dl_log')) nav('adminScreen');
-        }
-
-        // Main startup
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(startApp, 2000); // Normal start
-        });
-
-        // Failsafe: Force start if stuck > 5 seconds
-        setTimeout(() => {
-            if(document.getElementById('splashScreen').style.display !== 'none') {
-                console.log("Forcing start...");
-                startApp();
-            }
-        }, 5000);
-
+        const startApp=()=>{document.getElementById('splashScreen').style.opacity='0';setTimeout(()=>document.getElementById('splashScreen').style.display='none',500);if(localStorage.getItem('dl_log'))nav('adminScreen');}
+        window.addEventListener('DOMContentLoaded', ()=>{setTimeout(startApp,2000)});
     </script>
 </body>
 </html>
