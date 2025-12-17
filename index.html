@@ -62,8 +62,7 @@
 
         .scroll-content {
             flex: 1; overflow-y: auto; 
-            /* Menyesuaikan padding bawah agar tidak terpotong oleh Bottom Nav + Safe Area */
-            padding: 10px 24px calc(50px + var(--safe-bottom) + 30px); /* 50px (Nav) + Safe Area + 30px Buffer */
+            padding: 10px 24px calc(50px + var(--safe-bottom) + 30px); 
             scrollbar-width: none;
         }
         .scroll-content::-webkit-scrollbar { display: none; }
@@ -135,13 +134,12 @@
         .bottom-nav-wrap { 
             position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; 
             z-index: 999; pointer-events: none; 
-            /* Menambahkan padding bawah yang dihitung dari safe-area + buffer */
             padding-bottom: calc(var(--safe-bottom) + 10px); 
             background: linear-gradient(180deg, transparent, #1F202F 40%); 
         }
         .bottom-nav { 
             pointer-events: auto; background: #26273B; width: 90%; max-width: 400px; 
-            height: 50px; /* TETAP 50PX */
+            height: 50px; 
             border-radius: 30px; display: flex; justify-content: space-around; 
             align-items: center; padding: 0 10px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); 
             border: 1px solid rgba(255,255,255,0.05); 
@@ -149,7 +147,7 @@
         .nav-item { 
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; 
             color: #6E6F89; 
-            height: 50px; /* TETAP 50PX */
+            height: 50px; 
             cursor: pointer; min-width: 0; 
         }
         .nav-item .material-icons-round { font-size: 24px; transition: 0.3s; }
@@ -169,7 +167,7 @@
             transition: transform 0.2s; 
             color: #0f1c15; 
             position: absolute; 
-            top: -15px; /* Disesuaikan untuk Nav 50px */
+            top: -15px; 
         }
         .fab-add:active { transform: scale(0.9); }
         .nav-section { display: flex; flex: 1; justify-content: space-around; }
@@ -177,7 +175,6 @@
         /* --- MODALS --- */
         .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; position: fixed; inset: 0; z-index: 1000; }
         .sheet-content { background: #26273B; border-top: 1px solid rgba(255,255,255,0.1); padding: 24px; position: absolute; bottom: 0; left: 0; right: 0; border-top-left-radius: 30px; border-top-right-radius: 30px; max-height: 90vh; overflow-y: auto; 
-            /* Menambahkan padding bawah untuk Modal agar tidak terhalang */
             padding-bottom: calc(var(--safe-bottom) + 24px); 
         }
         .popup-content { background: #26273B; border: 1px solid rgba(255,255,255,0.1); }
@@ -375,7 +372,7 @@
                 <div style="position:relative; z-index:2;">
                     <div style="font-size:11px; font-weight:700; opacity:0.6; letter-spacing:1px; margin-bottom:5px;">NET PROFIT (EST)</div>
                     <div style="font-size:32px; font-weight:800; letter-spacing:-1px;" id="repMargin">Rp 0</div>
-                    <div style="font-size:12px; margin-top:5px; opacity:0.8; font-weight:500;">(Total Sales - Capital Cost)</div>
+                    <div style="font-size:12px; margin-top:5px; opacity:0.8; font-weight:500;">(Liter x 3000 - Exp)</div>
                 </div>
                 <span class="material-icons-round" style="position:absolute; right:-10px; bottom:-10px; font-size:100px; opacity:0.1;">paid</span>
             </div>
@@ -620,8 +617,8 @@
         let db; 
         try { if(typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } } catch(e) { console.log("Firebase Offline"); }
 
-        // LOAD DATA
-        let data = { pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", price: 10000, modalPrice: 9000, photo: "logo.png", stokLiter: 0, trans: [], kasbon: [], groqKey: "" };
+        // LOAD DATA - UPDATED DEFAULT PRICE (12000) & MODAL (10000)
+        let data = { pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", price: 12000, modalPrice: 10000, photo: "logo.png", stokLiter: 0, trans: [], kasbon: [], groqKey: "" };
         try { let saved = localStorage.getItem('dl_super_v4'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
         if(!Array.isArray(data.trans)) data.trans = [];
         if(!Array.isArray(data.kasbon)) data.kasbon = [];
@@ -675,7 +672,7 @@
             document.getElementById(m==='inc'?'formInc':(m==='buy'?'formBuy':'formExp')).style.display = 'block';
         }
 
-        // RENDER FUNCTIONS
+        // RENDER FUNCTIONS - UPDATED WITH CUSTOM MARGIN LOGIC (3000)
         window.renderDash = () => {
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
@@ -688,10 +685,14 @@
                     else { dExp+=t.n; realTimeCash-=t.n; }
                 } 
             });
-            let profit = dInc - (dLit * (data.modalPrice||0)) - dExp;
+            
+            // LOGIC MARGIN KHUSUS: Menggunakan fix 3000 per liter
+            let customMargin = 3000;
+            let profit = (dLit * customMargin) - dExp;
+            
             document.getElementById('netProfit').innerText = fmtMoney(profit);
             document.getElementById('realTimeProfit').innerText = fmtMoney(realTimeCash);
-            document.getElementById('marginPerLiter').innerText = fmtMoney(data.price - (data.modalPrice||0)) + "/L";
+            document.getElementById('marginPerLiter').innerText = fmtMoney(customMargin) + "/L"; // Tampilkan 3000/L
             document.getElementById('todayLiter').innerText = dLit.toFixed(2) + " L";
             document.getElementById('totInc').innerText = fmtMoney(dInc);
             document.getElementById('totExp').innerText = fmtMoney(dExp);
@@ -775,7 +776,14 @@
                 if(t.type==='inc') { gr[k].i+=t.n; tInc+=t.n; tLit+=(t.l||0); }
                 else if(t.type==='buy') { gr[k].b+=t.n; tBuy+=t.n; } else { gr[k].e+=t.n; tExp+=t.n; }
             });
-            document.getElementById('repMargin').innerText=fmtMoney(tInc-(tLit*(data.modalPrice||0))); document.getElementById('repInc').innerText=fmtMoney(tInc); document.getElementById('repBuy').innerText=fmtMoney(tBuy); document.getElementById('repExp').innerText=fmtMoney(tExp);
+            // LOGIC REPORT: Net Profit = Liter * 3000 - Expense
+            let marginUnit = 3000;
+            let estProfit = (tLit * marginUnit) - tExp;
+            
+            document.getElementById('repMargin').innerText=fmtMoney(estProfit); 
+            document.getElementById('repInc').innerText=fmtMoney(tInc); 
+            document.getElementById('repBuy').innerText=fmtMoney(tBuy); 
+            document.getElementById('repExp').innerText=fmtMoney(tExp);
             document.getElementById('reportContent').innerHTML=Object.keys(gr).map(k=>`<div class="trans-item"><div style="flex:1;"><div class="ti-info"><h4>${k}</h4></div><div style="font-size:10px; color:var(--text-muted); margin-top:5px; display:flex; justify-content:space-between;"><span class="text-green">In: ${fmtMoney(gr[k].i)}</span><span class="text-red">Out: ${fmtMoney(gr[k].e+gr[k].b)}</span></div></div></div>`).join('');
         }
         window.setReportMode = (m) => { reportMode=m; document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active')); document.getElementById(m==='daily'?'rtDay':(m==='monthly'?'rtMonth':'rtYear')).classList.add('active'); renderReport(); }
