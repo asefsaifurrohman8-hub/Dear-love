@@ -83,6 +83,11 @@
         .realtime-pill { display: inline-flex; align-items: center; gap: 8px; background: rgba(46, 204, 113, 0.15); border: 1px solid rgba(46, 204, 113, 0.3); padding: 6px 16px; border-radius: 20px; margin-top: 10px; }
         .rt-dot { width: 6px; height: 6px; background: #2ECC71; border-radius: 50%; box-shadow: 0 0 8px #2ECC71; }
         .rt-text { font-size: 12px; font-weight: 600; color: #2ECC71; }
+        
+        /* New Target Styles */
+        .target-box { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 12px 16px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
+        .t-track { background: rgba(255,255,255,0.08); height: 8px; border-radius: 10px; overflow: hidden; margin-top: 8px; position: relative; }
+        .t-fill { height: 100%; background: linear-gradient(90deg, #4A6CFA, #2ECC71); width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(46, 204, 113, 0.5); }
 
         .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 30px; }
         .tool-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
@@ -233,7 +238,21 @@
                     <span class="rt-text">PROFIT HARI INI: <span id="netProfit">Rp 0</span></span>
                 </div>
                 <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">Margin Est: <span id="marginPerLiter" style="color:white;">Rp 0/L</span></div>
-            </div>
+                
+                <div class="target-box">
+                    <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:6px; font-weight:600; letter-spacing:0.5px;">
+                        <span>TARGET MARGIN</span>
+                        <span id="targetPct" style="color:#2ECC71; font-weight:800;">0%</span>
+                    </div>
+                    <div class="t-track">
+                        <div id="targetBar" class="t-fill"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-top:6px;">
+                        <span>Profit: <span id="currentSales" style="color:white;">Rp 0</span></span>
+                        <span>Goal: <span id="targetVal" style="color:white;">Rp 170.000</span></span>
+                    </div>
+                </div>
+                </div>
 
             <div class="tools-grid">
                 <div class="tool-item" onclick="openKasbon()"><div class="tool-icon t-blue"><span class="material-icons-round">book</span></div><span class="tool-label">Kasbon</span></div>
@@ -431,7 +450,7 @@
 
             <div class="cyber-card">
                 <div style="font-size:12px; font-weight:700; color:white; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
-                    <span class="material-icons-round" style="color:var(--accent-green);">payments</span> PRICING & CAPITAL
+                    <span class="material-icons-round" style="color:var(--accent-green);">payments</span> PRICING & TARGET
                 </div>
                 <div class="grid-2">
                     <div class="input-group">
@@ -443,9 +462,14 @@
                         <input type="number" id="setModalPrice" class="clean-input" placeholder="0">
                     </div>
                 </div>
+                
                 <div class="input-group">
                     <label class="input-label">Current Stock (L)</label>
                     <input type="number" id="setStok" class="clean-input" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" style="color:#2ECC71;">Daily Target (Margin)</label>
+                    <input type="number" id="setTarget" class="clean-input" placeholder="170000">
                 </div>
             </div>
 
@@ -617,8 +641,8 @@
         let db; 
         try { if(typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } } catch(e) { console.log("Firebase Offline"); }
 
-        // LOAD DATA - UPDATED DEFAULT PRICE (12000) & MODAL (10000)
-        let data = { pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", price: 12000, modalPrice: 10000, photo: "logo.png", stokLiter: 0, trans: [], kasbon: [], groqKey: "" };
+        // LOAD DATA - Added dailyTarget 170000
+        let data = { pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", price: 12000, modalPrice: 10000, photo: "logo.png", stokLiter: 0, dailyTarget: 170000, trans: [], kasbon: [], groqKey: "" };
         try { let saved = localStorage.getItem('dl_super_v4'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
         if(!Array.isArray(data.trans)) data.trans = [];
         if(!Array.isArray(data.kasbon)) data.kasbon = [];
@@ -672,7 +696,7 @@
             document.getElementById(m==='inc'?'formInc':(m==='buy'?'formBuy':'formExp')).style.display = 'block';
         }
 
-        // RENDER FUNCTIONS - UPDATED WITH CUSTOM MARGIN LOGIC (3000)
+        // RENDER FUNCTIONS - UPDATED TO USE PROFIT FOR TARGET
         window.renderDash = () => {
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
@@ -686,17 +710,28 @@
                 } 
             });
             
-            // LOGIC MARGIN KHUSUS: Menggunakan fix 3000 per liter
+            // LOGIC MARGIN KHUSUS 3000
             let customMargin = 3000;
-            let profit = (dLit * customMargin) - dExp;
+            let profit = (dLit * customMargin) - dExp; // Ini Profit Hari Ini
+            
+            // LOGIC TARGET HARIAN (Default 170k) - BASED ON PROFIT
+            let target = data.dailyTarget || 170000;
+            let pct = Math.min(100, Math.max(0, (profit / target) * 100)).toFixed(1);
             
             document.getElementById('netProfit').innerText = fmtMoney(profit);
             document.getElementById('realTimeProfit').innerText = fmtMoney(realTimeCash);
-            document.getElementById('marginPerLiter').innerText = fmtMoney(customMargin) + "/L"; // Tampilkan 3000/L
+            document.getElementById('marginPerLiter').innerText = fmtMoney(customMargin) + "/L"; 
             document.getElementById('todayLiter').innerText = dLit.toFixed(2) + " L";
             document.getElementById('totInc').innerText = fmtMoney(dInc);
             document.getElementById('totExp').innerText = fmtMoney(dExp);
             document.getElementById('stokVal').innerText = data.stokLiter.toFixed(2) + " L";
+            
+            // UPDATE TARGET WIDGET (USING PROFIT)
+            document.getElementById('targetVal').innerText = fmtMoney(target);
+            document.getElementById('currentSales').innerText = fmtMoney(profit); // Show Profit here
+            document.getElementById('targetPct').innerText = pct + "%";
+            document.getElementById('targetBar').style.width = pct + "%";
+            
             document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
         }
 
@@ -792,12 +827,14 @@
             document.getElementById('setStore').value = data.store; document.getElementById('setAddr').value = data.addr;
             document.getElementById('setPrice').value = data.price; document.getElementById('setModalPrice').value = data.modalPrice;
             document.getElementById('setStok').value = data.stokLiter; document.getElementById('setGroqKey').value = data.groqKey || "";
+            document.getElementById('setTarget').value = data.dailyTarget || 170000;
             document.getElementById('setPhoto').src = data.photo;
         }
         window.saveSet = () => {
             data.store=document.getElementById('setStore').value; data.addr=document.getElementById('setAddr').value;
             data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value);
             data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value;
+            data.dailyTarget=parseInt(document.getElementById('setTarget').value) || 170000;
             localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("Saved!"); renderDash();
         }
 
