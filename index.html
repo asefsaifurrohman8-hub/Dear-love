@@ -24,7 +24,7 @@
             --accent-purple: #9D59F5;
             --accent-pink: #F54EA2;
             --accent-green: #2ECC71;
-            --accent-wd: #D946EF; /* WARNA UNGU UNTUK WD */
+            --accent-wd: #D946EF; 
             --text-main: #FFFFFF;
             --text-muted: #8F90A6;
             --radius-l: 24px;
@@ -68,7 +68,7 @@
         }
         .scroll-content::-webkit-scrollbar { display: none; }
 
-        /* --- NEW CLEAN DASHBOARD STYLES --- */
+        /* --- DASHBOARD STYLES --- */
         .hero-card {
             background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
             border: 1px solid rgba(255,255,255,0.1);
@@ -102,7 +102,7 @@
         }
 
         .mini-target-bar {
-            height: 4px;
+            height: 6px;
             background: rgba(255,255,255,0.1);
             border-radius: 4px;
             margin-top: 20px;
@@ -112,9 +112,10 @@
 
         .mt-fill {
             height: 100%;
+            width: 0%;
             background: linear-gradient(90deg, #4A6CFA, #2ECC71);
             box-shadow: 0 0 10px #2ECC71;
-            transition: width 1s ease;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .info-grid {
@@ -150,7 +151,6 @@
             margin-bottom: 8px;
             font-size: 12px;
         }
-        .flow-row:last-child { margin-bottom: 0; }
 
         .section-title {
             font-size: 14px;
@@ -161,7 +161,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* --- CARDS & WIDGETS (General) --- */
+        /* --- CARDS & TOOLS --- */
         .cyber-card {
             background: var(--card-bg);
             border: var(--card-border);
@@ -173,101 +173,55 @@
 
         .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 30px; }
         .tool-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
-        .tool-icon { width: 100%; aspect-ratio: 1/1; border-radius: 20px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.2s; }
+        .tool-icon { width: 100%; aspect-ratio: 1/1; border-radius: 20px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
         .tool-item:active .tool-icon { transform: scale(0.95); }
-        .t-blue { background: linear-gradient(135deg, #4A6CFA 0%, #354dbd 100%); box-shadow: 0 8px 20px rgba(74, 108, 250, 0.25); }
-        .t-purple { background: linear-gradient(135deg, #9D59F5 0%, #7B3DD1 100%); box-shadow: 0 8px 20px rgba(157, 89, 245, 0.25); }
-        .t-pink { background: linear-gradient(135deg, #F54EA2 0%, #D12C85 100%); box-shadow: 0 8px 20px rgba(245, 78, 162, 0.25); }
+        .t-blue { background: linear-gradient(135deg, #4A6CFA 0%, #354dbd 100%); }
+        .t-purple { background: linear-gradient(135deg, #9D59F5 0%, #7B3DD1 100%); }
+        .t-pink { background: linear-gradient(135deg, #F54EA2 0%, #D12C85 100%); }
         .t-dark { background: rgba(255,255,255,0.08); }
-        .tool-icon span { font-size: 26px; color: white; }
         .tool-label { font-size: 11px; color: var(--text-main); font-weight: 500; }
 
-        .trans-item { display: flex; align-items: center; justify-content: space-between; background: transparent; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 12px 0; margin: 0; transition: 0.2s; }
+        .trans-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
         .trans-item:active { opacity: 0.7; }
-        .trans-item:last-child { border-bottom: none; }
-        
-        .ti-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 14px; flex-shrink: 0; font-size: 20px; }
+        .ti-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 14px; font-size: 20px; }
         .ti-icon.inc { background: rgba(46, 204, 113, 0.15); color: #2ECC71; }
         .ti-icon.buy { background: rgba(157, 89, 245, 0.15); color: #9D59F5; }
         .ti-icon.exp { background: rgba(245, 78, 162, 0.15); color: #F54EA2; }
         .ti-icon.wd  { background: rgba(217, 70, 239, 0.15); color: #D946EF; }
+        
         .ti-info h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: var(--text-main); }
         .ti-info p { margin: 0; font-size: 11px; color: var(--text-muted); }
         .ti-val { font-size: 14px; font-weight: 700; display: block; text-align: right; }
         .ti-time { font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 4px; display: block; }
         .val-plus { color: #2ECC71; } .val-minus { color: var(--text-main); }
 
-        /* --- INPUTS & FORMS --- */
-        .input-group { margin-bottom: 15px; }
-        .input-label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-        .clean-input { 
-            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); 
-            color: white; border-radius: 16px; padding: 14px 16px; font-size: 14px; 
-            font-family: 'Inter', sans-serif; outline: none; transition: 0.3s;
-        }
-        .clean-input:focus { border-color: var(--primary); background: rgba(0,0,0,0.3); }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
-        /* --- BOTTOM NAV --- */
-        .bottom-nav-wrap { 
-            position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; 
-            z-index: 999; pointer-events: none; 
-            padding-bottom: calc(var(--safe-bottom) + 10px); 
-            background: linear-gradient(180deg, transparent, #1F202F 40%); 
-        }
-        .bottom-nav { 
-            pointer-events: auto; background: #26273B; width: 90%; max-width: 400px; 
-            height: 50px; 
-            border-radius: 30px; display: flex; justify-content: space-around; 
-            align-items: center; padding: 0 10px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); 
-            border: 1px solid rgba(255,255,255,0.05); 
-        }
-        .nav-item { 
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            color: #6E6F89; 
-            height: 50px; 
-            cursor: pointer; min-width: 0; 
-        }
+        /* --- NAVIGATION --- */
+        .bottom-nav-wrap { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; z-index: 999; padding-bottom: calc(var(--safe-bottom) + 10px); background: linear-gradient(180deg, transparent, #1F202F 40%); transition: 0.3s; }
+        .bottom-nav { background: #26273B; width: 90%; max-width: 400px; height: 60px; border-radius: 30px; display: flex; justify-content: space-around; align-items: center; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; color: #6E6F89; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
         .nav-item .material-icons-round { font-size: 24px; transition: 0.3s; }
-        .nav-item.active { color: var(--text-main); }
-        .nav-item.active .material-icons-round { color: var(--primary); text-shadow: 0 0 15px rgba(74, 108, 250, 0.6); transform: translateY(-2px); }
-        .fab-container { width: 75px; display: flex; justify-content: center; align-self: flex-start; }
-        .fab-add { 
-            width: 50px; 
-            height: 50px; 
-            background: var(--accent-green); 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4); 
-            cursor: pointer; 
-            transition: transform 0.2s; 
-            color: #0f1c15; 
-            position: absolute; 
-            top: -15px; 
-        }
+        .nav-item.active .material-icons-round { transform: translateY(-2px); text-shadow: 0 0 10px var(--primary); }
+        .fab-add { width: 56px; height: 56px; background: var(--accent-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0f1c15; position: absolute; top: -20px; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3); cursor: pointer; transition: 0.2s; }
         .fab-add:active { transform: scale(0.9); }
-        .nav-section { display: flex; flex: 1; justify-content: space-around; }
 
-        /* --- MODALS --- */
-        .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; position: fixed; inset: 0; z-index: 1000; }
-        .sheet-content { background: #26273B; border-top: 1px solid rgba(255,255,255,0.1); padding: 24px; position: absolute; bottom: 0; left: 0; right: 0; border-top-left-radius: 30px; border-top-right-radius: 30px; max-height: 90vh; overflow-y: auto; 
-            padding-bottom: calc(var(--safe-bottom) + 24px); 
-        }
-        .popup-content { background: #26273B; border: 1px solid rgba(255,255,255,0.1); }
-
-        /* --- BUTTONS --- */
-        .btn-primary { background: linear-gradient(135deg, var(--primary), #354dbd); box-shadow: 0 10px 25px rgba(74, 108, 250, 0.3); padding: 14px; border-radius: 16px; width: 100%; border: none; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        /* --- FORMS & MODALS --- */
+        .modal-overlay { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; position: fixed; inset: 0; z-index: 1000; justify-content: center; align-items: flex-end; }
+        .sheet-content { background: #26273B; border-top: 1px solid rgba(255,255,255,0.1); padding: 24px; position: absolute; bottom: 0; left: 0; right: 0; border-radius: 30px 30px 0 0; max-height: 90vh; overflow-y: auto; padding-bottom: calc(var(--safe-bottom) + 20px); }
+        
+        .clean-input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 16px; padding: 14px; margin-bottom: 15px; outline: none; font-size: 14px; transition: 0.3s; }
+        .clean-input:focus { border-color: var(--primary); background: rgba(0,0,0,0.4); }
+        
+        .btn-primary { background: linear-gradient(135deg, var(--primary), #354dbd); padding: 16px; border-radius: 16px; width: 100%; border: none; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 20px rgba(74, 108, 250, 0.3); }
         .btn-primary:active { transform: scale(0.98); }
         
-        /* --- REPORT TABS --- */
-        .report-tabs { background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); display: flex; padding: 4px; margin-bottom: 25px; }
-        .report-tabs .rt-btn { flex: 1; text-align: center; padding: 10px 0; border-radius: 12px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .report-tabs { background: rgba(0,0,0,0.3); border-radius: 16px; display: flex; padding: 4px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05); }
+        .rt-btn { flex: 1; text-align: center; padding: 10px; border-radius: 12px; font-size: 12px; color: var(--text-muted); cursor: pointer; transition: 0.2s; font-weight: 600; }
         .rt-btn.active { background: rgba(255,255,255,0.1); color: white; }
 
         /* Helpers */
         .text-green { color: var(--accent-green); } .text-red { color: var(--accent-pink); } .text-blue { color: var(--primary); }
+        .input-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -275,16 +229,16 @@
     <div id="splashScreen" style="position:fixed; inset:0; background:#151620; z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; transition:0.5s;">
         <img src="logo.png" style="width:100px; height:100px; border-radius:25px; object-fit:cover; margin-bottom:20px; box-shadow:0 0 50px rgba(74, 108, 250, 0.3);" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
         <div style="color:white; font-weight:700; font-size:24px;">DEAR LOVE</div>
-        <div style="color:rgba(255,255,255,0.5); font-size:12px; margin-top:5px; letter-spacing:2px;">CYBER POS</div>
+        <div style="color:rgba(255,255,255,0.5); font-size:12px; margin-top:5px; letter-spacing:3px;">CYBER POS</div>
     </div>
 
     <div id="loginScreen" class="screen active">
         <div style="text-align:center; padding: 40px; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-            <div style="width:100px; height:100px; background:linear-gradient(135deg, var(--primary), var(--accent-purple)); border-radius:30px; margin:0 auto 40px; display:flex; align-items:center; justify-content:center; color:white; font-size:36px; font-weight:800; box-shadow: 0 0 40px rgba(74, 108, 250, 0.4);">DL</div>
-            <h2 style="margin:0 0 10px; font-weight:700; font-size:24px; color:white;">Welcome Back</h2>
-            <p style="color:var(--text-muted); margin-bottom:40px;">Enter your admin PIN to continue</p>
-            <input type="password" id="passInput" class="clean-input" placeholder="••••" maxlength="20" style="text-align:center; font-size:24px; letter-spacing:5px; font-weight:700; color:var(--primary); margin-bottom:20px; padding: 15px;">
-            <button class="btn-primary" onclick="doLogin()">Unlock System</button>
+            <div style="width:80px; height:80px; background:linear-gradient(135deg, var(--primary), var(--accent-purple)); border-radius:20px; margin:0 auto 30px; display:flex; align-items:center; justify-content:center; color:white; font-size:24px; font-weight:800; box-shadow: 0 0 30px rgba(74, 108, 250, 0.4);">DL</div>
+            <h2 style="color:white; margin:0 0 10px;">Cyber Admin</h2>
+            <p style="color:var(--text-muted); margin-bottom:30px;">Enter security PIN to continue</p>
+            <input type="password" id="passInput" class="clean-input" placeholder="••••" style="text-align:center; font-size:24px; letter-spacing:8px; font-weight:bold;">
+            <button class="btn-primary" onclick="doLogin()">UNLOCK SYSTEM</button>
         </div>
     </div>
 
@@ -293,7 +247,7 @@
             <div class="header-profile-wrap" onclick="nav('settingScreen')">
                 <img id="dispPhoto" class="profile-pic" src="logo.png" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
                 <div>
-                    <div class="header-sub">Good Morning,</div>
+                    <div class="header-sub">System Online</div>
                     <div class="header-title" id="dispStoreName">DEAR LOVE</div>
                 </div>
             </div>
@@ -303,7 +257,6 @@
         </div>
 
         <div class="scroll-content">
-            
             <div class="hero-card">
                 <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Cash in Drawer</div>
                 <div class="hero-balance" id="realTimeProfit">Rp 0</div>
@@ -311,38 +264,30 @@
                 <div class="hero-pill">
                     <span style="color:var(--accent-green); font-weight:700;">PROFIT: <span id="netProfit">Rp 0</span></span>
                     <span style="width:1px; height:10px; background:rgba(255,255,255,0.2);"></span>
-                    <span style="color:var(--text-muted);">Target: <span id="targetPct">0%</span></span>
+                    <span style="color:var(--text-muted);">Margin Target: <span id="targetPct">0%</span></span>
                 </div>
 
                 <div class="mini-target-bar">
                     <div id="targetBar" class="mt-fill"></div>
                 </div>
-                <span style="display:none;" id="targetVal"></span>
-                <span style="display:none;" id="currentSales"></span>
-                <span style="display:none;" id="marginPerLiter"></span>
+                
+                <div id="hppStatus" style="font-size:10px; color:var(--text-muted); margin-top:10px; letter-spacing:1px; font-weight:700; text-transform: uppercase;">CALCULATING HPP...</div>
             </div>
 
             <div class="info-grid">
-                <div class="info-card" onclick="alert('Cek Fisik!')">
+                <div class="info-card">
                     <div class="stock-circle"><span class="material-icons-round">water_drop</span></div>
                     <div style="font-size:11px; color:var(--text-muted);">Stock Available</div>
-                    <div style="font-size:18px; font-weight:700; color:white;"><span id="stokVal">0</span> <span style="font-size:12px; font-weight:400; color:var(--text-muted);">L</span></div>
-                    <div style="font-size:10px; color:var(--accent-pink); margin-top:5px;">Sold: <span id="todayLiter">0L</span></div>
+                    <div style="font-size:18px; font-weight:700;"><span id="stokVal">0</span> L</div>
+                    <div style="font-size:10px; color:var(--accent-pink); margin-top:5px;">Sold Today: <span id="todayLiter">0L</span></div>
                 </div>
-
                 <div class="info-card">
-                    <div class="flow-row">
-                        <span style="color:var(--text-muted);">Income</span>
-                        <span style="color:var(--accent-green); font-weight:600;" id="totInc">Rp 0</span>
-                    </div>
-                    <div class="flow-row">
-                        <span style="color:var(--text-muted);">Expense</span>
-                        <span style="color:var(--accent-pink); font-weight:600;" id="totExp">Rp 0</span>
-                    </div>
-                    <div style="border-top:1px dashed rgba(255,255,255,0.1); margin:6px 0;"></div>
-                     <div class="flow-row">
-                        <span style="color:var(--text-muted);">Details</span>
-                        <span class="material-icons-round" style="font-size:14px; color:var(--primary); cursor:pointer;" onclick="nav('reportScreen')">arrow_forward</span>
+                    <div class="flow-row"><span>Income</span><span class="text-green" id="totInc">Rp 0</span></div>
+                    <div class="flow-row"><span>Expense</span><span class="text-red" id="totExp">Rp 0</span></div>
+                    <div style="border-top:1px dashed rgba(255,255,255,0.1); margin:8px 0;"></div>
+                    <div class="flow-row" onclick="nav('reportScreen')" style="cursor:pointer;">
+                        <span>Details</span>
+                        <span class="material-icons-round" style="font-size:14px; color:var(--primary);">arrow_forward</span>
                     </div>
                 </div>
             </div>
@@ -351,7 +296,7 @@
                 <div class="tool-item" onclick="openKasbon()"><div class="tool-icon t-blue"><span class="material-icons-round">book</span></div><span class="tool-label">Kasbon</span></div>
                 <div class="tool-item" onclick="openCalc()"><div class="tool-icon t-purple"><span class="material-icons-round">calculate</span></div><span class="tool-label">Hitung</span></div>
                 <div class="tool-item" onclick="exportExcel()"><div class="tool-icon t-pink"><span class="material-icons-round">file_download</span></div><span class="tool-label">Export</span></div>
-                <div class="tool-item" onclick="nav('polaScreen')"><div class="tool-icon t-dark"><span class="material-icons-round" style="color:var(--text-muted)">ssid_chart</span></div><span class="tool-label">Analisa</span></div>
+                <div class="tool-item" onclick="nav('polaScreen')"><div class="tool-icon t-dark"><span class="material-icons-round">ssid_chart</span></div><span class="tool-label">Analisa</span></div>
             </div>
 
             <div class="section-title">Recent Activity</div>
@@ -360,43 +305,39 @@
 
         <div class="bottom-nav-wrap">
             <div class="bottom-nav">
-                <div class="nav-section">
-                    <div class="nav-item active" onclick="nav('adminScreen')"><span class="material-icons-round">grid_view</span></div>
-                    <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span></div>
-                </div>
-                <div class="fab-container"><div class="fab-add" onclick="openInputModal()"><span class="material-icons-round" style="font-size:32px;">add</span></div></div>
-                <div class="nav-section">
-                    <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span></div>
-                    <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">pie_chart</span></div>
-                </div>
+                <div class="nav-item active" onclick="nav('adminScreen')"><span class="material-icons-round">grid_view</span></div>
+                <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span></div>
+                <div style="width:70px;"></div>
+                <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span></div>
+                <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">pie_chart</span></div>
+                <div class="fab-add" onclick="openInputModal()"><span class="material-icons-round">add</span></div>
             </div>
         </div>
     </div>
 
     <div id="aiScreen" class="screen">
         <div class="top-header">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-                <div class="header-title">AI Assistant</div>
-            </div>
-            <div style="background:rgba(46, 204, 113, 0.2); color:#2ECC71; padding:4px 10px; border-radius:10px; font-size:10px; font-weight:bold;">ONLINE</div>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <div class="header-title">AI Assistant</div>
+            <div style="font-size:10px; color:var(--accent-green); background:rgba(46,204,113,0.1); padding:2px 6px; border-radius:4px;">ONLINE</div>
         </div>
         <div id="chatBox" style="flex:1; overflow-y:auto; padding:20px;">
-            <div style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:20px;">
-                Ask about strategy, stock prediction, or sales analysis.
+            <div style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:30px;">
+                <span class="material-icons-round" style="font-size:40px; margin-bottom:10px; display:block; opacity:0.5;">smart_toy</span>
+                AI Ready. Tanya strategi penjualan atau analisa stok.
             </div>
         </div>
-        <div style="padding:15px; background:#26273B; border-top:1px solid rgba(255,255,255,0.1); display:flex; gap:10px; padding-bottom:calc(var(--safe-bottom) + 15px);">
-            <input id="aiInput" class="clean-input" style="margin:0; padding:12px; flex:1;" placeholder="Type here...">
-            <button onclick="sendAIChat()" class="icon-btn" style="background:var(--primary); border:none;"><span class="material-icons-round">send</span></button>
+        <div style="padding:20px; display:flex; gap:10px; background:#26273B; border-top:1px solid rgba(255,255,255,0.05);">
+            <input id="aiInput" class="clean-input" style="margin:0;" placeholder="Tanya sesuatu...">
+            <button onclick="sendAIChat()" class="icon-btn" style="background:var(--primary); width:50px;"><span class="material-icons-round">send</span></button>
         </div>
     </div>
 
     <div id="polaScreen" class="screen">
         <div class="top-header">
             <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-            <span class="header-title">Analytics</span>
-            <span style="width:40px;"></span>
+            <span class="header-title">Sales Analytics</span>
+            <span></span>
         </div>
         <div class="scroll-content">
             <div class="cyber-card" style="display:flex; justify-content:space-between; align-items:center;">
@@ -415,37 +356,32 @@
                     <span class="material-icons-round" style="font-size:32px; color:var(--text-muted);">cloud_sync</span>
                 </div>
             </div>
-            
-            <div class="cyber-card" style="height:300px;">
-                <div style="font-size:12px; color:var(--text-muted); margin-bottom:15px; font-weight:600; text-transform:uppercase;">Peak Sales Hours</div>
-                <canvas id="hourChart"></canvas>
-            </div>
-            
-            <div class="cyber-card" style="height:300px;">
-                <div style="font-size:12px; color:var(--text-muted); margin-bottom:15px; font-weight:600; text-transform:uppercase;">Best Performance Days</div>
-                <canvas id="dayChart"></canvas>
-            </div>
+
+             <div class="cyber-card" style="height:320px;">
+                 <div class="section-title">Sales by Hour</div>
+                 <canvas id="hourChart"></canvas>
+             </div>
+             <div class="cyber-card" style="height:320px;">
+                 <div class="section-title">Performance by Day</div>
+                 <canvas id="dayChart"></canvas>
+             </div>
         </div>
-        <div class="bottom-nav-wrap"><div class="bottom-nav"></div></div>
     </div>
 
     <div id="historyScreen" class="screen">
         <div class="top-header">
             <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-            <span class="header-title">History</span>
-            <span class="material-icons-round icon-btn" onclick="clearData()" style="color:var(--accent-pink); background:rgba(245, 78, 162, 0.1);">delete</span>
+            <span class="header-title">Transaction History</span>
+            <span class="material-icons-round icon-btn" onclick="clearData()" style="color:var(--accent-pink);">delete</span>
         </div>
-        <div class="scroll-content" style="padding-top:15px;">
-            <div id="fullHistoryList"></div>
-        </div>
-        <div class="bottom-nav-wrap"><div class="bottom-nav"></div></div>
+        <div class="scroll-content" id="fullHistoryList"></div>
     </div>
 
     <div id="reportScreen" class="screen">
-         <div class="top-header">
+        <div class="top-header">
             <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
             <span class="header-title">Financial Report</span>
-            <span style="width:40px;"></span>
+            <span></span>
         </div>
         <div class="scroll-content">
             <div class="report-tabs">
@@ -453,10 +389,10 @@
                 <div id="rtMonth" class="rt-btn" onclick="setReportMode('monthly')">Monthly</div>
                 <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Yearly</div>
             </div>
-
+            
             <div class="cyber-card" style="padding:0; overflow:hidden;">
                 <div style="padding:20px; background:linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));">
-                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Net Profit (Murni)</div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Net Profit (Margin 3000)</div>
                     <div style="font-size:32px; font-weight:800; color:#2ECC71;" id="rpNet">Rp 0</div>
                 </div>
                 
@@ -467,14 +403,14 @@
                     </div>
                     
                     <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                        <span style="color:var(--text-muted);">Total HPP (<span id="rpLitTotal" style="font-size:11px;">0L</span>)</span>
+                        <span style="color:var(--text-muted);">HPP Modal (<span id="rpLitTotal" style="font-size:11px;">0L</span>)</span>
                         <span style="font-weight:600; color:var(--accent-pink);" id="rpHpp">- Rp 0</span>
                     </div>
 
                     <div style="border-bottom:1px dashed rgba(255,255,255,0.1); margin-bottom:15px;"></div>
 
                     <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                        <span style="color:white; font-weight:500;">LABA KOTOR (Omzet - HPP)</span>
+                        <span style="color:white; font-weight:500;">LABA KOTOR (Dipaksa 3K)</span>
                         <span style="font-weight:700; color:var(--primary);" id="rpGross">Rp 0</span>
                     </div>
 
@@ -493,17 +429,16 @@
                 </div>
             </div>
             
-            <h4 style="margin:25px 0 15px 0; color:var(--text-muted); font-size:12px; text-transform:uppercase;">Transaction History</h4>
+            <h4 style="margin:25px 0 15px 0; color:var(--text-muted); font-size:12px; text-transform:uppercase;">Detail History</h4>
             <div id="reportContent"></div>
         </div>
-        <div class="bottom-nav-wrap"><div class="bottom-nav"></div></div>
     </div>
 
     <div id="settingScreen" class="screen">
         <div class="top-header">
             <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-            <span class="header-title">Settings</span>
-             <span style="width:40px;"></span>
+            <span class="header-title">System Settings</span>
+            <span></span>
         </div>
         <div class="scroll-content">
             <div style="text-align:center; margin:20px 0 40px;">
@@ -517,56 +452,35 @@
             </div>
 
             <div class="cyber-card">
-                <div style="font-size:12px; font-weight:700; color:white; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
-                    <span class="material-icons-round" style="color:var(--primary);">store</span> STORE INFO
+                <div class="input-group">
+                    <label>STORE NAME</label>
+                    <input id="setStore" class="clean-input">
                 </div>
                 <div class="input-group">
-                    <label class="input-label">Store Name</label>
-                    <input type="text" id="setStore" class="clean-input" placeholder="Enter name">
+                    <label>ADDRESS</label>
+                    <input id="setAddr" class="clean-input">
                 </div>
-                <div class="input-group">
-                    <label class="input-label">Address</label>
-                    <input type="text" id="setAddr" class="clean-input" placeholder="Enter address for receipt">
-                </div>
-            </div>
-
-            <div class="cyber-card">
-                <div style="font-size:12px; font-weight:700; color:white; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
-                    <span class="material-icons-round" style="color:var(--accent-green);">payments</span> PRICING & TARGET
-                </div>
-                <div class="grid-2">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                     <div class="input-group">
-                        <label class="input-label text-green">Sell Price / L</label>
-                        <input type="number" id="setPrice" class="clean-input" placeholder="0">
+                        <label>JUAL/L (Rp)</label>
+                        <input id="setPrice" type="number" class="clean-input">
                     </div>
                     <div class="input-group">
-                        <label class="input-label text-red">Modal Price / L (HPP)</label>
-                        <input type="number" id="setModalPrice" class="clean-input" placeholder="0">
+                        <label>MODAL/L (Rp)</label>
+                        <input id="setModalPrice" type="number" class="clean-input">
                     </div>
                 </div>
-                
                 <div class="input-group">
-                    <label class="input-label">Current Stock (L)</label>
-                    <input type="number" id="setStok" class="clean-input" placeholder="0">
+                    <label>DAILY TARGET (MARGIN)</label>
+                    <input id="setTarget" type="number" class="clean-input">
                 </div>
                 <div class="input-group">
-                    <label class="input-label" style="color:#2ECC71;">Daily Profit Target (Margin)</label>
-                    <input type="number" id="setTarget" class="clean-input" placeholder="170000">
+                    <label>GROQ API KEY</label>
+                    <input id="setGroqKey" class="clean-input" type="password">
                 </div>
+                <button class="btn-primary" onclick="saveSet()">UPDATE SYSTEM</button>
+                <button class="btn-primary" onclick="doLogout()" style="background:rgba(255,255,255,0.05); color:var(--accent-pink); margin-top:15px; box-shadow:none;">LOG OUT</button>
             </div>
-
-            <div class="cyber-card">
-                 <div style="font-size:12px; font-weight:700; color:white; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
-                    <span class="material-icons-round" style="color:var(--accent-purple);">smart_toy</span> AI CONNECTION
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Groq API Key</label>
-                    <input type="text" id="setGroqKey" class="clean-input" placeholder="sk-...">
-                </div>
-            </div>
-
-            <button class="btn-primary" onclick="saveSet()">Save Changes</button>
-            <button class="btn-primary" onclick="doLogout()" style="background:rgba(245, 78, 162, 0.1); color:var(--accent-pink); margin-top:15px; box-shadow:none; border:1px solid rgba(245, 78, 162, 0.3);">Log Out</button>
         </div>
     </div>
 
@@ -577,48 +491,38 @@
                 <span class="material-icons-round" onclick="closeModal('inputModal')" style="cursor:pointer; color:var(--text-muted);">close</span>
             </div>
             
-            <div style="background:rgba(0,0,0,0.3); display:flex; border-radius:16px; padding:4px; margin-bottom:20px; gap:4px;">
-                <button id="mtInc" class="mode-btn active" onclick="setMode('inc')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">SALE</button>
-                <button id="mtBuy" class="mode-btn" onclick="setMode('buy')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">STOCK</button>
-                <button id="mtExp" class="mode-btn" onclick="setMode('exp')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">EXP</button>
-                <button id="mtWd" class="mode-btn" onclick="setMode('wd')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">WD</button>
+            <div class="report-tabs">
+                <div id="mtInc" class="rt-btn active" onclick="setMode('inc')">SALE</div>
+                <div id="mtBuy" class="rt-btn" onclick="setMode('buy')">STOCK</div>
+                <div id="mtExp" class="rt-btn" onclick="setMode('exp')">EXPENSE</div>
+                <div id="mtWd" class="rt-btn" onclick="setMode('wd')">WD</div>
             </div>
-            <style> .mode-btn.active { background:rgba(255,255,255,0.1) !important; color:white !important; } </style>
 
             <div id="formInc">
-                <div style="position:relative;">
-                    <span style="position:absolute; top:16px; left:16px; font-weight:700; color:var(--text-muted);">Rp</span>
-                    <input type="number" id="admNom" class="clean-input" style="padding-left:50px; font-size:24px; font-weight:700; padding-top:15px; padding-bottom:15px;" placeholder="0" oninput="calcAdm()">
-                </div>
-                <div style="text-align:right; font-size:12px; color:var(--text-muted); margin-bottom:20px; margin-top:8px;">
-                    Volume: <span id="admLit" class="text-green" style="font-weight:700;">0L</span>
-                </div>
-                <button class="btn-primary" style="background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.1); box-shadow:none; margin-bottom:15px;" onclick="sendBillToCustomer()"><span class="material-icons-round" style="font-size:16px; margin-right:5px; vertical-align:middle;">cast</span> CAST BILL</button>
-                <div class="grid-2">
-                    <button class="btn-primary" style="background:var(--accent-green);" onclick="saveTrans('inc','cash')">CASH</button>
-                    <button class="btn-primary" style="background:var(--primary);" onclick="saveTrans('inc','qris')">QRIS</button>
-                </div>
+                <input type="number" id="admNom" class="clean-input" placeholder="Rp" style="font-size:24px; font-weight:800;" oninput="calcAdm()">
+                <div style="text-align:right; font-size:12px; color:var(--accent-green); margin-bottom:15px;">Volume: <span id="admLit">0</span> L</div>
+                <button class="btn-primary" onclick="saveTrans('inc')">SUBMIT SALE</button>
             </div>
 
             <div id="formBuy" style="display:none;">
                 <div class="input-group">
-                    <label class="input-label">Total Cost (Rp)</label>
+                    <label>Total Cost (Rp)</label>
                     <input type="number" id="buyNom" class="clean-input" placeholder="0">
                 </div>
                 <div class="input-group">
-                    <label class="input-label">Liters Received</label>
+                    <label>Liters Received</label>
                     <input type="number" id="buyLit" class="clean-input" placeholder="0">
                 </div>
-                <button class="btn-primary" style="background:var(--accent-purple);" onclick="saveTrans('buy')">ADD STOCK</button>
+                <button class="btn-primary" style="background:var(--accent-purple);" onclick="saveTrans('buy')">REFILL STOCK</button>
             </div>
 
             <div id="formExp" style="display:none;">
                 <div class="input-group">
-                    <label class="input-label">Description</label>
-                    <input type="text" id="descInput" class="clean-input" placeholder="e.g. Electricity">
+                    <label>Description</label>
+                    <input type="text" id="descInput" class="clean-input" placeholder="e.g. Listrik">
                 </div>
                 <div class="input-group">
-                    <label class="input-label">Amount (Rp)</label>
+                    <label>Amount (Rp)</label>
                     <input type="number" id="expNom" class="clean-input" placeholder="0">
                 </div>
                 <button class="btn-primary" style="background:var(--accent-pink);" onclick="saveTrans('exp')">SAVE EXPENSE</button>
@@ -626,17 +530,10 @@
 
             <div id="formWd" style="display:none;">
                 <div class="input-group">
-                    <label class="input-label" style="color:var(--accent-wd);">Withdraw Amount</label>
-                    <div style="position:relative;">
-                        <span style="position:absolute; top:16px; left:16px; font-weight:700; color:var(--text-muted);">Rp</span>
-                        <input type="number" id="wdNom" class="clean-input" style="padding-left:50px; font-size:24px; font-weight:700;" placeholder="0">
-                    </div>
-                    <p style="font-size:11px; color:var(--text-muted); margin-top:10px; line-height:1.4;">
-                        <span class="material-icons-round" style="font-size:12px; vertical-align:middle;">info</span> 
-                        Uang laci akan berkurang, tapi statistik <b>Target Margin</b> hari ini akan tetap terjaga.
-                    </p>
+                    <label>Withdraw Amount</label>
+                    <input type="number" id="wdNom" class="clean-input" placeholder="Rp">
                 </div>
-                <button class="btn-primary" style="background:var(--accent-wd); box-shadow: 0 10px 25px rgba(217, 70, 239, 0.3);" onclick="saveTrans('wd')">TARIK KEUNTUNGAN</button>
+                <button class="btn-primary" style="background:var(--accent-wd);" onclick="saveTrans('wd')">WITHDRAW</button>
             </div>
         </div>
     </div>
@@ -646,7 +543,7 @@
             <h3 style="color:white; margin-bottom:20px;">Edit Transaction</h3>
             <input type="hidden" id="editId">
             <div class="input-group">
-                <label class="input-label">Type</label>
+                <label>Type</label>
                 <select id="editType" class="clean-input" onchange="toggleEditFields()" style="background:#222;">
                     <option value="inc">Sale</option>
                     <option value="buy">Restock</option>
@@ -655,47 +552,30 @@
                 </select>
             </div>
             <div class="input-group">
-                <label class="input-label">Nominal</label>
+                <label>Nominal</label>
                 <input type="number" id="editNom" class="clean-input">
             </div>
             <div id="editLiterWrap" class="input-group">
-                <label class="input-label">Liter</label>
+                <label>Liter</label>
                 <input type="number" id="editLit" class="clean-input">
             </div>
             <div class="input-group">
-                <label class="input-label">Note</label>
+                <label>Note</label>
                 <input type="text" id="editDesc" class="clean-input">
             </div>
-            <button class="btn-primary" onclick="saveEditTrans()">Update</button>
-            <button class="btn-primary" onclick="deleteTrans()" style="background:rgba(245, 78, 162, 0.1); color:var(--accent-pink); margin-top:10px; box-shadow:none;">Delete</button>
-            <button class="btn-primary" onclick="closeModal('editModal')" style="background:transparent; margin-top:5px; box-shadow:none;">Cancel</button>
+            <button class="btn-primary" onclick="saveEditTrans()">UPDATE</button>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                <button class="btn-primary" onclick="deleteTrans()" style="background:rgba(245, 78, 162, 0.1); color:var(--accent-pink); box-shadow:none;">DELETE</button>
+                <button class="btn-primary" onclick="closeModal('editModal')" style="background:transparent; box-shadow:none;">CANCEL</button>
+            </div>
         </div>
     </div>
 
-    <div id="receiptModal" class="modal-overlay" style="align-items:center; justify-content:center;">
-        <div class="popup-content" style="width:85%; max-width:320px; padding:20px; border-radius:20px; background:white; color:black;">
-            <div style="text-align:center; margin-bottom:15px; font-weight:700; color:#2ECC71;">TRANSACTION SUCCESS</div>
-            <div style="border:1px dashed #ccc; padding:15px; border-radius:10px; font-family:'Courier New', monospace; text-align:center;">
-                <div style="font-weight:bold; font-size:16px; margin-bottom:5px;" id="rcStore">DEAR LOVE</div>
-                <div style="font-size:10px; margin-bottom:15px;" id="rcAddr"></div>
-                <div style="border-bottom:1px dashed #000; margin-bottom:10px;"></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span id="rcItem">Fuel</span>
-                    <span id="rcTotal" style="font-weight:bold;">Rp 10.000</span>
-                </div>
-                <div style="text-align:left; font-size:10px;" id="rcDet">1.00 Liter</div>
-                <div style="border-bottom:1px dashed #000; margin:10px 0;"></div>
-                <div style="font-size:10px;" id="rcTime">12/12/2025</div>
-            </div>
-            <button class="btn-primary" onclick="closeModal('receiptModal')" style="margin-top:20px;">Close</button>
-        </div>
-    </div>
-    
     <div id="kasbonModal" class="modal-overlay">
         <div class="sheet-content">
              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h3 style="margin:0; color:white;">Kasbon (Debt)</h3>
-                <span class="material-icons-round" onclick="closeModal('kasbonModal')" style="color:white;">close</span>
+                <span class="material-icons-round" onclick="closeModal('kasbonModal')" style="color:white; cursor:pointer;">close</span>
             </div>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
                 <input type="text" id="kasbonName" class="clean-input" placeholder="Name" style="margin:0; flex:1;">
@@ -705,12 +585,12 @@
             <div id="kasbonList" style="max-height:300px; overflow-y:auto;"></div>
         </div>
     </div>
-    
+
     <div id="calcModal" class="modal-overlay">
         <div class="sheet-content">
             <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
                 <h3 style="margin:0; color:white;">Calculator</h3>
-                <span class="material-icons-round" onclick="closeModal('calcModal')" style="color:white;">close</span>
+                <span class="material-icons-round" onclick="closeModal('calcModal')" style="color:white; cursor:pointer;">close</span>
             </div>
             <div class="clean-input" id="calcScreen" style="text-align:right; font-size:24px; margin-bottom:15px; background:rgba(0,0,0,0.3); padding:15px;">0</div>
             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
@@ -734,32 +614,120 @@
         </div>
     </div>
 
+    <div id="receiptModal" class="modal-overlay" style="align-items:center; justify-content:center;">
+        <div class="popup-content" style="width:85%; max-width:320px; padding:20px; border-radius:20px; background:white; color:black;">
+            <div style="text-align:center; margin-bottom:15px; font-weight:700; color:#2ECC71;">TRANSACTION SUCCESS</div>
+            <div style="border:1px dashed #ccc; padding:15px; border-radius:10px; font-family:'Courier New', monospace; text-align:center;">
+                <div style="font-weight:bold; font-size:16px; margin-bottom:5px;" id="rcStore">DEAR LOVE</div>
+                <div style="font-size:10px; margin-bottom:15px;" id="rcAddr"></div>
+                <div style="border-bottom:1px dashed #000; margin-bottom:10px;"></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span id="rcItem">Fuel</span>
+                    <span id="rcTotal" style="font-weight:bold;">Rp 10.000</span>
+                </div>
+                <div style="text-align:left; font-size:10px;" id="rcDet">1.00 Liter</div>
+                <div style="border-bottom:1px dashed #000; margin:10px 0;"></div>
+                <div style="font-size:10px;" id="rcTime">12/12/2025</div>
+            </div>
+            <button class="btn-primary" onclick="closeModal('receiptModal')" style="margin-top:20px;">Close</button>
+        </div>
+    </div>
+
     <script>
-        // --- FIREBASE SETUP ---
+        // --- CONFIG & INIT ---
         const firebaseConfig = { apiKey: "AIzaSyBpwNPIYhelOhkPvJsBmKvlZnaH9FVnmM4", authDomain: "pom-mini-50b1e.firebaseapp.com", projectId: "pom-mini-50b1e", storageBucket: "pom-mini-50b1e.firebasestorage.app", messagingSenderId: "77499696502", appId: "1:77499696502:web:8080c37da62a12c9566657", measurementId: "G-KRRHTTGBRF" };
         let db; 
         try { if(typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } } catch(e) { console.log("Firebase Offline"); }
 
-        // --- DATA STATE ---
-        let data = { pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", price: 12500, modalPrice: 10000, photo: "logo.png", stokLiter: 0, dailyTarget: 170000, trans: [], kasbon: [], groqKey: "" };
+        let data = { 
+            pass: "DearLove2025", 
+            store: "DEAR LOVE", 
+            addr: "Jl. Raya Pertamini", 
+            price: 12000, 
+            modalPrice: 10000, 
+            photo: "logo.png", 
+            stokLiter: 0, 
+            dailyTarget: 170000, 
+            trans: [], 
+            kasbon: [], 
+            groqKey: "" 
+        };
+
         try { let saved = localStorage.getItem('dl_super_v4'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
         if(!Array.isArray(data.trans)) data.trans = [];
         if(!Array.isArray(data.kasbon)) data.kasbon = [];
 
-        let currentMode = 'inc', reportMode = 'daily', currentWeather = 'sunny'; 
+        let currentMode = 'inc', reportMode = 'daily', currentWeather = 'sunny', calcVal = "0"; 
         const fmtMoney = (n) => "Rp " + parseInt(n).toLocaleString('id-ID');
 
-        // --- NAVIGATION & UI HELPERS ---
-        const toggleNav = (show) => document.querySelector('.bottom-nav-wrap').style.transform = show ? 'translateY(0)' : 'translateY(200%)';
-        
-        window.toggleWeather = () => {
-            const i = document.querySelector('#weatherBtn .wt-icon');
-            if(currentWeather === 'sunny') { currentWeather = 'rain'; i.innerText = 'thunderstorm'; i.style.color = '#4A6CFA'; }
-            else { currentWeather = 'sunny'; i.innerText = 'wb_sunny'; i.style.color = '#FFD700'; }
+        // --- DASHBOARD LOGIC (THE CORE) ---
+        window.renderDash = () => {
+            document.getElementById('dispStoreName').innerText = data.store;
+            document.getElementById('dispPhoto').src = data.photo;
+            let today = new Date().toLocaleDateString();
+            let dInc=0, dBuy=0, dExp=0, dWd=0, dLit=0, realTimeCash=0;
+            
+            data.trans.forEach(t => { 
+                if(t.date === today) { 
+                    if(t.type === 'inc') { dInc+=t.n; dLit+=(t.l||0); if(t.metode==='Tunai') realTimeCash+=t.n; }
+                    else if(t.type === 'buy') { dBuy+=t.n; realTimeCash-=t.n; }
+                    else if(t.type === 'wd') { dWd+=t.n; realTimeCash-=t.n; } 
+                    else { dExp+=t.n; realTimeCash-=t.n; }
+                } 
+            });
+            
+            // --- LOGIKA HPP & MARGIN YANG DIMINTA ---
+            // 1. Total HPP Modal hari ini (Liter terjual * Harga Modal)
+            let hppTerpakai = dLit * data.modalPrice; 
+            
+            // 2. Break Even Point Real-time (Modal + Beban)
+            let breakEvenPoint = hppTerpakai + dExp; 
+            
+            // 3. Margin Real jika HPP sudah tertutup (Dipaksa 3000/liter)
+            let marginForce = (dLit * 3000) - dExp;
+            
+            let statusText = "";
+            let statusColor = "";
+            let progressPct = 0;
+
+            // Logika Bar Target: 
+            // Jika Uang Masuk (dInc) < Break Even Point -> Bar Diam (0%)
+            if (dInc < breakEvenPoint) {
+                progressPct = 0;
+                let kurang = breakEvenPoint - dInc;
+                statusText = `MODAL BELUM KEMBALI (KURANG ${fmtMoney(kurang)})`;
+                statusColor = "var(--accent-pink)";
+            } else {
+                // Jika Uang Masuk >= Break Even Point -> Bar Jalan
+                let target = data.dailyTarget || 170000;
+                let valBar = Math.max(0, marginForce);
+                progressPct = Math.min(100, (valBar / target) * 100).toFixed(1);
+                
+                statusText = "MODAL AMAN • PROFIT MARGIN 3000 ACTIVE";
+                statusColor = "var(--accent-green)";
+            }
+            
+            // Update Tampilan Dashboard
+            document.getElementById('realTimeProfit').innerText = fmtMoney(realTimeCash);
+            document.getElementById('netProfit').innerText = fmtMoney(Math.max(0, marginForce)); // Jangan tampilkan minus di label profit utama
+            document.getElementById('targetPct').innerText = progressPct + "%";
+            document.getElementById('targetBar').style.width = progressPct + "%";
+            
+            let stEl = document.getElementById('hppStatus');
+            stEl.innerText = statusText;
+            stEl.style.color = statusColor;
+            
+            document.getElementById('stokVal').innerText = data.stokLiter.toFixed(2);
+            document.getElementById('todayLiter').innerText = dLit.toFixed(2) + " L";
+            document.getElementById('totInc').innerText = fmtMoney(dInc);
+            document.getElementById('totExp').innerText = fmtMoney(dExp);
+            
+            document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
         }
 
-        const getCustomPeriod = (ts) => { let d = new Date(ts); if (d.getDate() >= 18) d.setMonth(d.getMonth() + 1); return d.toLocaleString('id-ID', { month: 'long', year: 'numeric' }); }
-
+        // --- NAVIGATION & UI ---
+        const toggleNav = (show) => document.querySelector('.bottom-nav-wrap').style.transform = show ? 'translateY(0)' : 'translateY(200%)';
+        
         window.nav = (id) => {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -777,84 +745,33 @@
             else if(id === 'reportScreen') renderReport();
             else if(id === 'settingScreen') renderSet();
             
-            if(['polaScreen', 'historyScreen', 'reportScreen'].includes(id)) {
-                 let mainNav = document.querySelector('#adminScreen .bottom-nav').innerHTML;
-                 document.querySelector(`#${id} .bottom-nav`).innerHTML = mainNav;
-            }
             toggleNav(!['loginScreen', 'editModal', 'inputModal', 'calcModal', 'kasbonModal'].includes(id));
         }
 
-        // --- MODAL CONTROLS ---
         window.openInputModal = () => { document.getElementById('inputModal').style.display='flex'; setMode('inc'); toggleNav(false); }
         window.closeModal = (id) => { document.getElementById(id).style.display='none'; toggleNav(true); }
 
         window.setMode = (m) => {
             currentMode = m; 
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.rt-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(m==='inc'?'mtInc':(m==='buy'?'mtBuy':(m==='exp'?'mtExp':'mtWd'))).classList.add('active');
             ['formInc','formBuy','formExp','formWd'].forEach(f => document.getElementById(f).style.display = 'none');
             document.getElementById(m==='inc'?'formInc':(m==='buy'?'formBuy':(m==='exp'?'formExp':'formWd'))).style.display = 'block';
         }
 
-        // --- RENDER DASHBOARD (FIXED LOGIC) ---
-        window.renderDash = () => {
-            document.getElementById('dispStoreName').innerText = data.store;
-            document.getElementById('dispPhoto').src = data.photo;
-            let today = new Date().toLocaleDateString();
-            let dInc=0, dBuy=0, dExp=0, dWd=0, dLit=0, realTimeCash=0;
-            
-            data.trans.forEach(t => { 
-                if(t.date === today) { 
-                    if(t.type === 'inc') { dInc+=t.n; dLit+=(t.l||0); if(t.metode==='Tunai') realTimeCash+=t.n; }
-                    else if(t.type === 'buy') { dBuy+=t.n; realTimeCash-=t.n; }
-                    else if(t.type === 'wd') { dWd+=t.n; realTimeCash-=t.n; } 
-                    else { dExp+=t.n; realTimeCash-=t.n; }
-                } 
-            });
-            
-            // LOGIKA: Margin baru terisi setelah HPP terpenuhi
-            let totalHPP = dLit * data.modalPrice;
-            let omzet = dInc;
-            let beban = dExp;
-            
-            // Laba murni adalah hasil jualan dikurangi modal barang dan beban operasional
-            let murniProfit = omzet - totalHPP - beban;
-            
-            // Progress bar hanya terisi jika murniProfit > 0 (artinya HPP & Beban sudah tertutup)
-            let progressMargin = Math.max(0, murniProfit);
-            let target = data.dailyTarget || 170000;
-            let pct = Math.min(100, (progressMargin / target) * 100).toFixed(1);
-            
-            document.getElementById('realTimeProfit').innerText = fmtMoney(realTimeCash);
-            document.getElementById('netProfit').innerText = fmtMoney(murniProfit);
-            document.getElementById('targetPct').innerText = pct + "%";
-            document.getElementById('targetBar').style.width = pct + "%";
-            
-            document.getElementById('stokVal').innerText = data.stokLiter.toFixed(2);
-            document.getElementById('todayLiter').innerText = dLit.toFixed(2) + " L";
-            document.getElementById('totInc').innerText = fmtMoney(dInc);
-            document.getElementById('totExp').innerText = fmtMoney(dExp);
-            
-            document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
-        }
-
-        window.calcAdm = () => { let n=parseInt(document.getElementById('admNom').value)||0; document.getElementById('admLit').innerText=(n/data.price).toFixed(2)+"L"; }
-
-        window.sendBillToCustomer = async () => {
-            let n = parseInt(document.getElementById('admNom').value); if(!n) return alert("Nominal?");
-            let l = parseFloat((n/data.price).toFixed(2));
-            if(db) { try { await db.collection("struk_public").doc("current").set({ nominal: n, liter: l, waktu: new Date().toLocaleString('id-ID'), status: "UNPAID", nama_toko: data.store, alamat_toko: data.addr }); alert("Broadcast Success!"); } catch(e) { alert("Error"); } }
-        }
-
-        // --- DATA PERSISTENCE ---
-        window.saveTrans = async (type, method='cash') => {
+        // --- CRUD FUNCTIONS ---
+        window.saveTrans = async (type) => {
             let now = new Date();
             let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), type:type, weather: currentWeather };
             
             if(type === 'inc') {
                 let n=parseInt(document.getElementById('admNom').value); if(!n) return;
-                let l=parseFloat((n/data.price).toFixed(2)); tx.n=n; tx.l=l; tx.metode=method==='cash'?'Tunai':'QRIS'; data.stokLiter=Math.max(0, data.stokLiter-l);
+                let l=parseFloat((n/data.price).toFixed(2)); tx.n=n; tx.l=l; tx.metode='Tunai'; data.stokLiter=Math.max(0, data.stokLiter-l);
+                
+                // Broadcast to Firebase
                 if(db) await db.collection("struk_public").doc("current").set({ nominal: n, liter: l, waktu: now.toLocaleString('id-ID'), status: "PAID", nama_toko: data.store, alamat_toko: data.addr });
+                
+                // Show Receipt
                 document.getElementById('rcStore').innerText=data.store; document.getElementById('rcAddr').innerText=data.addr; document.getElementById('rcTotal').innerText=fmtMoney(n); document.getElementById('rcDet').innerText=l+" Liter"; document.getElementById('rcTime').innerText=now.toLocaleString(); document.getElementById('receiptModal').style.display='flex';
             } else if (type === 'buy') {
                 let n=parseInt(document.getElementById('buyNom').value), l=parseFloat(document.getElementById('buyLit').value); if(!n||!l) return;
@@ -904,48 +821,44 @@
             document.getElementById('editLiterWrap').style.display = (t==='exp' || t==='wd') ? 'none' : 'block';
         }
 
-        // --- ANALYTICS & CHARTS ---
-        window.renderPola = () => {
-            let sL=0, sC=0, rL=0, rC=0, hC=Array(24).fill(0), dC={'Minggu':0,'Senin':0,'Selasa':0,'Rabu':0,'Kamis':0,'Jumat':0,'Sabtu':0};
-            data.trans.forEach(t => {
-                if(t.type==='inc') {
-                    if(t.weather==='rain') { rL+=t.l; rC++; } else { sL+=t.l; sC++; }
-                    let h=parseInt(t.time.split(':')[0]); if(!isNaN(h)) hC[h]+=t.n;
-                    let d=new Date(t.ts).toLocaleDateString('id-ID',{weekday:'long'}); if(dC[d]!==undefined) dC[d]+=t.n;
-                }
-            });
-            document.getElementById('sunnyAvg').innerText = sC>0?(sL/sC).toFixed(1):"0"; document.getElementById('rainAvg').innerText = rC>0?(rL/rC).toFixed(1):"0";
-            updateChart('hourChart', 'hourChartInstance', 'line', Array.from({length:24},(_,i)=>`${i}:00`), hC, 'Sales');
-            updateChart('dayChart', 'dayChartInstance', 'bar', Object.keys(dC), Object.values(dC), 'Sales');
+        // --- FULL FUNCTIONS (NO SHORTCUTS) ---
+        window.renderHistory = () => {
+            document.getElementById('fullHistoryList').innerHTML = data.trans.map(t => makeTransItem(t)).join('');
         }
 
-        function updateChart(id, iN, t, l, d, lb) {
-            const ctx=document.getElementById(id).getContext('2d'); if(window[iN]) window[iN].destroy();
-            Chart.defaults.color='#8F90A6'; Chart.defaults.borderColor='rgba(255,255,255,0.05)';
-            window[iN] = new Chart(ctx, { type:t, data:{labels:l,datasets:[{label:lb,data:d,backgroundColor:t==='bar'?'#4A6CFA':'rgba(74,108,250,0.4)',borderColor:'#4A6CFA',borderWidth:2,tension:0.4,fill:t==='line',pointBackgroundColor:'#1F202F'}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}} });
+        window.makeTransItem = (t) => {
+            let ic='inc', iname='local_gas_station', s='+', c='val-plus', ti='Sale', su=(t.l||0)+" L";
+            if(t.type==='buy'){ ic='buy'; iname='water_drop'; s='-'; c='val-minus'; ti='Restock'; su="+"+t.l+" L"; }
+            else if(t.type==='exp'){ ic='exp'; iname='payments'; s='-'; c='val-minus'; ti=t.desc; su="Expense"; }
+            else if(t.type==='wd'){ ic='wd'; iname='account_balance_wallet'; s='-'; c='val-minus'; ti='Withdraw'; su="Ambil Profit"; }
+            else ti=t.metode||"Cash";
+            return `<div class="trans-item" onclick="openEdit(${t.id})"><div style="display:flex; align-items:center;"><div class="ti-icon ${ic}"><span class="material-icons-round">${iname}</span></div><div class="ti-info"><h4>${ti}</h4><p>${su}</p></div></div><div><span class="ti-val ${c}">${s} ${t.n/1000}k</span><span class="ti-time">${t.time}</span></div></div>`;
         }
 
         // --- REPORTS ---
+        const getCustomPeriod = (ts) => { let d = new Date(ts); if (d.getDate() >= 18) d.setMonth(d.getMonth() + 1); return d.toLocaleString('id-ID', { month: 'long', year: 'numeric' }); }
+
         window.renderReport = () => {
-            let gr={}, tInc=0, tLit=0, tExp=0, tWd=0;
+            let gr={}, tInc=0, tExp=0, tLit=0, tWd=0;
             data.trans.forEach(t => {
                 let k = reportMode==='daily'?t.date:(reportMode==='monthly'?getCustomPeriod(t.ts):new Date(t.ts).getFullYear().toString());
-                if(!gr[k]) gr[k]={i:0,b:0,e:0,w:0,l:0};
-                if(t.type==='inc') { gr[k].i+=t.n; gr[k].l+=(t.l||0); tInc+=t.n; tLit+=(t.l||0); }
+                if(!gr[k]) gr[k]={i:0,b:0,e:0,w:0};
+                if(t.type==='inc') { gr[k].i+=t.n; tInc+=t.n; tLit+=t.l; }
                 else if(t.type==='buy') { gr[k].b+=t.n; } 
                 else if(t.type==='wd') { gr[k].w+=t.n; tWd+=t.n; }
                 else { gr[k].e+=t.n; tExp+=t.n; }
             });
             
+            // Logika Report juga mengikuti margin 3000
+            let forcedMarginTotal = (tLit * 3000) - tExp;
             let totalHPP = tLit * data.modalPrice;
-            let grossProfit = tInc - totalHPP;
-            let netProfit = grossProfit - tExp;
+            let forcedGross = tLit * 3000;
 
-            document.getElementById('rpNet').innerText = fmtMoney(netProfit); 
+            document.getElementById('rpNet').innerText = fmtMoney(forcedMarginTotal); 
             document.getElementById('rpOmzet').innerText = fmtMoney(tInc); 
             document.getElementById('rpLitTotal').innerText = tLit.toFixed(2) + " L";
             document.getElementById('rpHpp').innerText = "- " + fmtMoney(totalHPP);
-            document.getElementById('rpGross').innerText = fmtMoney(grossProfit);
+            document.getElementById('rpGross').innerText = fmtMoney(forcedGross);
             document.getElementById('rpBeban').innerText = "- " + fmtMoney(tExp);
             document.getElementById('rpWd').innerText = fmtMoney(tWd);
             
@@ -961,8 +874,152 @@
                     </div>
                 </div>`).join('');
         }
+        window.setReportMode = (m) => { reportMode=m; document.querySelectorAll('.report-tabs .rt-btn').forEach(b=>b.classList.remove('active')); document.getElementById(m==='daily'?'rtDay':(m==='monthly'?'rtMonth':'rtYear')).classList.add('active'); renderReport(); }
 
-        window.setReportMode = (m) => { reportMode=m; document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active')); document.getElementById(m==='daily'?'rtDay':(m==='monthly'?'rtMonth':'rtYear')).classList.add('active'); renderReport(); }
+        // --- CHARTS (FULL) ---
+        window.renderPola = () => {
+            let sL=0, sC=0, rL=0, rC=0, hC=Array(24).fill(0), dC={'Minggu':0,'Senin':0,'Selasa':0,'Rabu':0,'Kamis':0,'Jumat':0,'Sabtu':0};
+            data.trans.forEach(t => {
+                if(t.type==='inc') {
+                    if(t.weather==='rain') { rL+=t.l; rC++; } else { sL+=t.l; sC++; }
+                    let h=parseInt(t.time.split(':')[0]); if(!isNaN(h)) hC[h]+=t.n;
+                    let d=new Date(t.ts).toLocaleDateString('id-ID',{weekday:'long'}); if(dC[d]!==undefined) dC[d]+=t.n;
+                }
+            });
+            document.getElementById('sunnyAvg').innerText = sC>0?(sL/sC).toFixed(1):"0"; 
+            document.getElementById('rainAvg').innerText = rC>0?(rL/rC).toFixed(1):"0";
+            
+            updateChart('hourChart', 'hourChartInstance', 'line', Array.from({length:24},(_,i)=>`${i}:00`), hC, 'Sales');
+            updateChart('dayChart', 'dayChartInstance', 'bar', Object.keys(dC), Object.values(dC), 'Sales');
+        }
+
+        function updateChart(id, iN, t, l, d, lb) {
+            const ctx=document.getElementById(id).getContext('2d'); if(window[iN]) window[iN].destroy();
+            Chart.defaults.color='#8F90A6'; Chart.defaults.borderColor='rgba(255,255,255,0.05)';
+            window[iN] = new Chart(ctx, { 
+                type:t, 
+                data:{
+                    labels:l,
+                    datasets:[{
+                        label:lb,
+                        data:d,
+                        backgroundColor:t==='bar'?'#4A6CFA':'rgba(74,108,250,0.4)',
+                        borderColor:'#4A6CFA',
+                        borderWidth:2,
+                        tension:0.4,
+                        fill:t==='line',
+                        pointBackgroundColor:'#1F202F'
+                    }]
+                }, 
+                options:{
+                    responsive:true,
+                    maintainAspectRatio:false,
+                    plugins:{legend:{display:false}},
+                    scales:{
+                        x:{grid:{display:false}},
+                        y:{grid:{color:'rgba(255,255,255,0.05)'}}
+                    }
+                } 
+            });
+        }
+
+        // --- AI ASSISTANT (FULL) ---
+        window.sendAIChat = async () => {
+            let i=document.getElementById('aiInput'),m=i.value,b=document.getElementById('chatBox'); 
+            if(!m)return; 
+            i.value='';
+            
+            // User Msg
+            b.innerHTML+=`<div style="background:var(--primary); color:white; margin-left:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px;">${m}</div>`;
+            
+            if(!data.groqKey){
+                b.innerHTML+=`<div style="background:rgba(255,255,255,0.05); color:var(--accent-pink); border-radius:12px; padding:10px; margin-bottom:10px; font-size:12px;">Groq API Key belum diatur di Settings.</div>`;
+                return;
+            }
+            
+            try{
+                let r=await fetch("https://api.groq.com/openai/v1/chat/completions",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`},
+                    body:JSON.stringify({
+                        model:"llama-3.3-70b-versatile",
+                        messages:[
+                            {role:"system",content:`Kamu adalah asisten POS toko ${data.store}. Stok: ${data.stokLiter}L. Jawab singkat dan to the point.`},
+                            {role:"user",content:m}
+                        ]
+                    })
+                });
+                let j=await r.json();
+                let aiResponse = j.choices[0].message.content;
+                
+                // AI Msg
+                b.innerHTML+=`<div style="background:#333; color:white; margin-right:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px; line-height:1.5;">${marked.parse(aiResponse)}</div>`;
+                b.scrollTop=b.scrollHeight;
+            }catch(e){
+                b.innerHTML+=`<div style="color:var(--accent-pink);">Error connecting to AI. Check Connection/Key.</div>`;
+            }
+        }
+
+        // --- KASBON (FULL) ---
+        window.openKasbon = () => { document.getElementById('kasbonModal').style.display='flex'; renderKasbon(); toggleNav(false); }
+        window.renderKasbon = () => {
+            let h = data.kasbon.map((k,i) => `
+                <div class="trans-item">
+                    <div>
+                        <div style="font-weight:600; color:white;">${k.name}</div>
+                        <div style="font-size:11px; color:var(--text-muted);">${k.date}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:700; color:var(--accent-pink);">${fmtMoney(k.nom)}</div>
+                        <span style="font-size:10px; padding:2px 8px; border-radius:4px; background:${k.lunas?'#2ECC71':'#333'}; color:white; cursor:pointer;" onclick="toggleLunas(${i})">${k.lunas?'PAID':'UNPAID'}</span>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('kasbonList').innerHTML = h || '<div style="text-align:center;color:#666;margin-top:20px;">No Data</div>';
+        }
+        window.addKasbon = () => { 
+            let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); 
+            if(nm&&no){
+                data.kasbon.unshift({name:nm,nom:no,date:new Date().toLocaleDateString(),lunas:false});
+                localStorage.setItem('dl_super_v4',JSON.stringify(data));
+                document.getElementById('kasbonName').value='';
+                document.getElementById('kasbonNom').value='';
+                renderKasbon();
+            } 
+        }
+        window.toggleLunas = (i) => { 
+            if(confirm("Ubah Status Lunas?")) { 
+                data.kasbon[i].lunas=!data.kasbon[i].lunas; 
+                localStorage.setItem('dl_super_v4',JSON.stringify(data)); 
+                renderKasbon(); 
+            } 
+        }
+
+        // --- CALCULATOR (FULL) ---
+        window.openCalc=()=>{document.getElementById('calcModal').style.display='flex';calcVal="0";updateCalc();toggleNav(false);}
+        window.appCalc=(v)=>{
+            if(v==='C') calcVal="0";
+            else if(v==='='){
+                try{calcVal=eval(calcVal).toString()}catch{calcVal="Error"}
+            }
+            else{
+                if(calcVal==="0") calcVal=v; else calcVal+=v;
+            }
+            updateCalc();
+        }
+        const updateCalc=()=>document.getElementById('calcScreen').innerText=calcVal;
+
+        // --- EXPORT (FULL) ---
+        window.exportExcel=()=>{
+            let c="Date,Time,Type,Desc,Nominal,Liter\n"; 
+            data.trans.forEach(t=>{
+                c+=`${t.date},${t.time},${t.type},${t.desc||t.metode},${t.n},${t.l||0}\n`
+            }); 
+            let l=document.createElement("a");
+            l.href="data:text/csv;charset=utf-8,"+encodeURI(c);
+            l.download="Report_CyberPOS.csv";
+            l.click();
+        }
 
         // --- SETTINGS ---
         window.renderSet = () => {
@@ -977,49 +1034,27 @@
             data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value);
             data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value;
             data.dailyTarget=parseInt(document.getElementById('setTarget').value) || 170000;
-            localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("Saved!"); renderDash();
+            localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("System Updated!"); renderDash();
         }
-
-        // --- TOOLS ---
-        window.makeTransItem = (t) => {
-            let ic='inc', iname='local_gas_station', s='+', c='val-plus', ti='Sale', su=(t.l||0)+" L";
-            if(t.type==='buy'){ ic='buy'; iname='water_drop'; s='-'; c='val-minus'; ti='Restock'; su="+"+t.l+" L"; }
-            else if(t.type==='exp'){ ic='exp'; iname='payments'; s='-'; c='val-minus'; ti=t.desc; su="Expense"; }
-            else if(t.type==='wd'){ ic='wd'; iname='account_balance_wallet'; s='-'; c='val-minus'; ti='Withdraw'; su="Ambil Profit"; }
-            else ti=t.metode||"Cash";
-            return `<div class="trans-item" onclick="openEdit(${t.id})"><div style="display:flex; align-items:center;"><div class="ti-icon ${ic}"><span class="material-icons-round">${iname}</span></div><div class="ti-info"><h4>${ti}</h4><p>${su}</p></div></div><div><span class="ti-val ${c}">${s} ${t.n/1000}k</span><span class="ti-time">${t.time}</span></div></div>`;
-        }
-        window.renderHistory = () => document.getElementById('fullHistoryList').innerHTML = data.trans.map(t => makeTransItem(t)).join('');
-
-        window.openKasbon = () => { document.getElementById('kasbonModal').style.display='flex'; renderKasbon(); toggleNav(false); }
-        window.renderKasbon = () => document.getElementById('kasbonList').innerHTML = data.kasbon.map((k,i) => `<div class="trans-item"><div><div style="font-weight:600; color:white;">${k.name}</div><div style="font-size:11px; color:var(--text-muted);">${k.date}</div></div><div style="text-align:right;"><div style="font-weight:700; color:var(--accent-pink);">${fmtMoney(k.nom)}</div><span style="font-size:10px; padding:2px 8px; border-radius:4px; background:${k.lunas?'#2ECC71':'#333'}; color:white; cursor:pointer;" onclick="toggleLunas(${i})">${k.lunas?'PAID':'UNPAID'}</span></div></div>`).join('')||'<div style="text-align:center;color:#666;margin-top:20px;">No Data</div>';
-        window.addKasbon = () => { let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); if(nm&&no){data.kasbon.unshift({name:nm,nom:no,date:new Date().toLocaleDateString(),lunas:false});localStorage.setItem('dl_super_v4',JSON.stringify(data));document.getElementById('kasbonName').value='';renderKasbon();} }
-        window.toggleLunas = (i) => { if(confirm("Change?")) { data.kasbon[i].lunas=!data.kasbon[i].lunas; localStorage.setItem('dl_super_v4',JSON.stringify(data)); renderKasbon(); } }
-
-        let calcVal="0"; window.openCalc=()=>{document.getElementById('calcModal').style.display='flex';calcVal="0";updateCalc();toggleNav(false);}
-        window.appCalc=(v)=>{if(v==='C')calcVal="0";else if(v==='='){try{calcVal=eval(calcVal).toString()}catch{calcVal="Error"}}else{if(calcVal==="0")calcVal=v;else calcVal+=v;}updateCalc();}
-        const updateCalc=()=>document.getElementById('calcScreen').innerText=calcVal;
-
-        window.exportExcel=()=>{let c="Date,Time,Type,Desc,Nominal,Liter\n"; data.trans.forEach(t=>{c+=`${t.date},${t.time},${t.type},${t.desc||t.metode},${t.n},${t.l||0}\n`}); let l=document.createElement("a");l.href="data:text/csv;charset=utf-8,"+encodeURI(c);l.download="Report.csv";l.click();}
         window.updatePhoto=(e)=>{let r=new FileReader(); r.onload=v=>{data.photo=v.target.result; renderSet();}; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]);}
+        
+        // --- AUTH ---
         window.doLogin=()=>{if(document.getElementById('passInput').value===data.pass){localStorage.setItem('dl_log','1');nav('adminScreen');}else alert("Wrong PIN");}
         window.doLogout=()=>{localStorage.removeItem('dl_log');nav('loginScreen');}
-        window.clearData=()=>{if(confirm("RESET ALL?")){data.trans=[];data.kasbon=[];localStorage.setItem('dl_super_v4',JSON.stringify(data));renderDash();}}
-        
-        window.sendAIChat=async()=>{
-            let i=document.getElementById('aiInput'),m=i.value,b=document.getElementById('chatBox'); if(!m)return; i.value='';
-            b.innerHTML+=`<div style="background:var(--primary); color:white; margin-left:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px;">${m}</div>`;
-            if(!data.groqKey){b.innerHTML+=`<div style="background:rgba(255,255,255,0.05); color:var(--accent-pink); border-radius:12px; padding:10px; margin-bottom:10px; font-size:12px;">Groq API Key belum diatur di Settings.</div>`;return;}
-            try{
-                let r=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`},body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:[{role:"system",content:`Kamu adalah asisten POS Cyber untuk toko ${data.store}. Stok saat ini: ${data.stokLiter}L.`},{role:"user",content:m}]})});
-                let j=await r.json();
-                let aiMsg = j.choices[0].message.content;
-                b.innerHTML+=`<div style="background:rgba(255,255,255,0.05); color:white; margin-right:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px; line-height:1.5;">${marked.parse(aiMsg)}</div>`;
-                b.scrollTop=b.scrollHeight;
-            }catch(e){b.innerHTML+=`<div style="color:var(--accent-pink);">Error menghubungkan ke AI.</div>`;}
+        window.clearData=()=>{if(confirm("RESET ALL DATA PERMANENTLY?")){data.trans=[];data.kasbon=[];localStorage.setItem('dl_super_v4',JSON.stringify(data));renderDash();}}
+        window.calcAdm = () => { let n=parseInt(document.getElementById('admNom').value)||0; document.getElementById('admLit').innerText=(n/data.price).toFixed(2)+"L"; }
+        window.toggleWeather = () => {
+            const i = document.querySelector('#weatherBtn .wt-icon');
+            if(currentWeather === 'sunny') { currentWeather = 'rain'; i.innerText = 'thunderstorm'; i.style.color = '#4A6CFA'; }
+            else { currentWeather = 'sunny'; i.innerText = 'wb_sunny'; i.style.color = '#FFD700'; }
         }
 
-        const startApp=()=>{document.getElementById('splashScreen').style.opacity='0';setTimeout(()=>document.getElementById('splashScreen').style.display='none',500);if(localStorage.getItem('dl_log'))nav('adminScreen');}
+        // --- STARTUP ---
+        const startApp=()=>{
+            document.getElementById('splashScreen').style.opacity='0';
+            setTimeout(()=>document.getElementById('splashScreen').style.display='none',500);
+            if(localStorage.getItem('dl_log')) nav('adminScreen');
+        }
         window.addEventListener('DOMContentLoaded', ()=>{setTimeout(startApp,2000)});
     </script>
 </body>
