@@ -456,7 +456,7 @@
 
             <div class="cyber-card" style="padding:0; overflow:hidden;">
                 <div style="padding:20px; background:linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));">
-                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Net Profit (Fix 3.000/L)</div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Net Profit (Murni)</div>
                     <div style="font-size:32px; font-weight:800; color:#2ECC71;" id="rpNet">Rp 0</div>
                 </div>
                 
@@ -467,14 +467,14 @@
                     </div>
                     
                     <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                        <span style="color:var(--text-muted);">HPP Est (<span id="rpLitTotal" style="font-size:11px;">0L</span>)</span>
+                        <span style="color:var(--text-muted);">Total HPP (<span id="rpLitTotal" style="font-size:11px;">0L</span>)</span>
                         <span style="font-weight:600; color:var(--accent-pink);" id="rpHpp">- Rp 0</span>
                     </div>
 
                     <div style="border-bottom:1px dashed rgba(255,255,255,0.1); margin-bottom:15px;"></div>
 
                     <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                        <span style="color:white; font-weight:500;">LABA KOTOR (3.000/L)</span>
+                        <span style="color:white; font-weight:500;">LABA KOTOR (Omzet - HPP)</span>
                         <span style="font-weight:700; color:var(--primary);" id="rpGross">Rp 0</span>
                     </div>
 
@@ -540,7 +540,7 @@
                         <input type="number" id="setPrice" class="clean-input" placeholder="0">
                     </div>
                     <div class="input-group">
-                        <label class="input-label text-red">Buy Price / L</label>
+                        <label class="input-label text-red">Modal Price / L (HPP)</label>
                         <input type="number" id="setModalPrice" class="clean-input" placeholder="0">
                     </div>
                 </div>
@@ -550,7 +550,7 @@
                     <input type="number" id="setStok" class="clean-input" placeholder="0">
                 </div>
                 <div class="input-group">
-                    <label class="input-label" style="color:#2ECC71;">Daily Target (Margin)</label>
+                    <label class="input-label" style="color:#2ECC71;">Daily Profit Target (Margin)</label>
                     <input type="number" id="setTarget" class="clean-input" placeholder="170000">
                 </div>
             </div>
@@ -633,7 +633,7 @@
                     </div>
                     <p style="font-size:11px; color:var(--text-muted); margin-top:10px; line-height:1.4;">
                         <span class="material-icons-round" style="font-size:12px; vertical-align:middle;">info</span> 
-                        Uang laci akan berkurang, tapi statistik <b>Target Margin</b> hari ini akan tetap penuh.
+                        Uang laci akan berkurang, tapi statistik <b>Target Margin</b> hari ini akan tetap terjaga.
                     </p>
                 </div>
                 <button class="btn-primary" style="background:var(--accent-wd); box-shadow: 0 10px 25px rgba(217, 70, 239, 0.3);" onclick="saveTrans('wd')">TARIK KEUNTUNGAN</button>
@@ -735,13 +735,13 @@
     </div>
 
     <script>
-        // FIREBASE SETUP
+        // --- FIREBASE SETUP ---
         const firebaseConfig = { apiKey: "AIzaSyBpwNPIYhelOhkPvJsBmKvlZnaH9FVnmM4", authDomain: "pom-mini-50b1e.firebaseapp.com", projectId: "pom-mini-50b1e", storageBucket: "pom-mini-50b1e.firebasestorage.app", messagingSenderId: "77499696502", appId: "1:77499696502:web:8080c37da62a12c9566657", measurementId: "G-KRRHTTGBRF" };
         let db; 
         try { if(typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } } catch(e) { console.log("Firebase Offline"); }
 
-        // LOAD DATA
-        let data = { pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", price: 12000, modalPrice: 10000, photo: "logo.png", stokLiter: 0, dailyTarget: 170000, trans: [], kasbon: [], groqKey: "" };
+        // --- DATA STATE ---
+        let data = { pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", price: 12500, modalPrice: 10000, photo: "logo.png", stokLiter: 0, dailyTarget: 170000, trans: [], kasbon: [], groqKey: "" };
         try { let saved = localStorage.getItem('dl_super_v4'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
         if(!Array.isArray(data.trans)) data.trans = [];
         if(!Array.isArray(data.kasbon)) data.kasbon = [];
@@ -749,7 +749,7 @@
         let currentMode = 'inc', reportMode = 'daily', currentWeather = 'sunny'; 
         const fmtMoney = (n) => "Rp " + parseInt(n).toLocaleString('id-ID');
 
-        // NAV & UI
+        // --- NAVIGATION & UI HELPERS ---
         const toggleNav = (show) => document.querySelector('.bottom-nav-wrap').style.transform = show ? 'translateY(0)' : 'translateY(200%)';
         
         window.toggleWeather = () => {
@@ -784,7 +784,7 @@
             toggleNav(!['loginScreen', 'editModal', 'inputModal', 'calcModal', 'kasbonModal'].includes(id));
         }
 
-        // MODALS
+        // --- MODAL CONTROLS ---
         window.openInputModal = () => { document.getElementById('inputModal').style.display='flex'; setMode('inc'); toggleNav(false); }
         window.closeModal = (id) => { document.getElementById(id).style.display='none'; toggleNav(true); }
 
@@ -796,7 +796,7 @@
             document.getElementById(m==='inc'?'formInc':(m==='buy'?'formBuy':(m==='exp'?'formExp':'formWd'))).style.display = 'block';
         }
 
-        // RENDER FUNCTIONS - CLEAN DASHBOARD + MARGIN 3000
+        // --- RENDER DASHBOARD (FIXED LOGIC) ---
         window.renderDash = () => {
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
@@ -807,28 +807,33 @@
                 if(t.date === today) { 
                     if(t.type === 'inc') { dInc+=t.n; dLit+=(t.l||0); if(t.metode==='Tunai') realTimeCash+=t.n; }
                     else if(t.type === 'buy') { dBuy+=t.n; realTimeCash-=t.n; }
-                    else if(t.type === 'wd') { dWd+=t.n; realTimeCash-=t.n; } // WD Reduces Cash
+                    else if(t.type === 'wd') { dWd+=t.n; realTimeCash-=t.n; } 
                     else { dExp+=t.n; realTimeCash-=t.n; }
                 } 
             });
             
-            // --- LOGIKA UTAMA: MARGIN DIPAKSA 3000 ---
-            let forcedMargin = 3000;
-            let profit = (dLit * forcedMargin) - dExp; // Profit for Target
+            // LOGIKA: Margin baru terisi setelah HPP terpenuhi
+            let totalHPP = dLit * data.modalPrice;
+            let omzet = dInc;
+            let beban = dExp;
             
+            // Laba murni adalah hasil jualan dikurangi modal barang dan beban operasional
+            let murniProfit = omzet - totalHPP - beban;
+            
+            // Progress bar hanya terisi jika murniProfit > 0 (artinya HPP & Beban sudah tertutup)
+            let progressMargin = Math.max(0, murniProfit);
             let target = data.dailyTarget || 170000;
-            let pct = Math.min(100, Math.max(0, (profit / target) * 100)).toFixed(1);
+            let pct = Math.min(100, (progressMargin / target) * 100).toFixed(1);
             
-            // UPDATE NEW CLEAN DASHBOARD UI
             document.getElementById('realTimeProfit').innerText = fmtMoney(realTimeCash);
-            document.getElementById('netProfit').innerText = fmtMoney(profit);
+            document.getElementById('netProfit').innerText = fmtMoney(murniProfit);
             document.getElementById('targetPct').innerText = pct + "%";
             document.getElementById('targetBar').style.width = pct + "%";
             
             document.getElementById('stokVal').innerText = data.stokLiter.toFixed(2);
             document.getElementById('todayLiter').innerText = dLit.toFixed(2) + " L";
             document.getElementById('totInc').innerText = fmtMoney(dInc);
-            document.getElementById('totExp').innerText = fmtMoney(dExp); // Expense doesn't include WD
+            document.getElementById('totExp').innerText = fmtMoney(dExp);
             
             document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
         }
@@ -841,6 +846,7 @@
             if(db) { try { await db.collection("struk_public").doc("current").set({ nominal: n, liter: l, waktu: new Date().toLocaleString('id-ID'), status: "UNPAID", nama_toko: data.store, alamat_toko: data.addr }); alert("Broadcast Success!"); } catch(e) { alert("Error"); } }
         }
 
+        // --- DATA PERSISTENCE ---
         window.saveTrans = async (type, method='cash') => {
             let now = new Date();
             let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), type:type, weather: currentWeather };
@@ -898,6 +904,7 @@
             document.getElementById('editLiterWrap').style.display = (t==='exp' || t==='wd') ? 'none' : 'block';
         }
 
+        // --- ANALYTICS & CHARTS ---
         window.renderPola = () => {
             let sL=0, sC=0, rL=0, rC=0, hC=Array(24).fill(0), dC={'Minggu':0,'Senin':0,'Selasa':0,'Rabu':0,'Kamis':0,'Jumat':0,'Sabtu':0};
             data.trans.forEach(t => {
@@ -918,39 +925,26 @@
             window[iN] = new Chart(ctx, { type:t, data:{labels:l,datasets:[{label:lb,data:d,backgroundColor:t==='bar'?'#4A6CFA':'rgba(74,108,250,0.4)',borderColor:'#4A6CFA',borderWidth:2,tension:0.4,fill:t==='line',pointBackgroundColor:'#1F202F'}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}} });
         }
 
+        // --- REPORTS ---
         window.renderReport = () => {
-            let gr={}, tInc=0, tExp=0, tLit=0, tWd=0;
-            
+            let gr={}, tInc=0, tLit=0, tExp=0, tWd=0;
             data.trans.forEach(t => {
                 let k = reportMode==='daily'?t.date:(reportMode==='monthly'?getCustomPeriod(t.ts):new Date(t.ts).getFullYear().toString());
-                if(!gr[k]) gr[k]={i:0,b:0,e:0,w:0};
-                
-                if(t.type==='inc') { 
-                    gr[k].i+=t.n; tInc+=t.n; tLit+=(t.l||0); 
-                }
+                if(!gr[k]) gr[k]={i:0,b:0,e:0,w:0,l:0};
+                if(t.type==='inc') { gr[k].i+=t.n; gr[k].l+=(t.l||0); tInc+=t.n; tLit+=(t.l||0); }
                 else if(t.type==='buy') { gr[k].b+=t.n; } 
                 else if(t.type==='wd') { gr[k].w+=t.n; tWd+=t.n; }
                 else { gr[k].e+=t.n; tExp+=t.n; }
             });
             
-            // --- LOGIKA REPORT DIPAKSA 3000 ---
-            // Omzet Real
-            let omzet = tInc;
-            
-            // Laba Kotor Wajib = Liter * 3000
-            let forcedMargin = 3000;
-            let grossProfit = tLit * forcedMargin;
-            
-            // HPP "Bayangan" (Agar Matematikanya Masuk) = Omzet - Laba Kotor
-            let shadowHPP = omzet - grossProfit;
-            
-            // Laba Bersih = Laba Kotor - Beban
+            let totalHPP = tLit * data.modalPrice;
+            let grossProfit = tInc - totalHPP;
             let netProfit = grossProfit - tExp;
-            
+
             document.getElementById('rpNet').innerText = fmtMoney(netProfit); 
-            document.getElementById('rpOmzet').innerText = fmtMoney(omzet); 
+            document.getElementById('rpOmzet').innerText = fmtMoney(tInc); 
             document.getElementById('rpLitTotal').innerText = tLit.toFixed(2) + " L";
-            document.getElementById('rpHpp').innerText = "- " + fmtMoney(shadowHPP);
+            document.getElementById('rpHpp').innerText = "- " + fmtMoney(totalHPP);
             document.getElementById('rpGross').innerText = fmtMoney(grossProfit);
             document.getElementById('rpBeban').innerText = "- " + fmtMoney(tExp);
             document.getElementById('rpWd').innerText = fmtMoney(tWd);
@@ -967,8 +961,10 @@
                     </div>
                 </div>`).join('');
         }
+
         window.setReportMode = (m) => { reportMode=m; document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active')); document.getElementById(m==='daily'?'rtDay':(m==='monthly'?'rtMonth':'rtYear')).classList.add('active'); renderReport(); }
 
+        // --- SETTINGS ---
         window.renderSet = () => {
             document.getElementById('setStore').value = data.store; document.getElementById('setAddr').value = data.addr;
             document.getElementById('setPrice').value = data.price; document.getElementById('setModalPrice').value = data.modalPrice;
@@ -984,6 +980,7 @@
             localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("Saved!"); renderDash();
         }
 
+        // --- TOOLS ---
         window.makeTransItem = (t) => {
             let ic='inc', iname='local_gas_station', s='+', c='val-plus', ti='Sale', su=(t.l||0)+" L";
             if(t.type==='buy'){ ic='buy'; iname='water_drop'; s='-'; c='val-minus'; ti='Restock'; su="+"+t.l+" L"; }
@@ -1012,8 +1009,14 @@
         window.sendAIChat=async()=>{
             let i=document.getElementById('aiInput'),m=i.value,b=document.getElementById('chatBox'); if(!m)return; i.value='';
             b.innerHTML+=`<div style="background:var(--primary); color:white; margin-left:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px;">${m}</div>`;
-            if(!data.groqKey){b.innerHTML+=`<div style="color:var(--accent-pink); font-size:10px;">API Key Missing</div>`;return;}
-            try{let r=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`},body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:[{role:"system",content:`Role: AI POS Assistant. Stock: ${data.stokLiter}L`},{role:"user",content:m}]})});let j=await r.json();b.innerHTML+=`<div style="background:#333; color:white; margin-right:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px;">${marked.parse(j.choices[0].message.content)}</div>`;b.scrollTop=b.scrollHeight;}catch(e){b.innerHTML+=`<div style="color:red;">Error</div>`;}
+            if(!data.groqKey){b.innerHTML+=`<div style="background:rgba(255,255,255,0.05); color:var(--accent-pink); border-radius:12px; padding:10px; margin-bottom:10px; font-size:12px;">Groq API Key belum diatur di Settings.</div>`;return;}
+            try{
+                let r=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`},body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:[{role:"system",content:`Kamu adalah asisten POS Cyber untuk toko ${data.store}. Stok saat ini: ${data.stokLiter}L.`},{role:"user",content:m}]})});
+                let j=await r.json();
+                let aiMsg = j.choices[0].message.content;
+                b.innerHTML+=`<div style="background:rgba(255,255,255,0.05); color:white; margin-right:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px; line-height:1.5;">${marked.parse(aiMsg)}</div>`;
+                b.scrollTop=b.scrollHeight;
+            }catch(e){b.innerHTML+=`<div style="color:var(--accent-pink);">Error menghubungkan ke AI.</div>`;}
         }
 
         const startApp=()=>{document.getElementById('splashScreen').style.opacity='0';setTimeout(()=>document.getElementById('splashScreen').style.display='none',500);if(localStorage.getItem('dl_log'))nav('adminScreen');}
