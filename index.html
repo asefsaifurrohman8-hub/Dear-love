@@ -24,6 +24,7 @@
             --accent-purple: #9D59F5;
             --accent-pink: #F54EA2;
             --accent-green: #2ECC71;
+            --accent-wd: #D946EF; /* WARNA UNGU UNTUK WD */
             --text-main: #FFFFFF;
             --text-muted: #8F90A6;
             --radius-l: 24px;
@@ -67,7 +68,100 @@
         }
         .scroll-content::-webkit-scrollbar { display: none; }
 
-        /* --- CARDS & WIDGETS --- */
+        /* --- NEW CLEAN DASHBOARD STYLES --- */
+        .hero-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .hero-balance {
+            font-size: 38px;
+            font-weight: 800;
+            color: white;
+            margin: 5px 0 15px;
+            letter-spacing: -1px;
+            text-shadow: 0 0 30px rgba(74, 108, 250, 0.3);
+        }
+
+        .hero-pill {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .mini-target-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mt-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4A6CFA, #2ECC71);
+            box-shadow: 0 0 10px #2ECC71;
+            transition: width 1s ease;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 24px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .stock-circle {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            background: rgba(74, 108, 250, 0.1);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .flow-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .flow-row:last-child { margin-bottom: 0; }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 15px;
+            opacity: 0.8;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- CARDS & WIDGETS (General) --- */
         .cyber-card {
             background: var(--card-bg);
             border: var(--card-border);
@@ -76,18 +170,6 @@
             margin-bottom: 20px;
             backdrop-filter: blur(10px);
         }
-
-        .main-balance-card { text-align: center; color: white; padding: 10px 0; margin-bottom: 25px; margin-top: 10px; }
-        .mb-label { font-size: 14px; color: var(--text-muted); margin-bottom: 5px; }
-        .mb-value { font-size: 42px; font-weight: 700; text-shadow: 0 0 20px rgba(74, 108, 250, 0.4); margin-bottom: 5px; }
-        .realtime-pill { display: inline-flex; align-items: center; gap: 8px; background: rgba(46, 204, 113, 0.15); border: 1px solid rgba(46, 204, 113, 0.3); padding: 6px 16px; border-radius: 20px; margin-top: 10px; }
-        .rt-dot { width: 6px; height: 6px; background: #2ECC71; border-radius: 50%; box-shadow: 0 0 8px #2ECC71; }
-        .rt-text { font-size: 12px; font-weight: 600; color: #2ECC71; }
-        
-        /* New Target Styles */
-        .target-box { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 12px 16px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
-        .t-track { background: rgba(255,255,255,0.08); height: 8px; border-radius: 10px; overflow: hidden; margin-top: 8px; position: relative; }
-        .t-fill { height: 100%; background: linear-gradient(90deg, #4A6CFA, #2ECC71); width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(46, 204, 113, 0.5); }
 
         .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 30px; }
         .tool-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
@@ -100,24 +182,15 @@
         .tool-icon span { font-size: 26px; color: white; }
         .tool-label { font-size: 11px; color: var(--text-main); font-weight: 500; }
 
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
-        .stat-card { background: var(--card-bg); border: var(--card-border); border-radius: 20px; padding: 16px; position: relative; backdrop-filter: blur(10px); }
-        .sc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: var(--text-muted); }
-        .sc-val { font-size: 16px; font-weight: 700; color: var(--text-main); }
-        .sc-icon { font-size: 20px; opacity: 0.8; }
-
-        .stock-monitor { background: linear-gradient(90deg, rgba(74, 108, 250, 0.1), rgba(157, 89, 245, 0.1)); border: 1px solid rgba(74, 108, 250, 0.2); border-radius: 20px; padding: 16px 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; }
-
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .sh-title { font-size: 16px; font-weight: 600; color: var(--text-main); }
-        .sh-link { font-size: 12px; color: var(--primary); cursor: pointer; }
-
-        .trans-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border-radius: 20px; padding: 12px 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.03); transition: 0.2s; }
-        .trans-item:active { background: rgba(255,255,255,0.08); }
+        .trans-item { display: flex; align-items: center; justify-content: space-between; background: transparent; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 12px 0; margin: 0; transition: 0.2s; }
+        .trans-item:active { opacity: 0.7; }
+        .trans-item:last-child { border-bottom: none; }
+        
         .ti-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 14px; flex-shrink: 0; font-size: 20px; }
         .ti-icon.inc { background: rgba(46, 204, 113, 0.15); color: #2ECC71; }
         .ti-icon.buy { background: rgba(157, 89, 245, 0.15); color: #9D59F5; }
         .ti-icon.exp { background: rgba(245, 78, 162, 0.15); color: #F54EA2; }
+        .ti-icon.wd  { background: rgba(217, 70, 239, 0.15); color: #D946EF; }
         .ti-info h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: var(--text-main); }
         .ti-info p { margin: 0; font-size: 11px; color: var(--text-muted); }
         .ti-val { font-size: 14px; font-weight: 700; display: block; text-align: right; }
@@ -135,7 +208,7 @@
         .clean-input:focus { border-color: var(--primary); background: rgba(0,0,0,0.3); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-        /* --- BOTTOM NAV (PERBAIKAN SAFE AREA) --- */
+        /* --- BOTTOM NAV --- */
         .bottom-nav-wrap { 
             position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; 
             z-index: 999; pointer-events: none; 
@@ -230,29 +303,49 @@
         </div>
 
         <div class="scroll-content">
-            <div class="main-balance-card">
-                <div class="mb-label">UANG LACI (REAL TIME)</div>
-                <div class="mb-value" id="realTimeProfit">Rp 0</div>
-                <div class="realtime-pill">
-                    <div class="rt-dot"></div>
-                    <span class="rt-text">PROFIT HARI INI: <span id="netProfit">Rp 0</span></span>
-                </div>
-                <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">Margin Est: <span id="marginPerLiter" style="color:white;">Rp 0/L</span></div>
+            
+            <div class="hero-card">
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Cash in Drawer</div>
+                <div class="hero-balance" id="realTimeProfit">Rp 0</div>
                 
-                <div class="target-box">
-                    <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:6px; font-weight:600; letter-spacing:0.5px;">
-                        <span>TARGET MARGIN</span>
-                        <span id="targetPct" style="color:#2ECC71; font-weight:800;">0%</span>
+                <div class="hero-pill">
+                    <span style="color:var(--accent-green); font-weight:700;">PROFIT: <span id="netProfit">Rp 0</span></span>
+                    <span style="width:1px; height:10px; background:rgba(255,255,255,0.2);"></span>
+                    <span style="color:var(--text-muted);">Target: <span id="targetPct">0%</span></span>
+                </div>
+
+                <div class="mini-target-bar">
+                    <div id="targetBar" class="mt-fill"></div>
+                </div>
+                <span style="display:none;" id="targetVal"></span>
+                <span style="display:none;" id="currentSales"></span>
+                <span style="display:none;" id="marginPerLiter"></span>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card" onclick="alert('Cek Fisik!')">
+                    <div class="stock-circle"><span class="material-icons-round">water_drop</span></div>
+                    <div style="font-size:11px; color:var(--text-muted);">Stock Available</div>
+                    <div style="font-size:18px; font-weight:700; color:white;"><span id="stokVal">0</span> <span style="font-size:12px; font-weight:400; color:var(--text-muted);">L</span></div>
+                    <div style="font-size:10px; color:var(--accent-pink); margin-top:5px;">Sold: <span id="todayLiter">0L</span></div>
+                </div>
+
+                <div class="info-card">
+                    <div class="flow-row">
+                        <span style="color:var(--text-muted);">Income</span>
+                        <span style="color:var(--accent-green); font-weight:600;" id="totInc">Rp 0</span>
                     </div>
-                    <div class="t-track">
-                        <div id="targetBar" class="t-fill"></div>
+                    <div class="flow-row">
+                        <span style="color:var(--text-muted);">Expense</span>
+                        <span style="color:var(--accent-pink); font-weight:600;" id="totExp">Rp 0</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-top:6px;">
-                        <span>Profit: <span id="currentSales" style="color:white;">Rp 0</span></span>
-                        <span>Goal: <span id="targetVal" style="color:white;">Rp 170.000</span></span>
+                    <div style="border-top:1px dashed rgba(255,255,255,0.1); margin:6px 0;"></div>
+                     <div class="flow-row">
+                        <span style="color:var(--text-muted);">Details</span>
+                        <span class="material-icons-round" style="font-size:14px; color:var(--primary); cursor:pointer;" onclick="nav('reportScreen')">arrow_forward</span>
                     </div>
                 </div>
-                </div>
+            </div>
 
             <div class="tools-grid">
                 <div class="tool-item" onclick="openKasbon()"><div class="tool-icon t-blue"><span class="material-icons-round">book</span></div><span class="tool-label">Kasbon</span></div>
@@ -261,33 +354,7 @@
                 <div class="tool-item" onclick="nav('polaScreen')"><div class="tool-icon t-dark"><span class="material-icons-round" style="color:var(--text-muted)">ssid_chart</span></div><span class="tool-label">Analisa</span></div>
             </div>
 
-            <div class="section-header"><span class="sh-title">Overview</span></div>
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="sc-head">IN <span class="material-icons-round sc-icon text-green">arrow_downward</span></div>
-                    <div class="sc-val" id="totInc">Rp 0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="sc-head">OUT <span class="material-icons-round sc-icon text-red">arrow_upward</span></div>
-                    <div class="sc-val" id="totExp">Rp 0</div>
-                </div>
-            </div>
-
-            <div class="stock-monitor" onclick="alert('Cek fisik tangki!')">
-                <div>
-                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">STOK TERSEDIA</div>
-                    <div style="font-size:20px; font-weight:700; color:var(--primary);" id="stokVal">0 L</div>
-                </div>
-                <div>
-                    <div style="font-size:11px; color:var(--text-muted); text-align:right; margin-bottom:4px;">TERJUAL</div>
-                    <div style="font-size:20px; font-weight:700; color:var(--accent-pink); text-align:right;" id="todayLiter">0 L</div>
-                </div>
-            </div>
-
-            <div class="section-header">
-                <span class="sh-title">Recent Transaction</span>
-                <span class="sh-link" onclick="nav('historyScreen')">See All</span>
-            </div>
+            <div class="section-title">Recent Activity</div>
             <div id="recentTrans"></div>
         </div>
 
@@ -387,31 +454,46 @@
                 <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Yearly</div>
             </div>
 
-            <div class="cyber-card" style="background: linear-gradient(135deg, #2ECC71 0%, #27ae60 100%); color:black; position:relative; overflow:hidden;">
-                <div style="position:relative; z-index:2;">
-                    <div style="font-size:11px; font-weight:700; opacity:0.6; letter-spacing:1px; margin-bottom:5px;">NET PROFIT (EST)</div>
-                    <div style="font-size:32px; font-weight:800; letter-spacing:-1px;" id="repMargin">Rp 0</div>
-                    <div style="font-size:12px; margin-top:5px; opacity:0.8; font-weight:500;">(Liter x 3000 - Exp)</div>
+            <div class="cyber-card" style="padding:0; overflow:hidden;">
+                <div style="padding:20px; background:linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));">
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;">Net Profit (Fix 3.000/L)</div>
+                    <div style="font-size:32px; font-weight:800; color:#2ECC71;" id="rpNet">Rp 0</div>
                 </div>
-                <span class="material-icons-round" style="position:absolute; right:-10px; bottom:-10px; font-size:100px; opacity:0.1;">paid</span>
-            </div>
+                
+                <div style="padding:20px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span style="color:var(--text-muted);">Penjualan (Omzet)</span>
+                        <span style="font-weight:600;" id="rpOmzet">Rp 0</span>
+                    </div>
+                    
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                        <span style="color:var(--text-muted);">HPP Est (<span id="rpLitTotal" style="font-size:11px;">0L</span>)</span>
+                        <span style="font-weight:600; color:var(--accent-pink);" id="rpHpp">- Rp 0</span>
+                    </div>
 
-            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:25px;">
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:20px; text-align:center; border:1px solid rgba(255,255,255,0.05);">
-                    <div style="font-size:10px; color:var(--text-muted); margin-bottom:5px;">SALES</div>
-                    <div style="font-size:13px; font-weight:700; color:var(--accent-green);" id="repInc">0</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:20px; text-align:center; border:1px solid rgba(255,255,255,0.05);">
-                    <div style="font-size:10px; color:var(--text-muted); margin-bottom:5px;">STOCK</div>
-                    <div style="font-size:13px; font-weight:700; color:var(--accent-purple);" id="repBuy">0</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:20px; text-align:center; border:1px solid rgba(255,255,255,0.05);">
-                    <div style="font-size:10px; color:var(--text-muted); margin-bottom:5px;">COST</div>
-                    <div style="font-size:13px; font-weight:700; color:var(--accent-pink);" id="repExp">0</div>
+                    <div style="border-bottom:1px dashed rgba(255,255,255,0.1); margin-bottom:15px;"></div>
+
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span style="color:white; font-weight:500;">LABA KOTOR (3.000/L)</span>
+                        <span style="font-weight:700; color:var(--primary);" id="rpGross">Rp 0</span>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                        <span style="color:var(--text-muted);">Beban Ops (Exp)</span>
+                        <span style="font-weight:600; color:var(--accent-pink);" id="rpBeban">- Rp 0</span>
+                    </div>
+
+                    <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="material-icons-round" style="color:var(--accent-wd); font-size:18px;">account_balance_wallet</span>
+                            <span style="font-size:12px; color:var(--text-muted);">Owner Withdraw (WD)</span>
+                        </div>
+                        <span style="font-weight:700; color:var(--accent-wd);" id="rpWd">Rp 0</span>
+                    </div>
                 </div>
             </div>
             
-            <h4 style="margin:0 0 15px 0; color:var(--text-muted); font-size:12px; text-transform:uppercase;">Cashflow Details</h4>
+            <h4 style="margin:25px 0 15px 0; color:var(--text-muted); font-size:12px; text-transform:uppercase;">Transaction History</h4>
             <div id="reportContent"></div>
         </div>
         <div class="bottom-nav-wrap"><div class="bottom-nav"></div></div>
@@ -495,10 +577,11 @@
                 <span class="material-icons-round" onclick="closeModal('inputModal')" style="cursor:pointer; color:var(--text-muted);">close</span>
             </div>
             
-            <div style="background:rgba(0,0,0,0.3); display:flex; border-radius:16px; padding:4px; margin-bottom:20px;">
+            <div style="background:rgba(0,0,0,0.3); display:flex; border-radius:16px; padding:4px; margin-bottom:20px; gap:4px;">
                 <button id="mtInc" class="mode-btn active" onclick="setMode('inc')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">SALE</button>
                 <button id="mtBuy" class="mode-btn" onclick="setMode('buy')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">STOCK</button>
-                <button id="mtExp" class="mode-btn" onclick="setMode('exp')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">EXPENSE</button>
+                <button id="mtExp" class="mode-btn" onclick="setMode('exp')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">EXP</button>
+                <button id="mtWd" class="mode-btn" onclick="setMode('wd')" style="flex:1; padding:10px; border:none; border-radius:12px; font-weight:600; color:var(--text-muted); background:transparent;">WD</button>
             </div>
             <style> .mode-btn.active { background:rgba(255,255,255,0.1) !important; color:white !important; } </style>
 
@@ -540,6 +623,21 @@
                 </div>
                 <button class="btn-primary" style="background:var(--accent-pink);" onclick="saveTrans('exp')">SAVE EXPENSE</button>
             </div>
+
+            <div id="formWd" style="display:none;">
+                <div class="input-group">
+                    <label class="input-label" style="color:var(--accent-wd);">Withdraw Amount</label>
+                    <div style="position:relative;">
+                        <span style="position:absolute; top:16px; left:16px; font-weight:700; color:var(--text-muted);">Rp</span>
+                        <input type="number" id="wdNom" class="clean-input" style="padding-left:50px; font-size:24px; font-weight:700;" placeholder="0">
+                    </div>
+                    <p style="font-size:11px; color:var(--text-muted); margin-top:10px; line-height:1.4;">
+                        <span class="material-icons-round" style="font-size:12px; vertical-align:middle;">info</span> 
+                        Uang laci akan berkurang, tapi statistik <b>Target Margin</b> hari ini akan tetap penuh.
+                    </p>
+                </div>
+                <button class="btn-primary" style="background:var(--accent-wd); box-shadow: 0 10px 25px rgba(217, 70, 239, 0.3);" onclick="saveTrans('wd')">TARIK KEUNTUNGAN</button>
+            </div>
         </div>
     </div>
 
@@ -553,6 +651,7 @@
                     <option value="inc">Sale</option>
                     <option value="buy">Restock</option>
                     <option value="exp">Expense</option>
+                    <option value="wd">Withdraw (WD)</option>
                 </select>
             </div>
             <div class="input-group">
@@ -641,7 +740,7 @@
         let db; 
         try { if(typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } } catch(e) { console.log("Firebase Offline"); }
 
-        // LOAD DATA - Added dailyTarget 170000
+        // LOAD DATA
         let data = { pass: "DearLove2025", store: "DEAR LOVE", addr: "Jl. Raya Pertamini", price: 12000, modalPrice: 10000, photo: "logo.png", stokLiter: 0, dailyTarget: 170000, trans: [], kasbon: [], groqKey: "" };
         try { let saved = localStorage.getItem('dl_super_v4'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
         if(!Array.isArray(data.trans)) data.trans = [];
@@ -690,47 +789,46 @@
         window.closeModal = (id) => { document.getElementById(id).style.display='none'; toggleNav(true); }
 
         window.setMode = (m) => {
-            currentMode = m; document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(m==='inc'?'mtInc':(m==='buy'?'mtBuy':'mtExp')).classList.add('active');
-            ['formInc','formBuy','formExp'].forEach(f => document.getElementById(f).style.display = 'none');
-            document.getElementById(m==='inc'?'formInc':(m==='buy'?'formBuy':'formExp')).style.display = 'block';
+            currentMode = m; 
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(m==='inc'?'mtInc':(m==='buy'?'mtBuy':(m==='exp'?'mtExp':'mtWd'))).classList.add('active');
+            ['formInc','formBuy','formExp','formWd'].forEach(f => document.getElementById(f).style.display = 'none');
+            document.getElementById(m==='inc'?'formInc':(m==='buy'?'formBuy':(m==='exp'?'formExp':'formWd'))).style.display = 'block';
         }
 
-        // RENDER FUNCTIONS - UPDATED TO USE PROFIT FOR TARGET
+        // RENDER FUNCTIONS - CLEAN DASHBOARD + MARGIN 3000
         window.renderDash = () => {
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
             let today = new Date().toLocaleDateString();
-            let dInc=0, dBuy=0, dExp=0, dLit=0, realTimeCash=0;
+            let dInc=0, dBuy=0, dExp=0, dWd=0, dLit=0, realTimeCash=0;
+            
             data.trans.forEach(t => { 
                 if(t.date === today) { 
                     if(t.type === 'inc') { dInc+=t.n; dLit+=(t.l||0); if(t.metode==='Tunai') realTimeCash+=t.n; }
                     else if(t.type === 'buy') { dBuy+=t.n; realTimeCash-=t.n; }
+                    else if(t.type === 'wd') { dWd+=t.n; realTimeCash-=t.n; } // WD Reduces Cash
                     else { dExp+=t.n; realTimeCash-=t.n; }
                 } 
             });
             
-            // LOGIC MARGIN KHUSUS 3000
-            let customMargin = 3000;
-            let profit = (dLit * customMargin) - dExp; // Ini Profit Hari Ini
+            // --- LOGIKA UTAMA: MARGIN DIPAKSA 3000 ---
+            let forcedMargin = 3000;
+            let profit = (dLit * forcedMargin) - dExp; // Profit for Target
             
-            // LOGIC TARGET HARIAN (Default 170k) - BASED ON PROFIT
             let target = data.dailyTarget || 170000;
             let pct = Math.min(100, Math.max(0, (profit / target) * 100)).toFixed(1);
             
-            document.getElementById('netProfit').innerText = fmtMoney(profit);
+            // UPDATE NEW CLEAN DASHBOARD UI
             document.getElementById('realTimeProfit').innerText = fmtMoney(realTimeCash);
-            document.getElementById('marginPerLiter').innerText = fmtMoney(customMargin) + "/L"; 
-            document.getElementById('todayLiter').innerText = dLit.toFixed(2) + " L";
-            document.getElementById('totInc').innerText = fmtMoney(dInc);
-            document.getElementById('totExp').innerText = fmtMoney(dExp);
-            document.getElementById('stokVal').innerText = data.stokLiter.toFixed(2) + " L";
-            
-            // UPDATE TARGET WIDGET (USING PROFIT)
-            document.getElementById('targetVal').innerText = fmtMoney(target);
-            document.getElementById('currentSales').innerText = fmtMoney(profit); // Show Profit here
+            document.getElementById('netProfit').innerText = fmtMoney(profit);
             document.getElementById('targetPct').innerText = pct + "%";
             document.getElementById('targetBar').style.width = pct + "%";
+            
+            document.getElementById('stokVal').innerText = data.stokLiter.toFixed(2);
+            document.getElementById('todayLiter').innerText = dLit.toFixed(2) + " L";
+            document.getElementById('totInc').innerText = fmtMoney(dInc);
+            document.getElementById('totExp').innerText = fmtMoney(dExp); // Expense doesn't include WD
             
             document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
         }
@@ -746,6 +844,7 @@
         window.saveTrans = async (type, method='cash') => {
             let now = new Date();
             let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), type:type, weather: currentWeather };
+            
             if(type === 'inc') {
                 let n=parseInt(document.getElementById('admNom').value); if(!n) return;
                 let l=parseFloat((n/data.price).toFixed(2)); tx.n=n; tx.l=l; tx.metode=method==='cash'?'Tunai':'QRIS'; data.stokLiter=Math.max(0, data.stokLiter-l);
@@ -757,31 +856,47 @@
             } else if (type === 'exp') {
                 let n=parseInt(document.getElementById('expNom').value), d=document.getElementById('descInput').value; if(!n) return;
                 tx.n=n; tx.desc=d||"Expense";
+            } else if (type === 'wd') {
+                let n=parseInt(document.getElementById('wdNom').value); if(!n) return;
+                tx.n=n; tx.desc="Withdrawal (Owner)";
             }
+
             data.trans.unshift(tx); localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            ['admNom','buyNom','buyLit','expNom','descInput'].forEach(i=>document.getElementById(i).value='');
+            ['admNom','buyNom','buyLit','expNom','descInput','wdNom'].forEach(i=>document.getElementById(i).value='');
             closeModal('inputModal'); renderDash();
         }
 
         window.saveEditTrans = () => {
             let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id); if(idx<0) return;
             let oldT=data.trans[idx]; if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
+            
             let type=document.getElementById('editType').value, n=parseInt(document.getElementById('editNom').value), l=parseFloat(document.getElementById('editLit').value)||0, d=document.getElementById('editDesc').value;
+            
             data.trans[idx]={...data.trans[idx], type:type, n:n, l:l};
-            if(type==='inc') { data.trans[idx].metode=d; data.stokLiter-=l; } else if(type==='buy') { data.trans[idx].desc="Restock"; data.stokLiter+=l; } else data.trans[idx].desc=d;
+            if(type==='inc') { data.trans[idx].metode=d; data.stokLiter-=l; } 
+            else if(type==='buy') { data.trans[idx].desc="Restock"; data.stokLiter+=l; }
+            else if(type==='wd') { data.trans[idx].desc=d||"Withdrawal"; }
+            else data.trans[idx].desc=d;
+            
             localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
         }
+
         window.deleteTrans = () => {
             if(!confirm("Delete?")) return; let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id);
             let oldT=data.trans[idx]; if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
             data.trans.splice(idx,1); localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
         }
+
         window.openEdit = (id) => {
             let t=data.trans.find(x=>x.id===id); if(!t) return;
             document.getElementById('editId').value=id; document.getElementById('editType').value=t.type; document.getElementById('editNom').value=t.n; document.getElementById('editLit').value=t.l||0; document.getElementById('editDesc').value=t.desc||t.metode||'';
             toggleEditFields(); document.getElementById('editModal').style.display='flex'; toggleNav(false);
         }
-        window.toggleEditFields = () => document.getElementById('editLiterWrap').style.display = document.getElementById('editType').value==='exp'?'none':'block';
+        
+        window.toggleEditFields = () => {
+            let t = document.getElementById('editType').value;
+            document.getElementById('editLiterWrap').style.display = (t==='exp' || t==='wd') ? 'none' : 'block';
+        }
 
         window.renderPola = () => {
             let sL=0, sC=0, rL=0, rC=0, hC=Array(24).fill(0), dC={'Minggu':0,'Senin':0,'Selasa':0,'Rabu':0,'Kamis':0,'Jumat':0,'Sabtu':0};
@@ -804,22 +919,53 @@
         }
 
         window.renderReport = () => {
-            let gr={}, tInc=0, tBuy=0, tExp=0, tLit=0;
+            let gr={}, tInc=0, tExp=0, tLit=0, tWd=0;
+            
             data.trans.forEach(t => {
                 let k = reportMode==='daily'?t.date:(reportMode==='monthly'?getCustomPeriod(t.ts):new Date(t.ts).getFullYear().toString());
-                if(!gr[k]) gr[k]={i:0,b:0,e:0};
-                if(t.type==='inc') { gr[k].i+=t.n; tInc+=t.n; tLit+=(t.l||0); }
-                else if(t.type==='buy') { gr[k].b+=t.n; tBuy+=t.n; } else { gr[k].e+=t.n; tExp+=t.n; }
+                if(!gr[k]) gr[k]={i:0,b:0,e:0,w:0};
+                
+                if(t.type==='inc') { 
+                    gr[k].i+=t.n; tInc+=t.n; tLit+=(t.l||0); 
+                }
+                else if(t.type==='buy') { gr[k].b+=t.n; } 
+                else if(t.type==='wd') { gr[k].w+=t.n; tWd+=t.n; }
+                else { gr[k].e+=t.n; tExp+=t.n; }
             });
-            // LOGIC REPORT: Net Profit = Liter * 3000 - Expense
-            let marginUnit = 3000;
-            let estProfit = (tLit * marginUnit) - tExp;
             
-            document.getElementById('repMargin').innerText=fmtMoney(estProfit); 
-            document.getElementById('repInc').innerText=fmtMoney(tInc); 
-            document.getElementById('repBuy').innerText=fmtMoney(tBuy); 
-            document.getElementById('repExp').innerText=fmtMoney(tExp);
-            document.getElementById('reportContent').innerHTML=Object.keys(gr).map(k=>`<div class="trans-item"><div style="flex:1;"><div class="ti-info"><h4>${k}</h4></div><div style="font-size:10px; color:var(--text-muted); margin-top:5px; display:flex; justify-content:space-between;"><span class="text-green">In: ${fmtMoney(gr[k].i)}</span><span class="text-red">Out: ${fmtMoney(gr[k].e+gr[k].b)}</span></div></div></div>`).join('');
+            // --- LOGIKA REPORT DIPAKSA 3000 ---
+            // Omzet Real
+            let omzet = tInc;
+            
+            // Laba Kotor Wajib = Liter * 3000
+            let forcedMargin = 3000;
+            let grossProfit = tLit * forcedMargin;
+            
+            // HPP "Bayangan" (Agar Matematikanya Masuk) = Omzet - Laba Kotor
+            let shadowHPP = omzet - grossProfit;
+            
+            // Laba Bersih = Laba Kotor - Beban
+            let netProfit = grossProfit - tExp;
+            
+            document.getElementById('rpNet').innerText = fmtMoney(netProfit); 
+            document.getElementById('rpOmzet').innerText = fmtMoney(omzet); 
+            document.getElementById('rpLitTotal').innerText = tLit.toFixed(2) + " L";
+            document.getElementById('rpHpp').innerText = "- " + fmtMoney(shadowHPP);
+            document.getElementById('rpGross').innerText = fmtMoney(grossProfit);
+            document.getElementById('rpBeban').innerText = "- " + fmtMoney(tExp);
+            document.getElementById('rpWd').innerText = fmtMoney(tWd);
+            
+            document.getElementById('reportContent').innerHTML=Object.keys(gr).map(k=>`
+                <div class="trans-item">
+                    <div style="flex:1;">
+                        <div class="ti-info"><h4>${k}</h4></div>
+                        <div style="font-size:10px; color:var(--text-muted); margin-top:5px; display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                            <span class="text-green">Sales: ${fmtMoney(gr[k].i)}</span>
+                            <span class="text-red">Exp: ${fmtMoney(gr[k].e)}</span>
+                            <span style="color:var(--accent-wd);">WD: ${fmtMoney(gr[k].w)}</span>
+                        </div>
+                    </div>
+                </div>`).join('');
         }
         window.setReportMode = (m) => { reportMode=m; document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active')); document.getElementById(m==='daily'?'rtDay':(m==='monthly'?'rtMonth':'rtYear')).classList.add('active'); renderReport(); }
 
@@ -842,6 +988,7 @@
             let ic='inc', iname='local_gas_station', s='+', c='val-plus', ti='Sale', su=(t.l||0)+" L";
             if(t.type==='buy'){ ic='buy'; iname='water_drop'; s='-'; c='val-minus'; ti='Restock'; su="+"+t.l+" L"; }
             else if(t.type==='exp'){ ic='exp'; iname='payments'; s='-'; c='val-minus'; ti=t.desc; su="Expense"; }
+            else if(t.type==='wd'){ ic='wd'; iname='account_balance_wallet'; s='-'; c='val-minus'; ti='Withdraw'; su="Ambil Profit"; }
             else ti=t.metode||"Cash";
             return `<div class="trans-item" onclick="openEdit(${t.id})"><div style="display:flex; align-items:center;"><div class="ti-icon ${ic}"><span class="material-icons-round">${iname}</span></div><div class="ti-info"><h4>${ti}</h4><p>${su}</p></div></div><div><span class="ti-val ${c}">${s} ${t.n/1000}k</span><span class="ti-time">${t.time}</span></div></div>`;
         }
