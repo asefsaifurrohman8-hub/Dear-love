@@ -778,6 +778,13 @@
                 tx.n=n; tx.l=l; tx.desc="Restock"; data.stokLiter+=l;
             } else if (type === 'exp') {
                 let n=parseInt(document.getElementById('expNom').value), d=document.getElementById('descInput').value; if(!n) return;
+                
+                // --- [BARU] FITUR LIMIT PENGELUARAN 70K ---
+                if (n > 70000) {
+                    alert("GAGAL: Pengeluaran dibatasi maksimal Rp 70.000 untuk penghematan!");
+                    return; // Stop proses
+                }
+                
                 tx.n=n; tx.desc=d||"Expense";
             } else if (type === 'wd') {
                 let n=parseInt(document.getElementById('wdNom').value); if(!n) return;
@@ -923,40 +930,112 @@
             });
         }
 
-        // --- AI ASSISTANT (FULL) ---
+// --- AI ASSISTANT (SUPER UPGRADE: BUSINESS INTELLIGENCE) ---
         window.sendAIChat = async () => {
-            let i=document.getElementById('aiInput'),m=i.value,b=document.getElementById('chatBox'); 
-            if(!m)return; 
+            let i = document.getElementById('aiInput');
+            let m = i.value;
+            let b = document.getElementById('chatBox');
+            
+            if(!m) return; 
             i.value='';
             
-            // User Msg
-            b.innerHTML+=`<div style="background:var(--primary); color:white; margin-left:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px;">${m}</div>`;
+            // Tampilkan Chat User
+            b.innerHTML += `<div style="background:var(--primary); color:white; margin-left:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px;">${m}</div>`;
             
             if(!data.groqKey){
-                b.innerHTML+=`<div style="background:rgba(255,255,255,0.05); color:var(--accent-pink); border-radius:12px; padding:10px; margin-bottom:10px; font-size:12px;">Groq API Key belum diatur di Settings.</div>`;
+                b.innerHTML += `<div style="background:rgba(255,255,255,0.05); color:var(--accent-pink); border-radius:12px; padding:10px; margin-bottom:10px; font-size:12px;">Groq API Key belum diatur di Settings.</div>`;
                 return;
             }
+
+            b.innerHTML += `<div id="aiLoading" style="color:var(--text-muted); font-size:10px; margin-bottom:10px; font-style:italic;">Menganalisa data bisnis...</div>`;
+
+            // --- 1. DATA MINING & AGGREGATION ---
+            const oneDay = 24 * 60 * 60 * 1000;
+            const now = Date.now();
+            
+            // Helper untuk hitung statistik berdasarkan rentang hari
+            const getStats = (days) => {
+                let s = { inc:0, exp:0, lit:0, count:0 };
+                data.trans.forEach(t => {
+                    let diff = (now - t.ts) / oneDay;
+                    if(diff <= days) {
+                        if(t.type === 'inc') { s.inc += t.n; s.lit += (t.l||0); s.count++; }
+                        else if(t.type === 'exp') { s.exp += t.n; }
+                    }
+                });
+                return s;
+            };
+
+            let sDay = getStats(1);   // Data 24 Jam
+            let sWeek = getStats(7);  // Data Mingguan
+            let sMonth = getStats(30); // Data Bulanan
+
+            // --- 2. ADVANCED METRICS ---
+            // Hitung rata-rata penjualan per hari (berdasarkan data seminggu)
+            let avgDailyLit = sWeek.lit > 0 ? (sWeek.lit / 7) : 0;
+            
+            // Prediksi Stok Habis (Runway)
+            let stockRunway = avgDailyLit > 0 ? (data.stokLiter / avgDailyLit).toFixed(1) : "Tidak terbatas (Belum ada penjualan)";
+            
+            // Hitung Margin Kotor & Bersih (Estimasi Margin 3000/L)
+            let grossProfitMonth = sMonth.lit * 3000; 
+            let netProfitMonth = grossProfitMonth - sMonth.exp;
+            let efficiencyScore = sMonth.inc > 0 ? ((netProfitMonth / sMonth.inc) * 100).toFixed(1) : 0;
+
+            // --- 3. CONSTRUCT SUPER PROMPT ---
+            let systemPrompt = `
+                Peran: Anda adalah Business Analyst Senior & Konsultan Keuangan Pribadi untuk pemilik toko 'DEAR LOVE'.
+                Gaya Bicara: Tegas, Profesional, Berbasis Data, Solutif, JANGAN GUNAKAN EMOJI. Fokus ke angka dan strategi.
+
+                DATA BISNIS REAL-TIME (Dihitung Sistem):
+                
+                1. KONDISI STOK & INVENTARIS
+                - Sisa Stok BBM: ${data.stokLiter.toFixed(2)} Liter
+                - Rata-rata Penjualan/Hari: ${avgDailyLit.toFixed(2)} Liter
+                - PREDIKSI HABIS: Stok diperkirakan habis dalam ${stockRunway} HARI lagi.
+
+                2. PERFORMA KEUANGAN (Omzet vs Pengeluaran)
+                - HARI INI: Omzet Rp ${sDay.inc} | Pengeluaran Rp ${sDay.exp} | Volume ${sDay.lit.toFixed(1)}L
+                - 7 HARI TERAKHIR: Omzet Rp ${sWeek.inc} | Volume ${sWeek.lit.toFixed(1)}L
+                - 30 HARI TERAKHIR: Omzet Rp ${sMonth.inc} | Pengeluaran Rp ${sMonth.exp}
+                
+                3. ANALISA PROFITABILITAS (Bulan Ini)
+                - Estimasi Profit Kotor (Margin 3000/L): Rp ${grossProfitMonth}
+                - Profit Bersih (Setelah Beban): Rp ${netProfitMonth}
+                - Efisiensi Toko: ${efficiencyScore}% (Semakin tinggi semakin sehat)
+
+                INSTRUKSI:
+                - Jawab pertanyaan user: "${m}"
+                - Jika user bertanya "Saran", evaluasi apakah pengeluaran (Expenses) terlalu besar dibanding Profit.
+                - Jika stok < 20 Liter atau Prediksi Habis < 2 Hari, BERIKAN PERINGATAN KERAS untuk restock.
+                - Berikan jawaban yang spesifik, jangan umum. Gunakan data di atas sebagai bukti.
+            `;
             
             try{
-                let r=await fetch("https://api.groq.com/openai/v1/chat/completions",{
+                let r = await fetch("https://api.groq.com/openai/v1/chat/completions",{
                     method:"POST",
                     headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`},
                     body:JSON.stringify({
                         model:"llama-3.3-70b-versatile",
                         messages:[
-                            {role:"system",content:`Kamu adalah asisten POS toko ${data.store}. Stok: ${data.stokLiter}L. Jawab singkat dan to the point.`},
+                            {role:"system",content:systemPrompt},
                             {role:"user",content:m}
                         ]
                     })
                 });
-                let j=await r.json();
+                
+                let j = await r.json();
                 let aiResponse = j.choices[0].message.content;
                 
-                // AI Msg
-                b.innerHTML+=`<div style="background:#333; color:white; margin-right:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px; line-height:1.5;">${marked.parse(aiResponse)}</div>`;
-                b.scrollTop=b.scrollHeight;
-            }catch(e){
-                b.innerHTML+=`<div style="color:var(--accent-pink);">Error connecting to AI. Check Connection/Key.</div>`;
+                // Hapus loading
+                document.getElementById('aiLoading').remove();
+
+                // AI Msg Output
+                b.innerHTML += `<div style="background:#333; color:white; margin-right:auto; border-radius:12px; padding:15px; margin-bottom:10px; max-width:85%; font-size:13px; line-height:1.6; border:1px solid rgba(255,255,255,0.1); box-shadow:0 5px 15px rgba(0,0,0,0.2);">${marked.parse(aiResponse)}</div>`;
+                b.scrollTop = b.scrollHeight;
+            } catch(e){
+                document.getElementById('aiLoading').remove();
+                b.innerHTML += `<div style="color:var(--accent-pink); font-size:12px;">Gagal terhubung ke AI Intelligence Unit. Cek Koneksi/API Key.</div>`;
             }
         }
 
