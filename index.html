@@ -346,7 +346,7 @@
                 
                 <div class="tool-item" onclick="nav('insightScreen')"><div class="tool-icon"><span class="material-icons-round t-purple">insights</span></div><span class="tool-label">Data<br>Insight</span></div>
                 
-                <div class="tool-item" onclick="openPrintPreview()"><div class="tool-icon"><span class="material-icons-round t-green">print</span></div><span class="tool-label">Laporan<br>A4</span></div>
+                <div class="tool-item" onclick="nav('printScreen')"><div class="tool-icon"><span class="material-icons-round t-green">print</span></div><span class="tool-label">Laporan<br>A4</span></div>
                 
                 <div class="tool-item" onclick="nav('polaScreen')"><div class="tool-icon"><span class="material-icons-round t-pink">ssid_chart</span></div><span class="tool-label">Grafik</span></div>
             </div>
@@ -551,6 +551,17 @@
         </div>
     </div>
 
+    <div id="printScreen" class="screen">
+        <div class="top-header">
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <span class="header-title">Laporan A4</span>
+            <span class="material-icons-round icon-btn" onclick="doPrint()" style="color:var(--accent-green);">print</span>
+        </div>
+        <div class="scroll-content">
+            <div id="printPreviewContent" style="background:white; color:black; padding:20px; border-radius:4px; font-size:12px; min-height:800px; margin-bottom:20px;"></div>
+        </div>
+    </div>
+
     <div id="settingScreen" class="screen">
         <div class="top-header">
             <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
@@ -713,20 +724,6 @@
         </div>
     </div>
 
-    <div id="printPreviewModal" class="modal-overlay">
-        <div class="sheet-content">
-             <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <h3 style="margin:0; color:white;">Cetak Laporan Bulanan</h3>
-                <span class="material-icons-round" onclick="closeModal('printPreviewModal')" style="color:white; cursor:pointer;">close</span>
-            </div>
-            <div style="background:white; color:black; padding:20px; border-radius:10px; max-height:300px; overflow-y:auto; font-size:10px; margin-bottom:20px;">
-                <h4 style="text-align:center;">PREVIEW (A4)</h4>
-                <div id="printPreviewContent"></div>
-            </div>
-            <button class="btn-primary" onclick="doPrint()">PRINT / SAVE PDF (A4)</button>
-        </div>
-    </div>
-
     <div id="receiptModal" class="modal-overlay" style="align-items:center; justify-content:center;">
         <div class="popup-content" style="width:85%; max-width:320px; padding:20px; border-radius:20px; background:white; color:black;">
             <div style="text-align:center; margin-bottom:15px; font-weight:700; color:#2ECC71;">TRANSACTION SUCCESS</div>
@@ -763,7 +760,7 @@
             dailyTarget: 170000, 
             trans: [], 
             kasbon: [],
-            holidays: [], // STORE LIST OF HOLIDAY DATES HERE
+            holidays: [], 
             groqKey: "" 
         };
 
@@ -849,9 +846,10 @@
             else if(id === 'polaScreen') renderPola();
             else if(id === 'reportScreen') renderReport();
             else if(id === 'settingScreen') renderSet();
-            else if(id === 'insightScreen') renderInsight(); // Trigger Insight Render
+            else if(id === 'insightScreen') renderInsight(); 
+            else if(id === 'printScreen') generatePrintReport(); // Trigger Print Generation
             
-            toggleNav(!['loginScreen', 'editModal', 'inputModal', 'dateDetailModal', 'printPreviewModal', 'kasbonModal'].includes(id));
+            toggleNav(!['loginScreen', 'editModal', 'inputModal', 'dateDetailModal', 'printScreen', 'kasbonModal'].includes(id));
         }
 
         window.openInputModal = () => { document.getElementById('inputModal').style.display='flex'; setMode('inc'); toggleNav(false); }
@@ -1048,8 +1046,7 @@
             });
         }
 
-        // --- NEW: INSIGHT SCREEN LOGIC (Replacing Modal) ---
-        // Helper untuk range 18 - 17
+        // --- NEW: INSIGHT SCREEN LOGIC ---
         const getPeriodRange = () => {
             let now = new Date();
             let currentDay = now.getDate();
@@ -1064,23 +1061,21 @@
                 start = new Date(now.getFullYear(), now.getMonth() - 1, 18);
                 end = new Date(now.getFullYear(), now.getMonth(), 17);
             }
+            start.setHours(0,0,0,0);
+            end.setHours(23,59,59,999);
             return { start, end };
         }
 
         window.renderInsight = () => {
             let { start, end } = getPeriodRange();
-            
-            // Format Label Periode
             let pStr = `${start.getDate()} ${start.toLocaleString('id-ID',{month:'short'})} - ${end.getDate()} ${end.toLocaleString('id-ID',{month:'short'})}`;
             document.getElementById('insightPeriodLabel').innerText = pStr;
 
-            // Generate Data
             let totalOmzet = 0;
             let totalVol = 0;
-            let dayCounts = Array(7).fill(0); // 0=Sun, 6=Sat
-            let dateMap = {}; // "18/12/2024": {omzet, vol, hours:{}}
+            let dayCounts = Array(7).fill(0); 
+            let dateMap = {}; 
 
-            // Pre-fill dateMap with empty data for all dates in range
             let loopDate = new Date(start);
             while(loopDate <= end) {
                 let dKey = loopDate.toLocaleDateString();
@@ -1088,21 +1083,17 @@
                 loopDate.setDate(loopDate.getDate() + 1);
             }
 
-            // Iterate Transactions
             data.trans.forEach(t => {
                 if (t.type === 'inc') {
                     let tDate = new Date(t.ts);
-                    // Check if inside period
                     if (tDate >= start && tDate <= end) {
                         let dKey = t.date;
                         if(dateMap[dKey]) {
                             dateMap[dKey].omzet += t.n;
                             dateMap[dKey].vol += (t.l||0);
-                            
                             let h = parseInt(t.time.split(':')[0]);
                             if(!dateMap[dKey].hours[h]) dateMap[dKey].hours[h] = 0;
                             dateMap[dKey].hours[h]++;
-
                             dayCounts[tDate.getDay()] += t.n;
                             totalOmzet += t.n;
                             totalVol += (t.l||0);
@@ -1111,50 +1102,33 @@
                 }
             });
 
-            // Update Summary UI
             document.getElementById('insTotalOmzet').innerText = fmtMoney(totalOmzet);
             document.getElementById('insTotalVol').innerText = totalVol.toFixed(1) + " L";
 
-            // Render Weekly Bar
             let maxDayVal = Math.max(...dayCounts);
             let dayLabels = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
             let barHTML = dayCounts.map((val, i) => {
                 let pct = maxDayVal > 0 ? (val / maxDayVal) * 100 : 0;
-                return `
-                <div class="day-bar-item">
-                    <div class="db-label">${dayLabels[i]}</div>
-                    <div class="db-track"><div class="db-fill" style="width:${pct}%"></div></div>
-                    <div class="db-val">${(val/1000).toFixed(0)}k</div>
-                </div>`;
+                return `<div class="day-bar-item"><div class="db-label">${dayLabels[i]}</div><div class="db-track"><div class="db-fill" style="width:${pct}%"></div></div><div class="db-val">${(val/1000).toFixed(0)}k</div></div>`;
             }).join('');
             document.getElementById('weeklyBarChart').innerHTML = barHTML;
 
-            // Render Calendar
             let calHTML = "";
             let sortedKeys = Object.keys(dateMap).sort((a,b) => {
                 let da = a.split('/'); let db = b.split('/');
                 return new Date(da[2], da[1]-1, da[0]) - new Date(db[2], db[1]-1, db[0]);
             });
 
-            // Padding for first day of week
-            let firstDayIndex = new Date(start).getDay(); // 0-6
+            let firstDayIndex = new Date(start).getDay(); 
             for(let i=0; i<firstDayIndex; i++) calHTML += `<div class="cal-day cal-empty"></div>`;
 
             sortedKeys.forEach(k => {
                 let item = dateMap[k];
-                // Find Top Peaks
                 let sortedHours = Object.keys(item.hours).sort((a,b) => item.hours[b] - item.hours[a]).slice(0, 2);
                 let peaksHTML = sortedHours.map(h => `<div class="peak-badge">${h}:00</div>`).join('');
-                
                 let holidayClass = item.isHoliday ? 'holiday' : '';
                 let omzetDisplay = item.isHoliday ? 'LIBUR' : fmtMoney(item.omzet);
-                
-                calHTML += `
-                <div class="cal-day ${holidayClass}" onclick="openDateDetail('${k}')">
-                    <div class="cd-date">${k.split('/')[0]}</div>
-                    <div class="cd-omzet" style="${item.isHoliday?'color:var(--accent-pink);':''}">${omzetDisplay}</div>
-                    <div class="cd-peaks">${peaksHTML}</div>
-                </div>`;
+                calHTML += `<div class="cal-day ${holidayClass}" onclick="openDateDetail('${k}')"><div class="cd-date">${k.split('/')[0]}</div><div class="cd-omzet" style="${item.isHoliday?'color:var(--accent-pink);':''}">${omzetDisplay}</div><div class="cd-peaks">${peaksHTML}</div></div>`;
             });
             document.getElementById('calendarBody').innerHTML = calHTML;
         }
@@ -1162,11 +1136,8 @@
         window.openDateDetail = (dateStr) => {
             selectedDetailDate = dateStr;
             document.getElementById('ddTitle').innerText = "Detail: " + dateStr;
-            
-            // Set Switch State
             document.getElementById('holidayToggle').checked = data.holidays.includes(dateStr);
             
-            // Show Hourly Detail for this date
             let hoursData = {};
             data.trans.forEach(t => {
                 if(t.date === dateStr && t.type === 'inc') {
@@ -1176,15 +1147,8 @@
                 }
             });
 
-            let listHTML = Object.keys(hoursData).sort().map(h => `
-                <div class="trans-item" style="padding:8px 0;">
-                    <span style="color:var(--text-muted); font-size:12px;">${h}</span>
-                    <span style="font-weight:700; font-size:12px;">${fmtMoney(hoursData[h])}</span>
-                </div>
-            `).join('');
-
+            let listHTML = Object.keys(hoursData).sort().map(h => `<div class="trans-item" style="padding:8px 0;"><span style="color:var(--text-muted); font-size:12px;">${h}</span><span style="font-weight:700; font-size:12px;">${fmtMoney(hoursData[h])}</span></div>`).join('');
             document.getElementById('ddHoursList').innerHTML = listHTML || '<div style="text-align:center;color:#666;font-size:12px;margin-top:10px;">Tidak ada transaksi</div>';
-            
             document.getElementById('dateDetailModal').style.display = 'flex';
             toggleNav(false);
         }
@@ -1192,50 +1156,31 @@
         window.toggleHoliday = () => {
             if(!selectedDetailDate) return;
             let isHoliday = document.getElementById('holidayToggle').checked;
-            
-            if(isHoliday) {
-                if(!data.holidays.includes(selectedDetailDate)) data.holidays.push(selectedDetailDate);
-            } else {
-                data.holidays = data.holidays.filter(d => d !== selectedDetailDate);
-            }
-            
+            if(isHoliday) { if(!data.holidays.includes(selectedDetailDate)) data.holidays.push(selectedDetailDate); } 
+            else { data.holidays = data.holidays.filter(d => d !== selectedDetailDate); }
             localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            renderInsight(); // Refresh Calendar
+            renderInsight(); 
         }
 
-        // --- NEW: A4 REPORT (Replaces Export) ---
-        window.openPrintPreview = () => {
-            document.getElementById('printPreviewModal').style.display = 'flex';
-            toggleNav(false);
-            generatePrintReport();
-        }
-
+        // --- NEW: A4 REPORT (Full Page + 18-17 Period) ---
         window.generatePrintReport = () => {
-            // Generate Monthly Data
-            let now = new Date();
-            let monthName = now.toLocaleDateString('id-ID', {month:'long', year:'numeric'});
+            let { start, end } = getPeriodRange();
+            let monthName = `${start.getDate()} ${start.toLocaleString('id-ID',{month:'short'})} - ${end.getDate()} ${end.toLocaleString('id-ID',{month:'short', year:'numeric'})}`;
             
             let tInc=0, tExp=0, tLit=0;
             let rows = '';
             
-            // Filter Data Bulan Ini & Sort Date Ascending
+            // Filter Data based on 18-17 Range
             let monthlyTrans = data.trans.filter(t => {
                 let d = new Date(t.ts);
-                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                return d >= start && d <= end;
             }).sort((a,b) => a.ts - b.ts);
 
             monthlyTrans.forEach(t => {
                 if(t.type==='inc') { tInc+=t.n; tLit+=(t.l||0); }
                 else if(t.type!=='buy' && t.type!=='wd') { tExp+=t.n; }
                 
-                rows += `
-                <tr style="border-bottom:1px solid #ddd;">
-                    <td style="padding:5px;">${t.date} ${t.time}</td>
-                    <td style="padding:5px;">${t.type==='inc'?'PENJUALAN':(t.type==='buy'?'RESTOCK':(t.type==='wd'?'WITHDRAW':'BEBAN'))}</td>
-                    <td style="padding:5px;">${t.desc||t.metode||'-'}</td>
-                    <td style="padding:5px; text-align:right;">${t.type==='inc'?fmtMoney(t.n):'-'}</td>
-                    <td style="padding:5px; text-align:right;">${t.type!=='inc'?fmtMoney(t.n):'-'}</td>
-                </tr>`;
+                rows += `<tr style="border-bottom:1px solid #ddd;"><td style="padding:5px;">${t.date} ${t.time}</td><td style="padding:5px;">${t.type==='inc'?'PENJUALAN':(t.type==='buy'?'RESTOCK':(t.type==='wd'?'WITHDRAW':'BEBAN'))}</td><td style="padding:5px;">${t.desc||t.metode||'-'}</td><td style="padding:5px; text-align:right;">${t.type==='inc'?fmtMoney(t.n):'-'}</td><td style="padding:5px; text-align:right;">${t.type!=='inc'?fmtMoney(t.n):'-'}</td></tr>`;
             });
 
             let gross = tLit * 3000;
@@ -1246,214 +1191,77 @@
                     <div style="text-align:center; margin-bottom:20px;">
                         <h2 style="margin:0;">${data.store}</h2>
                         <div style="font-size:12px;">${data.addr}</div>
-                        <h3 style="margin:10px 0 0; text-decoration:underline;">LAPORAN KEUANGAN BULANAN</h3>
+                        <h3 style="margin:10px 0 0; text-decoration:underline;">LAPORAN KEUANGAN PERIODE</h3>
                         <div style="font-size:12px;">Periode: ${monthName}</div>
                     </div>
-
                     <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:12px;">
-                        <tr>
-                            <td style="padding:5px; font-weight:bold;">Total Penjualan (Omzet)</td>
-                            <td style="padding:5px; text-align:right;">${fmtMoney(tInc)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:5px; font-weight:bold;">Total Liter Terjual</td>
-                            <td style="padding:5px; text-align:right;">${tLit.toFixed(2)} L</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:5px; font-weight:bold;">Total Beban Operasional</td>
-                            <td style="padding:5px; text-align:right; color:red;">(${fmtMoney(tExp)})</td>
-                        </tr>
-                        <tr style="background:#eee;">
-                            <td style="padding:5px; font-weight:bold;">NET PROFIT (Margin 3000)</td>
-                            <td style="padding:5px; text-align:right; font-weight:bold;">${fmtMoney(net)}</td>
-                        </tr>
+                        <tr><td style="padding:5px; font-weight:bold;">Total Penjualan (Omzet)</td><td style="padding:5px; text-align:right;">${fmtMoney(tInc)}</td></tr>
+                        <tr><td style="padding:5px; font-weight:bold;">Total Liter Terjual</td><td style="padding:5px; text-align:right;">${tLit.toFixed(2)} L</td></tr>
+                        <tr><td style="padding:5px; font-weight:bold;">Total Beban Operasional</td><td style="padding:5px; text-align:right; color:red;">(${fmtMoney(tExp)})</td></tr>
+                        <tr style="background:#eee;"><td style="padding:5px; font-weight:bold;">NET PROFIT (Margin 3000)</td><td style="padding:5px; text-align:right; font-weight:bold;">${fmtMoney(net)}</td></tr>
                     </table>
-
                     <table style="width:100%; border-collapse:collapse; font-size:10px; border:1px solid #ccc;">
-                        <thead style="background:#f0f0f0;">
-                            <tr>
-                                <th style="padding:5px; text-align:left;">Waktu</th>
-                                <th style="padding:5px; text-align:left;">Tipe</th>
-                                <th style="padding:5px; text-align:left;">Ket</th>
-                                <th style="padding:5px; text-align:right;">Masuk</th>
-                                <th style="padding:5px; text-align:right;">Keluar</th>
-                            </tr>
-                        </thead>
+                        <thead style="background:#f0f0f0;"><tr><th style="padding:5px; text-align:left;">Waktu</th><th style="padding:5px; text-align:left;">Tipe</th><th style="padding:5px; text-align:left;">Ket</th><th style="padding:5px; text-align:right;">Masuk</th><th style="padding:5px; text-align:right;">Keluar</th></tr></thead>
                         <tbody>${rows}</tbody>
                     </table>
-                    
-                    <div style="margin-top:30px; text-align:right; font-size:12px;">
-                        <div>Dicetak pada: ${new Date().toLocaleString()}</div>
-                        <br><br><br>
-                        <div>( Admin )</div>
-                    </div>
-                </div>
-            `;
+                    <div style="margin-top:30px; text-align:right; font-size:12px;"><div>Dicetak pada: ${new Date().toLocaleString()}</div><br><br><br><div>( Admin )</div></div>
+                </div>`;
             
             document.getElementById('printPreviewContent').innerHTML = html;
-            // Simpan HTML ke div tersembunyi untuk print native
             document.getElementById('printArea').innerHTML = html;
         }
 
-        window.doPrint = () => {
-            window.print();
-        }
+        window.doPrint = () => { window.print(); }
 
         // --- AI ASSISTANT ---
         window.sendAIChat = async () => {
             let i = document.getElementById('aiInput');
             let m = i.value;
             let b = document.getElementById('chatBox');
-            
             if(!m) return; 
             i.value='';
-            
             b.innerHTML += `<div style="background:var(--primary); color:white; margin-left:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px;">${m}</div>`;
-            
-            if(!data.groqKey){
-                b.innerHTML += `<div style="background:rgba(255,255,255,0.05); color:var(--accent-pink); border-radius:12px; padding:10px; margin-bottom:10px; font-size:12px;">Groq API Key belum diatur di Settings.</div>`;
-                return;
-            }
-
+            if(!data.groqKey){ b.innerHTML += `<div style="background:rgba(255,255,255,0.05); color:var(--accent-pink); border-radius:12px; padding:10px; margin-bottom:10px; font-size:12px;">Groq API Key belum diatur di Settings.</div>`; return; }
             b.innerHTML += `<div id="aiLoading" style="color:var(--text-muted); font-size:10px; margin-bottom:10px; font-style:italic;">Menganalisa data bisnis...</div>`;
 
             const oneDay = 24 * 60 * 60 * 1000;
             const now = Date.now();
-            
             const getStats = (days) => {
                 let s = { inc:0, exp:0, lit:0, count:0 };
-                data.trans.forEach(t => {
-                    let diff = (now - t.ts) / oneDay;
-                    if(diff <= days) {
-                        if(t.type === 'inc') { s.inc += t.n; s.lit += (t.l||0); s.count++; }
-                        else if(t.type === 'exp') { s.exp += t.n; }
-                    }
-                });
+                data.trans.forEach(t => { let diff = (now - t.ts) / oneDay; if(diff <= days) { if(t.type === 'inc') { s.inc += t.n; s.lit += (t.l||0); s.count++; } else if(t.type === 'exp') { s.exp += t.n; } } });
                 return s;
             };
-
-            let sDay = getStats(1);   
-            let sWeek = getStats(7);  
-            let sMonth = getStats(30); 
-
+            let sDay = getStats(1); let sWeek = getStats(7); let sMonth = getStats(30); 
             let avgDailyLit = sWeek.lit > 0 ? (sWeek.lit / 7) : 0;
             let stockRunway = avgDailyLit > 0 ? (data.stokLiter / avgDailyLit).toFixed(1) : "Tidak terbatas (Belum ada penjualan)";
             let grossProfitMonth = sMonth.lit * 3000; 
             let netProfitMonth = grossProfitMonth - sMonth.exp;
             let efficiencyScore = sMonth.inc > 0 ? ((netProfitMonth / sMonth.inc) * 100).toFixed(1) : 0;
 
-            let systemPrompt = `
-                Peran: Anda adalah Business Analyst Senior & Konsultan Keuangan Pribadi untuk pemilik toko 'DEAR LOVE'.
-                Gaya Bicara: Tegas, Profesional, Berbasis Data, Solutif, JANGAN GUNAKAN EMOJI. Fokus ke angka dan strategi.
-
-                DATA BISNIS REAL-TIME (Dihitung Sistem):
-                1. KONDISI STOK & INVENTARIS
-                - Sisa Stok BBM: ${data.stokLiter.toFixed(2)} Liter
-                - Rata-rata Penjualan/Hari: ${avgDailyLit.toFixed(2)} Liter
-                - PREDIKSI HABIS: Stok diperkirakan habis dalam ${stockRunway} HARI lagi.
-
-                2. PERFORMA KEUANGAN (Omzet vs Pengeluaran)
-                - HARI INI: Omzet Rp ${sDay.inc} | Pengeluaran Rp ${sDay.exp} | Volume ${sDay.lit.toFixed(1)}L
-                - 7 HARI TERAKHIR: Omzet Rp ${sWeek.inc} | Volume ${sWeek.lit.toFixed(1)}L
-                - 30 HARI TERAKHIR: Omzet Rp ${sMonth.inc} | Pengeluaran Rp ${sMonth.exp}
-                
-                3. ANALISA PROFITABILITAS (Bulan Ini)
-                - Estimasi Profit Kotor (Margin 3000/L): Rp ${grossProfitMonth}
-                - Profit Bersih (Setelah Beban): Rp ${netProfitMonth}
-                - Efisiensi Toko: ${efficiencyScore}% (Semakin tinggi semakin sehat)
-
-                INSTRUKSI:
-                - Jawab pertanyaan user: "${m}"
-                - Jika user bertanya "Saran", evaluasi apakah pengeluaran (Expenses) terlalu besar dibanding Profit.
-                - Jika stok < 20 Liter atau Prediksi Habis < 2 Hari, BERIKAN PERINGATAN KERAS untuk restock.
-                - Berikan jawaban yang spesifik, jangan umum. Gunakan data di atas sebagai bukti.
-            `;
+            let systemPrompt = `Peran: Business Analyst Senior. Fokus angka. 
+            DATA: Stok: ${data.stokLiter.toFixed(2)}L. Avg Jual: ${avgDailyLit.toFixed(2)}L/hari. Prediksi Habis: ${stockRunway} hari.
+            KEUANGAN: Hari Ini Omzet ${sDay.inc}. 7 Hari Omzet ${sWeek.inc}. 30 Hari Omzet ${sMonth.inc}.
+            PROFIT (Bulan Ini): Gross ${grossProfitMonth}, Net ${netProfitMonth}, Efisiensi ${efficiencyScore}%.
+            Pertanyaan User: "${m}"`;
             
             try{
-                let r = await fetch("https://api.groq.com/openai/v1/chat/completions",{
-                    method:"POST",
-                    headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`},
-                    body:JSON.stringify({
-                        model:"llama-3.3-70b-versatile",
-                        messages:[
-                            {role:"system",content:systemPrompt},
-                            {role:"user",content:m}
-                        ]
-                    })
-                });
-                
+                let r = await fetch("https://api.groq.com/openai/v1/chat/completions",{ method:"POST", headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`}, body:JSON.stringify({ model:"llama-3.3-70b-versatile", messages:[{role:"system",content:systemPrompt},{role:"user",content:m}] }) });
                 let j = await r.json();
-                let aiResponse = j.choices[0].message.content;
-                
                 document.getElementById('aiLoading').remove();
-                b.innerHTML += `<div style="background:#333; color:white; margin-right:auto; border-radius:12px; padding:15px; margin-bottom:10px; max-width:85%; font-size:13px; line-height:1.6; border:1px solid rgba(255,255,255,0.1); box-shadow:0 5px 15px rgba(0,0,0,0.2);">${marked.parse(aiResponse)}</div>`;
+                b.innerHTML += `<div style="background:#333; color:white; margin-right:auto; border-radius:12px; padding:15px; margin-bottom:10px; max-width:85%; font-size:13px; line-height:1.6; border:1px solid rgba(255,255,255,0.1); box-shadow:0 5px 15px rgba(0,0,0,0.2);">${marked.parse(j.choices[0].message.content)}</div>`;
                 b.scrollTop = b.scrollHeight;
-            } catch(e){
-                document.getElementById('aiLoading').remove();
-                b.innerHTML += `<div style="color:var(--accent-pink); font-size:12px;">Gagal terhubung ke AI Intelligence Unit. Cek Koneksi/API Key.</div>`;
-            }
+            } catch(e){ document.getElementById('aiLoading').remove(); b.innerHTML += `<div style="color:var(--accent-pink); font-size:12px;">Gagal terhubung ke AI.</div>`; }
         }
 
         // --- KASBON ---
         window.openKasbon = () => { document.getElementById('kasbonModal').style.display='flex'; renderKasbon(); toggleNav(false); }
         window.renderKasbon = () => {
-            let h = data.kasbon.map((k,i) => `
-                <div class="trans-item">
-                    <div>
-                        <div style="font-weight:600; color:white;">${k.name}</div>
-                        <div style="font-size:11px; color:var(--text-muted);">${k.date}</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-weight:700; color:var(--accent-pink);">${fmtMoney(k.nom)}</div>
-                        <span style="font-size:10px; padding:2px 8px; border-radius:4px; background:${k.lunas?'#2ECC71':'#333'}; color:white; cursor:pointer;" onclick="toggleLunas(${i})">${k.lunas?'PAID':'UNPAID'}</span>
-                    </div>
-                </div>
-            `).join('');
+            let h = data.kasbon.map((k,i) => `<div class="trans-item"><div><div style="font-weight:600; color:white;">${k.name}</div><div style="font-size:11px; color:var(--text-muted);">${k.date}</div></div><div style="text-align:right;"><div style="font-weight:700; color:var(--accent-pink);">${fmtMoney(k.nom)}</div><span style="font-size:10px; padding:2px 8px; border-radius:4px; background:${k.lunas?'#2ECC71':'#333'}; color:white; cursor:pointer;" onclick="toggleLunas(${i})">${k.lunas?'PAID':'UNPAID'}</span></div></div>`).join('');
             document.getElementById('kasbonList').innerHTML = h || '<div style="text-align:center;color:#666;margin-top:20px;">No Data</div>';
         }
-        window.addKasbon = () => { 
-            let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); 
-            if(nm&&no){
-                data.kasbon.unshift({name:nm,nom:no,date:new Date().toLocaleDateString(),lunas:false});
-                localStorage.setItem('dl_super_v4',JSON.stringify(data));
-                document.getElementById('kasbonName').value='';
-                document.getElementById('kasbonNom').value='';
-                renderKasbon();
-            } 
-        }
-        window.toggleLunas = (i) => { 
-            if(confirm("Ubah Status Lunas?")) { 
-                data.kasbon[i].lunas=!data.kasbon[i].lunas; 
-                localStorage.setItem('dl_super_v4',JSON.stringify(data)); 
-                renderKasbon(); 
-            } 
-        }
+        window.addKasbon = () => { let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); if(nm&&no){ data.kasbon.unshift({name:nm,nom:no,date:new Date().toLocaleDateString(),lunas:false}); localStorage.setItem('dl_super_v4',JSON.stringify(data)); document.getElementById('kasbonName').value=''; document.getElementById('kasbonNom').value=''; renderKasbon(); } }
+        window.toggleLunas = (i) => { if(confirm("Ubah Status Lunas?")) { data.kasbon[i].lunas=!data.kasbon[i].lunas; localStorage.setItem('dl_super_v4',JSON.stringify(data)); renderKasbon(); } }
 
-        // --- SETTINGS ---
-        window.renderSet = () => {
-            document.getElementById('setStore').value = data.store; document.getElementById('setAddr').value = data.addr;
-            document.getElementById('setPrice').value = data.price; document.getElementById('setModalPrice').value = data.modalPrice;
-            document.getElementById('setStok').value = data.stokLiter; document.getElementById('setGroqKey').value = data.groqKey || "";
-            document.getElementById('setTarget').value = data.dailyTarget || 170000;
-            document.getElementById('setPhoto').src = data.photo;
-        }
-        window.saveSet = () => {
-            data.store=document.getElementById('setStore').value; data.addr=document.getElementById('setAddr').value;
-            data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value);
-            data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value;
-            data.dailyTarget=parseInt(document.getElementById('setTarget').value) || 170000;
-            localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("System Updated!"); renderDash();
-        }
-        window.resetStock = () => {
-            if(confirm("Yakin ingin mereset stok menjadi 0?")) {
-                data.stokLiter = 0;
-                localStorage.setItem('dl_super_v4', JSON.stringify(data));
-                renderSet();
-                alert("Stok direset ke 0.");
-            }
-        }
-        window.updatePhoto=(e)=>{let r=new FileReader(); r.onload=v=>{data.photo=v.target.result; renderSet();}; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]);}
-        
         // --- AUTH ---
         window.doLogin=()=>{if(document.getElementById('passInput').value===data.pass){localStorage.setItem('dl_log','1');nav('adminScreen');}else alert("Wrong PIN");}
         window.doLogout=()=>{localStorage.removeItem('dl_log');nav('loginScreen');}
