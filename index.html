@@ -148,6 +148,7 @@
         .ic-icon { width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 10px; }
         .ic-blue { background: rgba(74, 108, 250, 0.15); color: var(--primary); }
         .ic-pink { background: rgba(245, 78, 162, 0.15); color: var(--accent-pink); }
+        .ic-green { background: rgba(46, 204, 113, 0.15); color: var(--accent-green); }
         .ic-val { font-size: 18px; font-weight: 700; color: white; }
         .ic-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
@@ -341,6 +342,23 @@
                 </div>
             </div>
 
+            <div class="info-grid">
+                <div class="info-card">
+                    <div>
+                        <div class="ic-icon ic-green"><span class="material-icons-round">arrow_downward</span></div>
+                        <div class="ic-val text-green" id="dashTodayInc">0</div>
+                    </div>
+                    <div class="ic-lbl">Uang Masuk (Hari Ini)</div>
+                </div>
+                <div class="info-card">
+                    <div>
+                        <div class="ic-icon ic-pink"><span class="material-icons-round">arrow_upward</span></div>
+                        <div class="ic-val text-red" id="dashTodayExp">0</div>
+                    </div>
+                    <div class="ic-lbl">Uang Keluar (Hari Ini)</div>
+                </div>
+            </div>
+
             <div class="tools-grid">
                 <div class="tool-item" onclick="openKasbon()"><div class="tool-icon"><span class="material-icons-round t-blue">book</span></div><span class="tool-label">Kasbon</span></div>
                 
@@ -511,7 +529,7 @@
         <div class="scroll-content">
             <div class="report-tabs">
                 <div id="rtDay" class="rt-btn active" onclick="setReportMode('daily')">Daily</div>
-                <div id="rtMonth" class="rt-btn" onclick="setReportMode('monthly')">Monthly</div>
+                <div id="rtMonth" class="rt-btn" onclick="setReportMode('monthly')">Monthly (18-17)</div>
                 <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Yearly</div>
             </div>
             
@@ -546,7 +564,7 @@
                 </div>
             </div>
             
-            <h4 style="margin:20px 0 10px 0; color:var(--text-muted); font-size:12px; text-transform:uppercase;">Detail History</h4>
+            <h4 style="margin:20px 0 10px 0; color:var(--text-muted); font-size:12px; text-transform:uppercase;">Detail Report</h4>
             <div id="reportContent"></div>
         </div>
     </div>
@@ -824,6 +842,10 @@
             document.getElementById('stokVal').innerText = data.stokLiter.toFixed(2);
             document.getElementById('todayLiter').innerText = dLit.toFixed(2);
             
+            // Update New Dashboard Cards (Cash Flow Today)
+            document.getElementById('dashTodayInc').innerText = fmtMoney(dInc);
+            document.getElementById('dashTodayExp').innerText = fmtMoney(dExp);
+            
             document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
         }
 
@@ -938,18 +960,30 @@
             return `<div class="trans-item" onclick="openEdit(${t.id})"><div style="display:flex; align-items:center;"><div class="ti-icon ${ic}"><span class="material-icons-round">${iname}</span></div><div class="ti-info"><h4>${ti}</h4><p>${su}</p></div></div><div><span class="ti-val ${c}">${s} ${t.n/1000}k</span><span class="ti-time">${t.time}</span></div></div>`;
         }
 
-        // --- REPORTS ---
+        // --- REPORTS (UPDATED TO PERIOD 18-17) ---
         const getCustomPeriod = (ts) => { let d = new Date(ts); if (d.getDate() >= 18) d.setMonth(d.getMonth() + 1); return d.toLocaleString('id-ID', { month: 'long', year: 'numeric' }); }
 
         window.renderReport = () => {
             let gr={}, tInc=0, tExp=0, tLit=0, tWd=0;
+            
+            // Logic for Monthly Mode: Only active period 18-17
+            let filterStart = 0, filterEnd = 9999999999999;
+            if (reportMode === 'monthly') {
+                let p = getPeriodRange(); // Re-use the global helper
+                filterStart = p.start.getTime();
+                filterEnd = p.end.getTime();
+            }
+
             data.trans.forEach(t => {
-                let k = reportMode==='daily'?t.date:(reportMode==='monthly'?getCustomPeriod(t.ts):new Date(t.ts).getFullYear().toString());
-                if(!gr[k]) gr[k]={i:0,b:0,e:0,w:0};
-                if(t.type==='inc') { gr[k].i+=t.n; tInc+=t.n; tLit+=t.l; }
-                else if(t.type==='buy') { gr[k].b+=t.n; } 
-                else if(t.type==='wd') { gr[k].w+=t.n; tWd+=t.n; }
-                else { gr[k].e+=t.n; tExp+=t.n; }
+                // Filter date range first
+                if (t.ts >= filterStart && t.ts <= filterEnd) {
+                    let k = reportMode==='daily'?t.date:(reportMode==='monthly'?'Current Period (18-17)':new Date(t.ts).getFullYear().toString());
+                    if(!gr[k]) gr[k]={i:0,b:0,e:0,w:0};
+                    if(t.type==='inc') { gr[k].i+=t.n; tInc+=t.n; tLit+=t.l; }
+                    else if(t.type==='buy') { gr[k].b+=t.n; } 
+                    else if(t.type==='wd') { gr[k].w+=t.n; tWd+=t.n; }
+                    else { gr[k].e+=t.n; tExp+=t.n; }
+                }
             });
             
             let forcedMarginTotal = (tLit * 3000) - tExp;
