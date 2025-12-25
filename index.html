@@ -1,55 +1,74 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DEAR LOVE - Cyber POS</title>
+    <title>DEAR LOVE - Finance POS</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="console.warn('ChartJS gagal load')"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" onerror="console.warn('Firebase gagal load')"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" onerror="console.warn('Firestore gagal load')"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" onerror="console.warn('Marked gagal load')"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        /* --- THEME VARIABLES --- */
+        /* --- MODERN FINANCE THEME VARIABLES --- */
         :root {
-            /* DARK THEME */
-            --bg-body: #121212;
-            --bg-surface: #1E1E1E;
-            --card-bg: #252525;
-            --card-border: 1px solid rgba(255, 255, 255, 0.08);
-            --text-main: #FFFFFF;
-            --text-muted: #888888;
-            --primary: #4A6CFA;
-            --accent-purple: #9D59F5;
-            --accent-pink: #FF4D8D;
-            --accent-green: #00D084;
-            --shadow-soft: 0 4px 20px rgba(0,0,0,0.2);
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+
+            /* LIGHT THEME (DEFAULT) */
+            --bg-body: #F4F7FE;
+            --bg-gradient: none;
+            --card-bg: #FFFFFF;
+            --card-border: none;
+            --text-main: #2B3674;
+            --text-sec: #A3AED0;
+            --input-bg: #F4F7FE;
+            
+            /* BRAND COLORS */
+            --primary: #4318FF;
+            --primary-soft: #EFE9FF;
+            --secondary: #6AD2FF;
+            
+            /* STATUS COLORS */
+            --profit: #05CD99;
+            --profit-bg: #E6FAF5;
+            --recovery: #EE5D50;
+            --recovery-bg: #FFECEB;
+            --warning: #FFB547;
+            
+            /* SHADOWS & RADIUS */
+            --shadow-card: 0px 18px 40px rgba(112, 144, 176, 0.12);
+            --shadow-float: 0px 10px 30px rgba(0, 0, 0, 0.08);
+            --radius-xl: 30px;
             --radius-l: 20px;
-            --radius-m: 16px;
+            --radius-m: 14px;
+            
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
-        [data-theme="light"] {
-            --bg-body: #F3F4F6;
-            --bg-surface: #FFFFFF;
-            --card-bg: #FFFFFF;
-            --card-border: 1px solid rgba(0, 0, 0, 0.04);
-            --text-main: #1F2937;
-            --text-muted: #9CA3AF;
-            --shadow-soft: 0 4px 25px rgba(0,0,0,0.05);
+        /* DARK THEME OVERRIDES */
+        [data-theme="dark"] {
+            --bg-body: #0B1437;
+            --bg-gradient: linear-gradient(180deg, #0B1437 0%, #111C44 100%);
+            --card-bg: #111C44;
+            --card-border: 1px solid rgba(255, 255, 255, 0.05);
+            --text-main: #FFFFFF;
+            --text-sec: #8F9BBA;
+            --input-bg: #0B1437;
+            --shadow-card: none;
+            --primary-soft: rgba(67, 24, 255, 0.2);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
             margin: 0; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
+            font-family: var(--font-main); 
             background: var(--bg-body); 
             color: var(--text-main);
             height: 100vh; 
@@ -58,233 +77,259 @@
             transition: background 0.3s, color 0.3s;
         }
 
+        /* --- PRINT STYLES --- */
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; background: white; color: black; padding: 40px; z-index: 99999; }
+            @page { size: A4; margin: 0; }
+        }
+
         /* --- LAYOUT UTILS --- */
-        .screen { display: none; height: 100%; flex-direction: column; position: relative; background: var(--bg-body); transition: background 0.3s; }
+        .screen { display: none; height: 100%; flex-direction: column; position: relative; }
         .screen.active { display: flex; }
         
-        .top-header {
-            padding: calc(var(--safe-top) + 15px) 24px 10px;
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--bg-body); z-index: 50; transition: background 0.3s;
-        }
-
-        .header-profile-wrap { display: flex; align-items: center; gap: 12px; }
-        .profile-pic { width: 40px; height: 40px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(128,128,128,0.2); }
-        .header-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
-        .header-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
-        
-        .icon-btn { 
-            color: var(--text-main); background: var(--card-bg); 
-            width: 40px; height: 40px; border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; 
-            border: var(--card-border); cursor: pointer; transition: 0.2s; 
-            box-shadow: var(--shadow-soft);
-        }
-        .icon-btn:active { transform: scale(0.95); }
-
-        .scroll-content { flex: 1; overflow-y: auto; padding: 5px 24px calc(80px + var(--safe-bottom)); scrollbar-width: none; }
+        .scroll-content { flex: 1; overflow-y: auto; padding: 10px 20px calc(90px + var(--safe-bottom)); scrollbar-width: none; }
         .scroll-content::-webkit-scrollbar { display: none; }
 
-        /* --- DASHBOARD STYLES --- */
-        .hero-card {
-            background: linear-gradient(135deg, var(--primary), #354dbd);
-            border-radius: 24px;
-            padding: 24px;
-            margin-bottom: 20px;
-            color: white;
-            box-shadow: 0 10px 30px rgba(74, 108, 250, 0.3);
-            position: relative; overflow: hidden;
+        /* --- HEADER (SLEEK) --- */
+        .top-header {
+            padding: calc(var(--safe-top) + 10px) 20px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
-        .hero-card::after { content:''; position: absolute; right:-30px; top:-30px; width:120px; height:120px; background:rgba(255,255,255,0.1); border-radius:50%; }
+        [data-theme="dark"] .top-header { background: rgba(11, 20, 55, 0.7); border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        .hero-label { font-size: 11px; font-weight: 600; opacity: 0.8; letter-spacing: 0.5px; }
-        .hero-balance { font-size: 36px; font-weight: 800; margin: 8px 0 15px; letter-spacing: -0.5px; }
+        .header-profile-wrap { display: flex; align-items: center; gap: 10px; }
+        .profile-pic { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--card-bg); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header-info h1 { font-size: 15px; font-weight: 700; margin: 0; color: var(--text-main); letter-spacing: -0.3px; }
+        .header-info p { font-size: 10px; margin: 2px 0 0; color: var(--text-sec); font-weight: 500; }
         
-        .hero-stats { display: flex; gap: 20px; align-items: flex-end; }
-        .hs-item h4 { margin: 0; font-size: 11px; opacity: 0.7; font-weight: 500; }
-        .hs-item p { margin: 4px 0 0; font-size: 16px; font-weight: 700; }
-        
-        .target-pill { 
-            background: rgba(0,0,0,0.2); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; 
-            margin-left: auto;
-        }
-
-        .compact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
-        .mini-card {
-            background: var(--card-bg); border: var(--card-border);
-            border-radius: 18px; padding: 16px;
-            display: flex; flex-direction: column; justify-content: center;
-            box-shadow: var(--shadow-soft); transition: 0.2s;
-        }
-        .mc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; }
-        .mc-val { font-size: 20px; font-weight: 700; color: var(--text-main); }
-        .mc-icon { font-size: 18px; color: var(--primary); }
-        .text-inc { color: var(--accent-green); }
-        .text-exp { color: var(--accent-pink); }
-
-        .section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); margin: 30px 0 15px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.5px; }
-
-        /* --- MENU TOOLS --- */
-        .tools-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 10px; }
-        .tool-btn { 
-            background: var(--card-bg); border: var(--card-border); 
-            border-radius: 18px; padding: 15px 5px; 
-            display: flex; flex-direction: column; align-items: center; gap: 8px; 
-            cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-soft);
-        }
-        .tool-btn:active { transform: scale(0.96); }
-        .tool-icon-box { 
-            width: 40px; height: 40px; border-radius: 12px; 
+        .icon-btn { 
+            color: var(--text-main); background: transparent; 
+            width: 36px; height: 36px; border-radius: 10px; 
             display: flex; align-items: center; justify-content: center; 
-            font-size: 22px; 
+            transition: 0.2s; cursor: pointer; border: 1px solid transparent;
         }
-        .tool-lbl { font-size: 11px; font-weight: 600; color: var(--text-main); text-align: center; }
-        
-        .tb-blue { background: rgba(74, 108, 250, 0.1); color: var(--primary); }
-        .tb-purp { background: rgba(157, 89, 245, 0.1); color: var(--accent-purple); }
-        .tb-green { background: rgba(0, 208, 132, 0.1); color: var(--accent-green); }
-        .tb-pink { background: rgba(255, 77, 141, 0.1); color: var(--accent-pink); }
+        .icon-btn:active { transform: scale(0.92); background: var(--input-bg); }
 
-        /* --- TRANSACTION LIST (SUDAH DIPERBAIKI JARAKNYA) --- */
-        .trans-list { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px !important; /* DIPERBESAR JARAKNYA */
-            padding-bottom: 40px; 
+        /* --- HERO CARD --- */
+        .hero-card {
+            background: linear-gradient(110deg, #4318FF 0%, #868CFF 100%);
+            border-radius: var(--radius-l);
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(67, 24, 255, 0.25);
+            color: white;
+            min-height: 180px;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
+        .hero-card::before {
+            content: ''; position: absolute; top: -50px; right: -50px;
+            width: 150px; height: 150px; background: rgba(255,255,255,0.1);
+            border-radius: 50%; filter: blur(30px);
+        }
+
+        .hero-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
+        .hero-label { font-size: 11px; opacity: 0.9; font-weight: 500; }
+        
+        .status-badge {
+            font-size: 9px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+            letter-spacing: 0.5px; text-transform: uppercase; background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+        }
+        .st-recovery { color: #FFD1D1; border: 1px solid rgba(255, 209, 209, 0.4); }
+        .st-profit { color: #AAFFD9; border: 1px solid rgba(170, 255, 217, 0.4); }
+
+        .hero-balance { font-size: 28px; font-weight: 800; margin: 5px 0 0; letter-spacing: -0.5px; }
+        
+        .hero-grid { 
+            display: flex; gap: 15px; margin-top: 15px; position: relative; z-index: 2; 
+            background: rgba(0,0,0,0.15); padding: 10px 15px; border-radius: 14px;
+            backdrop-filter: blur(5px);
+        }
+        .hg-item { flex: 1; }
+        .hg-val { font-size: 13px; font-weight: 700; display: block; }
+        .hg-lbl { font-size: 9px; opacity: 0.8; margin-top: 2px; display: block; }
+        
+        /* --- COMPACT STATS --- */
+        .compact-grid { 
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; 
+        }
+        .stat-box { 
+            background: var(--card-bg); border-radius: 16px; padding: 12px 14px; 
+            display: flex; flex-direction: column; justify-content: center;
+            box-shadow: var(--shadow-card); border: var(--card-border);
+            transition: 0.2s; min-height: 80px;
+        }
+        .stat-box:active { transform: scale(0.98); }
+        
+        .sb-icon-wrap { 
+            width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; 
+            margin-bottom: 8px; font-size: 18px; 
+        }
+        .sb-icon-wrap .material-icons-round { font-size: 18px; }
+
+        .sb-blue { background: var(--primary-soft); color: var(--primary); }
+        .sb-green { background: var(--profit-bg); color: var(--profit); }
+        .sb-red { background: var(--recovery-bg); color: var(--recovery); }
+        .sb-purple { background: #F3E8FF; color: #A855F7; }
+
+        .sb-val { font-size: 14px; font-weight: 700; color: var(--text-main); letter-spacing: -0.3px; line-height: 1.2; }
+        .sb-lbl { font-size: 10px; color: var(--text-sec); font-weight: 500; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* --- SECTION TITLE --- */
+        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; margin-top: 5px; }
+        .section-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin: 0; }
+        .view-all { font-size: 11px; font-weight: 600; color: var(--primary); cursor: pointer; }
+
+        /* --- TRANSACTION LIST --- */
         .trans-item { 
-            background: var(--card-bg); 
-            padding: 20px; 
-            border-radius: 22px; 
-            display: flex; align-items: center; justify-content: space-between;
-            border: var(--card-border); cursor: pointer;
-            box-shadow: var(--shadow-soft);
-            margin-bottom: 5px; /* Tambahan margin cadangan */
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 14px; background: var(--card-bg); border-radius: 16px; 
+            margin-bottom: 16px; 
+            cursor: pointer; border: var(--card-border);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.05);
+            transition: 0.2s;
         }
         .trans-item:active { transform: scale(0.98); }
         
-        .ti-left { display: flex; align-items: center; gap: 16px; }
-        .ti-icon { 
-            width: 48px; height: 48px; border-radius: 16px; 
-            display: flex; align-items: center; justify-content: center; font-size: 22px; 
-        }
-        .ti-det h4 { margin: 0 0 5px; font-size: 15px; font-weight: 700; color: var(--text-main); }
-        .ti-det p { margin: 0; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        .ti-left { display: flex; align-items: center; gap: 12px; }
+        .ti-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
         
-        .ti-right { text-align: right; display:flex; flex-direction:column; align-items:flex-end; }
-        .ti-val { font-size: 15px; font-weight: 700; display: block; margin-bottom: 6px; }
-        .ti-time { 
-            font-size: 11px; 
-            color: var(--text-muted); 
-            background: rgba(128,128,128,0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 500;
-        }
+        .ti-inc { background: var(--profit-bg); color: var(--profit); }
+        .ti-buy { background: var(--primary-soft); color: var(--primary); }
+        .ti-exp { background: var(--recovery-bg); color: var(--recovery); }
+        .ti-wd  { background: #F3E8FF; color: #A855F7; }
+        
+        .ti-info h4 { margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main); }
+        .ti-info p { margin: 3px 0 0; font-size: 10px; color: var(--text-sec); font-weight: 500; }
+        .ti-val { font-size: 13px; font-weight: 700; text-align: right; color: var(--text-main); }
+        .ti-date { font-size: 9px; color: var(--text-sec); text-align: right; display: block; margin-top: 3px; }
 
-        .inc-bg { background: rgba(0, 208, 132, 0.1); color: var(--accent-green); }
-        .exp-bg { background: rgba(255, 77, 141, 0.1); color: var(--accent-pink); }
-        .buy-bg { background: rgba(157, 89, 245, 0.1); color: var(--accent-purple); }
-        
-        /* --- BOTTOM NAV --- */
-        .bottom-nav-wrap { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; padding-bottom: calc(var(--safe-bottom) + 15px); pointer-events: none; z-index: 100; transition: transform 0.3s; }
+        /* --- NAVIGATION --- */
+        .bottom-nav-wrap { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; z-index: 999; padding-bottom: calc(var(--safe-bottom) + 20px); pointer-events: none; }
         .bottom-nav { 
-            pointer-events: auto; background: var(--bg-surface); 
-            width: 90%; max-width: 380px; height: 64px; 
-            border-radius: 24px; display: flex; justify-content: space-around; align-items: center; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2); border: var(--card-border);
+            pointer-events: auto; background: var(--card-bg); 
+            width: 90%; max-width: 400px; height: 65px; border-radius: 20px; 
+            display: flex; justify-content: space-around; align-items: center; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
+            border: var(--card-border);
         }
-        .nav-item { color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; }
+        [data-theme="dark"] .bottom-nav { box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; color: var(--text-sec); cursor: pointer; position: relative; transition: 0.3s; }
         .nav-item.active { color: var(--primary); }
-        .nav-item .material-icons-round { font-size: 26px; }
+        .nav-item .material-icons-round { font-size: 24px; }
+        .nav-dot { width: 4px; height: 4px; background: var(--primary); border-radius: 50%; position: absolute; bottom: -6px; opacity: 0; transition: 0.3s; }
+        .nav-item.active .nav-dot { opacity: 1; bottom: -4px; }
+        
         .fab-add { 
-            width: 56px; height: 56px; background: var(--primary); 
-            border-radius: 18px; display: flex; align-items: center; justify-content: center; 
-            color: white; position: absolute; top: -24px; 
-            box-shadow: 0 8px 20px rgba(74, 108, 250, 0.4); 
-            cursor: pointer; border: 4px solid var(--bg-body); transition: 0.2s;
+            width: 54px; height: 54px; background: var(--primary); border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; color: #fff; 
+            position: absolute; top: -20px; 
+            box-shadow: 0 10px 25px rgba(67, 24, 255, 0.4); 
+            cursor: pointer; transition: 0.2s; border: 4px solid var(--bg-body); 
         }
         .fab-add:active { transform: scale(0.9); }
 
-        /* --- FORMS & MODALS --- */
-        .modal-overlay { 
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); 
-            display: none; position: fixed; inset: 0; z-index: 1000; 
-            justify-content: center; align-items: flex-end; 
+        /* --- TOOLS GRID --- */
+        .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 25px; }
+        .tool-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .tool-icon { 
+            width: 50px; height: 50px; border-radius: 16px; display: flex; align-items: center; justify-content: center; 
+            background: var(--card-bg); box-shadow: var(--shadow-card); border: var(--card-border);
+            color: var(--primary); transition: 0.2s; font-size: 20px;
         }
+        .tool-icon:active { transform: scale(0.95); }
+        .tool-label { font-size: 10px; color: var(--text-sec); text-align: center; font-weight: 600; }
+
+        /* --- MODALS & FORMS --- */
+        .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; position: fixed; inset: 0; z-index: 1000; justify-content: center; align-items: flex-end; }
         .sheet-content { 
-            background: var(--bg-surface); width: 100%; max-width: 500px;
-            border-radius: 24px 24px 0 0; padding: 25px; 
-            max-height: 90vh; overflow-y: auto; 
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.2); 
-            color: var(--text-main);
+            background: var(--card-bg); padding: 25px 20px; position: absolute; bottom: 0; left: 0; right: 0; 
+            border-radius: 24px 24px 0 0; max-height: 90vh; overflow-y: auto; 
+            padding-bottom: calc(var(--safe-bottom) + 30px); 
+            box-shadow: 0 -10px 50px rgba(0,0,0,0.1); 
         }
-        
-        .clean-input { 
-            width: 100%; background: var(--bg-body); 
-            border: 1px solid rgba(128,128,128,0.1); 
-            color: var(--text-main); border-radius: 14px; 
-            padding: 16px; margin-bottom: 16px; font-size: 14px; 
-            font-family: inherit; transition: 0.2s;
-        }
+
+        .clean-input { width: 100%; background: var(--input-bg); border: 1px solid transparent; color: var(--text-main); border-radius: 14px; padding: 14px; margin-bottom: 14px; outline: none; font-size: 13px; font-weight: 500; transition: 0.3s; }
         .clean-input:focus { border-color: var(--primary); background: var(--card-bg); }
         
         .btn-primary { 
-            background: var(--primary); color: white; border: none; 
-            padding: 16px; border-radius: 14px; width: 100%; 
-            font-weight: 700; font-size: 14px; cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(74, 108, 250, 0.3);
+            background: var(--primary); padding: 14px; border-radius: 14px; width: 100%; border: none; 
+            font-weight: 700; color: white; cursor: pointer; transition: 0.2s; font-size: 13px; 
+            box-shadow: 0 10px 20px rgba(67, 24, 255, 0.2); 
         }
+        .btn-primary:active { transform: scale(0.98); }
         
-        .report-tabs { background: var(--bg-body); border-radius: 14px; display: flex; padding: 5px; margin-bottom: 20px; }
-        .rt-btn { flex: 1; text-align: center; padding: 10px; border-radius: 10px; font-size: 12px; color: var(--text-muted); cursor: pointer; font-weight: 600; }
-        .rt-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .report-tabs { background: var(--input-bg); border-radius: 14px; display: flex; padding: 4px; margin-bottom: 20px; }
+        .rt-btn { flex: 1; text-align: center; padding: 8px; border-radius: 10px; font-size: 11px; color: var(--text-sec); cursor: pointer; transition: 0.2s; font-weight: 700; }
+        .rt-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-        .input-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; }
-        
+        .input-group label { display: block; font-size: 10px; color: var(--text-sec); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+
+        /* KASBON LIST ITEM STYLE */
+        .kasbon-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--input-bg); padding: 12px; border-radius: 12px; margin-bottom: 8px;
+        }
+        .ki-info { flex: 1; }
+        .ki-name { font-weight: 700; font-size: 13px; color: var(--text-main); }
+        .ki-val { font-size: 13px; font-weight: 700; color: var(--recovery); }
+        .ki-btn { background: var(--recovery-bg); color: var(--recovery); width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; margin-left: 10px; }
+
         /* CALENDAR */
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 15px; }
-        .cal-header { text-align: center; font-size: 11px; color: var(--text-muted); font-weight: 700; padding-bottom: 5px; }
-        .cal-day { 
-            background: var(--card-bg); border-radius: 10px; height: 50px; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            cursor: pointer; border: 1px solid transparent; 
-        }
-        .cal-day.active { border-color: var(--primary); background: rgba(74, 108, 250, 0.1); }
-        .cal-day.holiday { border: 1px dashed var(--accent-pink); background: rgba(255, 77, 141, 0.05); }
-        .cd-date { font-size: 13px; font-weight: 700; color: var(--text-main); }
-        .cd-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-green); margin-top: 4px; opacity: 0; }
-        .cd-dot.show { opacity: 1; }
-        
-        /* AI CHAT */
-        .chat-bubble { max-width: 85%; padding: 14px 18px; border-radius: 18px; font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
-        .cb-user { background: var(--primary); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
-        .cb-ai { background: var(--card-bg); color: var(--text-main); margin-right: auto; border-bottom-left-radius: 4px; border: var(--card-border); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 20px; }
+        .cal-header { text-align: center; font-size: 10px; color: var(--text-sec); font-weight: 700; padding-bottom: 8px; }
+        .cal-day { background: var(--card-bg); border-radius: 10px; height: 45px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 1px solid transparent; box-shadow: var(--shadow-card); position: relative; }
+        .cal-day.active { border-color: var(--primary); background: var(--primary-soft); }
+        .cal-day.today { border: 1px solid var(--profit); }
+        .cal-day.empty { background: transparent; box-shadow: none; cursor: default; }
+        .cd-date { font-size: 11px; font-weight: 700; color: var(--text-main); }
+        .cd-status { width: 4px; height: 4px; border-radius: 50%; background: transparent; margin-top: 3px; }
+        .cd-status.has-data { background: var(--profit); }
 
-        /* TABLES */
-        .simple-table { width: 100%; border-collapse: collapse; font-size: 12px; color: var(--text-main); }
-        .simple-table th { text-align: left; padding: 10px 5px; border-bottom: 1px solid var(--text-muted); opacity: 0.5; }
-        .simple-table td { padding: 10px 5px; border-bottom: 1px solid rgba(128,128,128,0.1); }
-        .rank-box { width: 20px; height: 20px; background: var(--bg-body); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-        
-        /* PRINT */
-        @media print {
-            body { background: white; color: black; }
-            #printArea { display: block !important; position: absolute; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; }
+        /* SPLASH & ANIMATION */
+        @keyframes pulseLogo {
+            0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(67, 24, 255, 0.4); }
+            70% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 0 20px rgba(67, 24, 255, 0); }
+            100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(67, 24, 255, 0); }
         }
+        
+        .splash-logo { 
+            width: 90px; height: 90px; border-radius: 24px; object-fit: cover; 
+            margin-bottom: 20px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            animation: pulseLogo 2s infinite;
+        }
+        
+        .login-logo { width: 80px; height: 80px; background: var(--primary); border-radius: 24px; margin: 0 auto 25px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: 800; box-shadow: 0 10px 30px rgba(67, 24, 255, 0.3); }
     </style>
 </head>
 <body>
 
+    <div id="splashScreen" style="position:fixed; inset:0; background:var(--bg-body); z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; transition:0.5s;">
+        <img src="logo.png" class="splash-logo" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=4318FF&color=fff'">
+        <div style="color:var(--text-main); font-weight:800; font-size:24px;">DEAR LOVE</div>
+        <div style="color:var(--text-sec); font-size:12px; margin-top:5px; letter-spacing:2px; font-weight:600;">FINANCE POS</div>
+    </div>
+
     <div id="printArea" style="display:none;"></div>
 
-    <div id="loginScreen" class="screen active" style="justify-content:center; padding:40px;">
-        <div style="text-align:center;">
-            <div style="width:80px; height:80px; background:var(--primary); border-radius:24px; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; color:white; font-size:28px; font-weight:800; box-shadow: 0 10px 30px rgba(74, 108, 250, 0.4);">DL</div>
-            <h2 style="color:var(--text-main); margin:0 0 5px;">Cyber Admin</h2>
-            <p style="color:var(--text-muted); font-size:12px; margin-bottom:30px;">Security Access Required</p>
-            <input type="password" id="passInput" class="clean-input" placeholder="Enter PIN" style="text-align:center; font-size:20px; font-weight:bold; letter-spacing:5px;">
-            <button class="btn-primary" onclick="doLogin()">UNLOCK SYSTEM</button>
+    <div id="loginScreen" class="screen active">
+        <div style="text-align:center; padding: 40px; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+            <div class="login-logo">DL</div>
+            <h2 style="color:var(--text-main); margin:0 0 8px; font-size: 24px;">Welcome Back!</h2>
+            <p style="color:var(--text-sec); margin-bottom:40px;">Manage your finance easily.</p>
+            <input type="password" id="passInput" class="clean-input" placeholder="Enter PIN" style="text-align:center; font-size:20px; letter-spacing:5px; font-weight:bold;">
+            <button class="btn-primary" onclick="doLogin()">SIGN IN</button>
         </div>
     </div>
 
@@ -292,123 +337,153 @@
         <div class="top-header">
             <div class="header-profile-wrap" onclick="nav('settingScreen')">
                 <img id="dispPhoto" class="profile-pic" src="logo.png" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
-                <div>
-                    <div class="header-title" id="dispStoreName">DEAR LOVE</div>
-                    <div class="header-sub">System Online</div>
+                <div class="header-info">
+                    <p>Good Morning,</p>
+                    <h1 id="dispStoreName">DEAR LOVE</h1>
                 </div>
             </div>
-            <div style="display:flex; gap:10px;">
-                <div class="icon-btn" onclick="toggleTheme()"><span class="material-icons-round" id="themeIcon">dark_mode</span></div>
-                <div class="icon-btn" onclick="toggleWeather()"><span class="material-icons-round wt-icon" style="color:#FFD700;">wb_sunny</span></div>
+            <div style="display:flex; gap:8px;">
+                <div class="icon-btn" onclick="toggleTheme()">
+                    <span id="themeIcon" class="material-icons-round">dark_mode</span>
+                </div>
+                <div id="weatherBtn" class="icon-btn" onclick="toggleWeather()">
+                    <span class="material-icons-round wt-icon" style="color:#FFB547;">wb_sunny</span>
+                </div>
             </div>
         </div>
 
         <div class="scroll-content">
             <div class="hero-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="hero-label">CASH IN DRAWER</span>
-                    <div class="target-pill" style="background:rgba(255,255,255,0.2);">
-                        <span id="targetPct">0%</span> Target
+                <div class="hero-top">
+                    <span class="hero-label">Modal Gantung</span>
+                    <div id="heroStatus" class="status-badge st-recovery">RECOVERY</div>
+                </div>
+                
+                <div>
+                    <div class="hero-balance" id="heroMainValue">Rp 0</div>
+                    <div class="hero-label" id="heroDesc" style="margin-top:5px; opacity:0.7;">Total Modal Tertanam</div>
+                </div>
+
+                <div class="hero-grid">
+                    <div class="hg-item">
+                        <span class="hg-lbl" id="periodLabel1">Restock (Periode 18-17)</span>
+                        <span class="hg-val" id="dispTotalRestock">Rp 0</span>
+                    </div>
+                    <div class="hg-item" style="text-align:right;">
+                        <span class="hg-lbl" id="periodLabel2">Omzet (Periode 18-17)</span>
+                        <span class="hg-val" id="dispTotalOmzet">Rp 0</span>
                     </div>
                 </div>
-                <div class="hero-balance" id="realTimeProfit">Rp 0</div>
-                <div class="hero-stats">
-                    <div class="hs-item">
-                        <h4>AVG MARGIN / LITER</h4>
-                        <p id="avgMargin" style="color:#00D084;">Rp 0</p>
-                    </div>
-                    <div class="hs-item">
-                        <h4>MODAL (HPP)</h4>
-                        <p id="hppStatus" style="font-size:11px; margin-top:5px; opacity:0.8;">Calculating...</p>
-                    </div>
+                
+                <div id="realMarginBox" style="display:none; margin-top:15px; background:rgba(255,255,255,0.15); padding:8px; border-radius:8px; text-align:center;">
+                    <span style="font-size:11px; font-weight:600;">Margin: <span id="realMarginVal">Rp 0</span> / Liter</span>
                 </div>
             </div>
 
             <div class="compact-grid">
-                <div class="mini-card">
-                    <div class="mc-head"><span class="material-icons-round mc-icon">water_drop</span> Stok (L)</div>
-                    <div class="mc-val" id="stokVal">0</div>
+                <div class="stat-box">
+                    <div class="sb-icon-wrap sb-blue"><span class="material-icons-round">water_drop</span></div>
+                    <span class="sb-val" id="stokVal">0</span>
+                    <span class="sb-lbl">Sisa Stok (L)</span>
                 </div>
-                <div class="mini-card">
-                    <div class="mc-head"><span class="material-icons-round mc-icon" style="color:var(--accent-purple);">trending_up</span> Sold (L)</div>
-                    <div class="mc-val" id="todayLiter">0</div>
+                <div class="stat-box">
+                    <div class="sb-icon-wrap sb-green"><span class="material-icons-round">payments</span></div>
+                    <span class="sb-val" id="dashTodayInc">0</span>
+                    <span class="sb-lbl">Omzet Hari Ini</span>
                 </div>
-                <div class="mini-card">
-                    <div class="mc-head"><span class="material-icons-round mc-icon" style="color:var(--accent-green);">arrow_downward</span> Masuk</div>
-                    <div class="mc-val text-inc" id="dashTodayInc" style="font-size:15px;">0</div>
+                <div class="stat-box">
+                    <div class="sb-icon-wrap sb-red"><span class="material-icons-round">trending_down</span></div>
+                    <span class="sb-val" id="dashTodayExp">0</span>
+                    <span class="sb-lbl">Beban Hari Ini</span>
                 </div>
-                <div class="mini-card">
-                    <div class="mc-head"><span class="material-icons-round mc-icon" style="color:var(--accent-pink);">arrow_upward</span> Keluar</div>
-                    <div class="mc-val text-exp" id="dashTodayExp" style="font-size:15px;">0</div>
-                </div>
-            </div>
-
-            <div class="tools-row">
-                <div class="tool-btn" onclick="openKasbon()">
-                    <div class="tool-icon-box tb-blue"><span class="material-icons-round">book</span></div>
-                    <span class="tool-lbl">Kasbon</span>
-                </div>
-                <div class="tool-btn" onclick="nav('insightScreen')">
-                    <div class="tool-icon-box tb-purp"><span class="material-icons-round">insights</span></div>
-                    <span class="tool-lbl">Analisa</span>
-                </div>
-                <div class="tool-btn" onclick="nav('printScreen')">
-                    <div class="tool-icon-box tb-green"><span class="material-icons-round">print</span></div>
-                    <span class="tool-lbl">Laporan</span>
-                </div>
-                <div class="tool-btn" onclick="nav('calendarScreen')">
-                    <div class="tool-icon-box tb-pink"><span class="material-icons-round">calendar_month</span></div>
-                    <span class="tool-lbl">Kalender</span>
+                <div class="stat-box">
+                    <div class="sb-icon-wrap sb-purple"><span class="material-icons-round">account_balance_wallet</span></div>
+                    <span class="sb-val" id="dashTodayWd">0</span>
+                    <span class="sb-lbl">Withdraw Today</span>
                 </div>
             </div>
 
-            <div class="section-title">
-                <span>Recent Activity</span>
-                <span onclick="nav('historyScreen')" style="color:var(--primary); cursor:pointer; font-size:11px;">View All</span>
+            <div class="section-header">
+                <h3 class="section-title">Quick Actions</h3>
             </div>
-            <div id="recentTrans" class="trans-list"></div>
+            <div class="tools-grid">
+                <div class="tool-item" onclick="openKasbon()"><div class="tool-icon"><span class="material-icons-round">book</span></div><span class="tool-label">Kasbon</span></div>
+                <div class="tool-item" onclick="nav('insightScreen')"><div class="tool-icon"><span class="material-icons-round">insights</span></div><span class="tool-label">Insight</span></div>
+                <div class="tool-item" onclick="nav('printScreen')"><div class="tool-icon"><span class="material-icons-round">print</span></div><span class="tool-label">Laporan</span></div>
+                <div class="tool-item" onclick="nav('calendarScreen')"><div class="tool-icon"><span class="material-icons-round">calendar_month</span></div><span class="tool-label">Kalender</span></div>
+            </div>
+
+            <div class="section-header">
+                <h3 class="section-title">Recent Transactions</h3>
+                <span class="view-all" onclick="nav('historyScreen')">View All</span>
+            </div>
+            <div id="recentTrans"></div>
+        </div>
+
+        <div class="bottom-nav-wrap">
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="nav('adminScreen')"><span class="material-icons-round">grid_view</span><div class="nav-dot"></div></div>
+                <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span><div class="nav-dot"></div></div>
+                <div style="width:50px;"></div>
+                <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span><div class="nav-dot"></div></div>
+                <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">pie_chart</span><div class="nav-dot"></div></div>
+                <div class="fab-add" onclick="openInputModal()"><span class="material-icons-round">add</span></div>
+            </div>
         </div>
     </div>
 
     <div id="insightScreen" class="screen">
         <div class="top-header">
-            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
-            <div class="header-title">Analisa Bisnis</div>
-            <div style="width:40px;"></div>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <div class="header-info" style="margin-left: 10px;">
+                <h1>Insight</h1>
+                <p>Performance Analytics</p>
+            </div>
+            <span></span>
         </div>
         <div class="scroll-content">
-            <div style="background:var(--card-bg); padding:20px; border-radius:20px; border:var(--card-border); margin-bottom:20px;">
-                <div class="section-title" style="margin-top:0;">Grafik Jam (Live)</div>
-                <div style="height:220px;"><canvas id="hourChart"></canvas></div>
-            </div>
-            <div style="background:var(--card-bg); padding:20px; border-radius:20px; border:var(--card-border); margin-bottom:25px;">
-                <div class="section-title" style="margin-top:0;">Grafik Mingguan</div>
-                <div style="height:220px;"><canvas id="dayChart"></canvas></div>
-            </div>
+            <div class="stat-box" style="margin-bottom: 20px; padding: 20px;">
+                 <h4 style="margin:0 0 15px 0; color:var(--text-main);">Grafik Jam (Hari Ini)</h4>
+                 <div style="height:200px;"><canvas id="hourChart"></canvas></div>
+             </div>
+             <div class="stat-box" style="margin-bottom: 20px; padding: 20px;">
+                 <h4 style="margin:0 0 15px 0; color:var(--text-main);">Grafik Hari (Minggu Ini)</h4>
+                 <div style="height:200px;"><canvas id="dayChart"></canvas></div>
+             </div>
 
-            <div class="section-title">TOP HOURS (Bulan Ini)</div>
-            <table class="simple-table">
-                <thead><tr><th>#</th><th>Jam</th><th style="text-align:right">Liter</th><th style="text-align:right">Omzet</th></tr></thead>
+            <div class="section-header"><h3 class="section-title">Top Jam Sibuk</h3></div>
+            <table style="width:100%; font-size:13px; color:var(--text-main); border-collapse: collapse;">
+                <thead><tr style="color:var(--text-sec); text-align:left;"><th style="padding:10px;">#</th><th>Jam</th><th style="text-align:right;">Vol</th><th style="text-align:right;">Omzet</th></tr></thead>
                 <tbody id="topHoursTableBody"></tbody>
+            </table>
+
+            <div class="section-header"><h3 class="section-title">Top Hari Ramai</h3></div>
+            <table style="width:100%; font-size:13px; color:var(--text-main); border-collapse: collapse;">
+                <thead><tr style="color:var(--text-sec); text-align:left;"><th style="padding:10px;">#</th><th>Hari</th><th style="text-align:right;">Vol</th><th style="text-align:right;">Omzet</th></tr></thead>
+                <tbody id="topDaysTableBody"></tbody>
             </table>
         </div>
     </div>
 
     <div id="calendarScreen" class="screen">
         <div class="top-header">
-            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
-            <div class="header-title">Operasional</div>
-            <div id="calPeriodLabel" style="font-size:10px; color:var(--primary); font-weight:700; background:var(--card-bg); padding:4px 8px; border-radius:8px; border:var(--card-border);"></div>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <div class="header-info" style="margin-left: 10px;">
+                <h1>Kalender</h1>
+                <p id="calPeriodLabel">Operasional 18-17</p>
+            </div>
+            <span></span>
         </div>
         <div class="scroll-content">
-            <div class="calendar-grid">
+            <div class="calendar-grid" id="calendarHeader">
                 <div class="cal-header">M</div><div class="cal-header">S</div><div class="cal-header">S</div><div class="cal-header">R</div><div class="cal-header">K</div><div class="cal-header">J</div><div class="cal-header">S</div>
             </div>
-            <div id="calendarBody" class="calendar-grid"></div>
+            <div class="calendar-grid" id="calendarBody"></div>
 
-            <div style="background:var(--card-bg); border-radius:20px; padding:25px; border:var(--card-border); margin-top:25px; text-align:center;">
-                <div id="calDetailPanel">
-                    <div style="color:var(--text-muted); font-style:italic;">Pilih tanggal untuk detail</div>
+            <div class="stat-box" style="margin-top: 20px;">
+                <div class="section-title" style="margin-bottom:10px;">DETAIL HARIAN</div>
+                <div id="calDetailPanel" style="padding-top:10px; border-top: 1px solid var(--card-border);">
+                    <div style="text-align:center; color:var(--text-sec); font-style:italic;">Pilih tanggal untuk detail</div>
                 </div>
             </div>
         </div>
@@ -416,196 +491,208 @@
 
     <div id="aiScreen" class="screen">
         <div class="top-header">
-            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
-            <div class="header-title">Smart Assistant</div>
-            <div style="font-size:10px; color:var(--accent-green); background:rgba(0,208,132,0.1); padding:2px 6px; border-radius:4px;">AI</div>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <div class="header-info" style="margin-left: 10px;">
+                <h1>AI Assistant</h1>
+                <p>Smart Business Analysis</p>
+            </div>
+            <div style="font-size:10px; color:var(--profit); background:var(--profit-bg); padding:4px 8px; border-radius:6px; font-weight:700;">ONLINE</div>
         </div>
         <div id="chatBox" style="flex:1; overflow-y:auto; padding:20px;">
-            <div style="text-align:center; color:var(--text-muted); margin-top:60px;">
-                <span class="material-icons-round" style="font-size:48px; margin-bottom:15px; opacity:0.3;">smart_toy</span>
-                <p>Tanya strategi, analisa stok, atau prediksi penjualan.</p>
+            <div style="text-align:center; color:var(--text-sec); font-size:12px; margin-top:30px;">
+                <span class="material-icons-round" style="font-size:40px; margin-bottom:10px; display:block; opacity:0.5;">smart_toy</span>
+                AI Ready. Tanya strategi penjualan atau analisa stok.
             </div>
         </div>
-        <div style="padding:20px; display:flex; gap:10px; background:var(--bg-surface); border-top:var(--card-border);">
-            <input id="aiInput" class="clean-input" style="margin:0;" placeholder="Tanya AI...">
-            <button onclick="sendAIChat()" class="icon-btn" style="background:var(--primary); color:white; width:50px; border:none;"><span class="material-icons-round">send</span></button>
+        <div style="padding:20px; display:flex; gap:10px; background:var(--card-bg); border-top:1px solid var(--card-border);">
+            <input id="aiInput" class="clean-input" style="margin:0;" placeholder="Tanya sesuatu...">
+            <button onclick="sendAIChat()" class="icon-btn" style="background:var(--primary); color:white; width:50px;"><span class="material-icons-round">send</span></button>
         </div>
     </div>
 
     <div id="historyScreen" class="screen">
         <div class="top-header">
-            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
-            <div class="header-title">Riwayat Transaksi</div>
-            <div class="icon-btn" onclick="clearData()" style="color:var(--accent-pink);"><span class="material-icons-round">delete</span></div>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <div class="header-info" style="margin-left: 10px;">
+                <h1>History</h1>
+                <p>All Transactions</p>
+            </div>
+            <span class="material-icons-round icon-btn" onclick="clearData()" style="color:var(--recovery);">delete</span>
         </div>
-        <div class="scroll-content">
-            <div id="fullHistoryList" class="trans-list"></div>
-        </div>
+        <div class="scroll-content" id="fullHistoryList"></div>
     </div>
 
     <div id="reportScreen" class="screen">
         <div class="top-header">
-            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
-            <div class="header-title">Laporan Keuangan</div>
-            <div style="width:40px;"></div>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <div class="header-info" style="margin-left: 10px;">
+                <h1>Laporan</h1>
+                <p>Periode 18 - 17</p>
+            </div>
+            <span></span>
         </div>
         <div class="scroll-content">
             <div class="report-tabs">
-                <div id="rtDay" class="rt-btn active" onclick="setReportMode('daily')">Hari Ini</div>
-                <div id="rtMonth" class="rt-btn" onclick="setReportMode('monthly')">Periode</div>
-                <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Tahunan</div>
+                <div id="rtDay" class="rt-btn active" onclick="setReportMode('daily')">Daily</div>
+                <div id="rtMonth" class="rt-btn" onclick="setReportMode('monthly')">Monthly (18-17)</div>
+                <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Yearly</div>
             </div>
             
-            <div style="background:var(--card-bg); padding:30px 20px; border-radius:24px; border:var(--card-border); text-align:center; margin-bottom:25px; box-shadow:var(--shadow-soft);">
-                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;" id="rpTitle">NET PROFIT</div>
-                <div style="font-size:36px; font-weight:800; color:var(--accent-green);" id="rpNet">Rp 0</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:25px;">
-                    <div><div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">Omzet</div><div style="font-size:15px; font-weight:700;" id="rpOmzet">0</div></div>
-                    <div><div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">HPP Modal</div><div style="font-size:15px; font-weight:700; color:var(--accent-pink);" id="rpHpp">0</div></div>
-                    <div><div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">Gross Profit</div><div style="font-size:15px; font-weight:700; color:var(--primary);" id="rpGross">0</div></div>
-                    <div><div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">Beban</div><div style="font-size:15px; font-weight:700; color:var(--accent-pink);" id="rpBeban">0</div></div>
+            <div class="stat-box" style="text-align:center; padding: 30px 20px;">
+                <div class="sb-lbl" style="font-size:12px; text-transform:uppercase; letter-spacing:1px;">Total Dana Ditarik (WD)</div>
+                <div style="font-size: 32px; font-weight: 800; color:var(--accent-wd); margin: 10px 0;">
+                    <span id="rpWd">Rp 0</span>
                 </div>
-                <div style="margin-top:20px; padding-top:20px; border-top:1px solid rgba(128,128,128,0.1); display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:12px; font-weight:600; color:var(--accent-purple);">OWNER WITHDRAW</span>
-                    <span style="font-weight:700; color:var(--accent-purple); font-size:16px;" id="rpWd">Rp 0</span>
+                <div class="sb-lbl">Cash yang sudah diamankan</div>
+            </div>
+            
+            <div class="compact-grid" style="margin-top:20px;">
+                <div class="stat-box">
+                    <span class="sb-lbl">Total Sales (Period)</span>
+                    <span class="sb-val text-green" id="rpOmzet" style="font-size: 14px;">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="sb-lbl">Total Beban (Period)</span>
+                    <span class="sb-val text-red" id="rpBeban" style="font-size: 14px;">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="sb-lbl">Modal Keluar (Period)</span>
+                    <span class="sb-val text-blue" id="rpModal" style="font-size: 14px;">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="sb-lbl">Surplus/Defisit (Period)</span>
+                    <span class="sb-val" id="rpSurplus" style="font-size: 14px;">0</span>
                 </div>
             </div>
-            <div id="reportContent" class="trans-list"></div>
+            
+            <div class="section-header"><h3 class="section-title">Detail Breakdown</h3></div>
+            <div id="reportContent"></div>
         </div>
     </div>
 
     <div id="printScreen" class="screen">
         <div class="top-header">
-            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
-            <div class="header-title">Cetak Laporan</div>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <div class="header-info" style="margin-left: 10px;">
+                <h1>Preview</h1>
+                <p>Siap Cetak</p>
+            </div>
             <div style="display:flex; gap:10px;">
-                 <div class="icon-btn" onclick="doDownload()" style="background:var(--primary); color:white; border:none;"><span class="material-icons-round">image</span></div>
-                 <div class="icon-btn" onclick="doPrint()" style="background:var(--accent-green); color:white; border:none;"><span class="material-icons-round">print</span></div>
+                <span class="material-icons-round icon-btn" onclick="downloadReport()" style="color:var(--primary);">image</span>
+                <span class="material-icons-round icon-btn" onclick="doPrint()" style="color:var(--accent-green);">print</span>
             </div>
         </div>
         <div class="scroll-content">
-            <div id="printPreviewContent" style="background:white; color:black; padding:40px; border-radius:8px; font-size:12px; min-height:600px; box-shadow:0 10px 30px rgba(0,0,0,0.2);"></div>
+            <div id="printPreviewContent" style="background:white; color:black; padding:30px; border-radius:4px; font-size:12px; min-height:600px; box-shadow:0 10px 30px rgba(0,0,0,0.1);"></div>
         </div>
     </div>
 
     <div id="settingScreen" class="screen">
         <div class="top-header">
-            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
-            <div class="header-title">Pengaturan</div>
-            <div style="width:40px;"></div>
+            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
+            <div class="header-info" style="margin-left: 10px;">
+                <h1>Settings</h1>
+                <p>System Configuration</p>
+            </div>
+            <span></span>
         </div>
         <div class="scroll-content">
             <div style="text-align:center; margin:10px 0 30px;">
                 <div style="position:relative; display:inline-block;">
-                    <img id="setPhoto" src="logo.png" style="width:90px; height:90px; border-radius:28px; object-fit:cover; border:3px solid var(--primary);" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
-                    <label style="position:absolute; bottom:-5px; right:-5px; background:var(--primary); color:white; width:34px; height:34px; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-                        <span class="material-icons-round" style="font-size:18px;">edit</span>
+                    <img id="setPhoto" src="logo.png" style="width:80px; height:80px; border-radius:24px; object-fit:cover; border:2px solid var(--primary);" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
+                    <label style="position:absolute; bottom:-5px; right:-5px; background:var(--primary); color:white; width:30px; height:30px; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                        <span class="material-icons-round" style="font-size:16px;">edit</span>
                         <input type="file" onchange="updatePhoto(event)" style="display:none;">
                     </label>
                 </div>
             </div>
 
-            <div style="background:var(--card-bg); border-radius:24px; padding:24px; border:var(--card-border);">
-                <div class="input-group">
-                    <label>Nama Toko</label>
-                    <input id="setStore" class="clean-input">
-                </div>
-                <div class="input-group">
-                    <label>Alamat</label>
-                    <input id="setAddr" class="clean-input">
-                </div>
+            <div class="stat-box" style="padding: 24px;">
+                <div class="input-group"><label>STORE NAME</label><input id="setStore" class="clean-input"></div>
+                <div class="input-group"><label>ADDRESS</label><input id="setAddr" class="clean-input"></div>
+                
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                    <div class="input-group">
-                        <label>Jual / L (Rp)</label>
-                        <input id="setPrice" type="number" class="clean-input">
-                    </div>
-                    <div class="input-group">
-                        <label>Modal / L (Rp)</label>
-                        <input id="setModalPrice" type="number" class="clean-input">
-                    </div>
+                    <div class="input-group"><label>JUAL/L (Rp)</label><input id="setPrice" type="number" class="clean-input"></div>
+                    <div class="input-group"><label>MODAL/L (Rp)</label><input id="setModalPrice" type="number" class="clean-input"></div>
                 </div>
                 
                 <div class="input-group">
-                    <label>Koreksi Stok (L)</label>
-                    <div style="display:flex; gap:10px;">
+                    <label>MANUAL STOCK ADJUSTMENT (L)</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
                         <input id="setStok" type="number" class="clean-input" style="margin-bottom:0;">
-                        <button onclick="resetStock()" style="background:rgba(255, 77, 141, 0.1); color:var(--accent-pink); border:1px solid rgba(255, 77, 141, 0.3); border-radius:14px; font-size:12px; font-weight:700; width:120px; cursor:pointer;">RESET 0</button>
+                        <button class="btn-primary" onclick="resetStock()" style="background:var(--recovery-bg); color:var(--recovery); box-shadow:none;">RESET 0</button>
                     </div>
                 </div>
 
-                <div class="input-group" style="margin-top:20px;">
-                    <label>Target Harian (Margin)</label>
-                    <input id="setTarget" type="number" class="clean-input">
-                </div>
-                <div class="input-group">
-                    <label>Groq API Key (AI)</label>
-                    <input id="setGroqKey" class="clean-input" type="password">
-                </div>
+                <div class="input-group" style="margin-top:15px;"><label>GROQ API KEY</label><input id="setGroqKey" class="clean-input" type="password"></div>
                 
-                <button class="btn-primary" onclick="saveSet()" style="margin-top:15px;">SIMPAN PERUBAHAN</button>
-                <button class="btn-primary" onclick="doLogout()" style="background:transparent; color:var(--accent-pink); border:1px solid var(--accent-pink); margin-top:15px; box-shadow:none;">LOG OUT</button>
+                <button class="btn-primary" onclick="saveSet()" style="margin-top:10px;">UPDATE SYSTEM</button>
+                <button class="btn-primary" onclick="doLogout()" style="background:transparent; color:var(--recovery); margin-top:15px; box-shadow:none; border:1px solid var(--recovery);">LOG OUT</button>
             </div>
         </div>
     </div>
 
     <div id="inputModal" class="modal-overlay">
         <div class="sheet-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-                <h3 style="margin:0; font-size:18px;">Transaksi Baru</h3>
-                <span class="material-icons-round" onclick="closeModal('inputModal')" style="cursor:pointer; color:var(--text-muted);">close</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:18px; font-weight:700; color:var(--text-main);">Transaksi Baru</h3>
+                <span class="material-icons-round" onclick="closeModal('inputModal')" style="cursor:pointer; color:var(--text-sec);">close</span>
             </div>
             
             <div class="report-tabs">
                 <div id="mtInc" class="rt-btn active" onclick="setMode('inc')">JUAL</div>
-                <div id="mtBuy" class="rt-btn" onclick="setMode('buy')">STOK</div>
+                <div id="mtBuy" class="rt-btn" onclick="setMode('buy')">RESTOCK</div>
                 <div id="mtExp" class="rt-btn" onclick="setMode('exp')">BEBAN</div>
                 <div id="mtWd" class="rt-btn" onclick="setMode('wd')">WD</div>
             </div>
 
             <div id="formInc">
-                <input type="number" id="admNom" class="clean-input" placeholder="0" style="font-size:32px; font-weight:800; text-align:center; padding:25px;" oninput="calcAdm()">
+                <input type="number" id="admNom" class="clean-input" placeholder="Rp 0" style="font-size:24px; font-weight:800;" oninput="calcAdm()">
+                <div style="text-align:right; font-size:12px; color:var(--profit); margin-bottom:15px;">Volume: <span id="admLit">0</span> L</div>
                 
-                <div style="display:flex; gap:15px; margin-bottom:25px;">
-                    <label style="flex:1; background:var(--bg-body); padding:15px; border-radius:16px; text-align:center; cursor:pointer; border:1px solid rgba(128,128,128,0.1);">
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <label style="flex:1; background:var(--input-bg); color:var(--text-main); padding:10px; border-radius:12px; text-align:center; cursor:pointer;">
                         <input type="radio" name="payMethod" value="Tunai" checked> Tunai
                     </label>
-                    <label style="flex:1; background:var(--bg-body); padding:15px; border-radius:16px; text-align:center; cursor:pointer; border:1px solid rgba(128,128,128,0.1);">
+                    <label style="flex:1; background:var(--input-bg); color:var(--text-main); padding:10px; border-radius:12px; text-align:center; cursor:pointer;">
                         <input type="radio" name="payMethod" value="QRIS"> QRIS
                     </label>
                 </div>
-                <div style="text-align:center; margin-bottom:25px; font-size:16px; color:var(--accent-green); font-weight:700;">Volume: <span id="admLit">0.00 L</span></div>
-                <button class="btn-primary" onclick="saveTrans('inc')">SIMPAN PENJUALAN</button>
+                <button class="btn-primary" onclick="saveTrans('inc')">INPUT PENJUALAN</button>
             </div>
 
             <div id="formBuy" style="display:none;">
-                <div class="input-group"><label>Total Biaya (Rp)</label><input type="number" id="buyNom" class="clean-input"></div>
-                <div class="input-group"><label>Liter Diterima</label><input type="number" id="buyLit" class="clean-input"></div>
-                <button class="btn-primary" style="background:var(--accent-purple);" onclick="saveTrans('buy')">TAMBAH STOK</button>
+                <div class="input-group">
+                    <label>Nominal Belanja (Rp)</label>
+                    <input type="number" id="buyNom" class="clean-input" placeholder="0" style="font-size:20px; font-weight:700;">
+                </div>
+                <p style="font-size:11px; color:var(--text-sec); margin-bottom: 15px;">*Hanya input Rupiah. Stok liter akan dihitung otomatis dari harga modal di settings.</p>
+                <button class="btn-primary" style="background:var(--primary);" onclick="saveTrans('buy')">INPUT MODAL</button>
             </div>
 
             <div id="formExp" style="display:none;">
-                <div class="input-group"><label>Keterangan</label><input type="text" id="descInput" class="clean-input" placeholder="cth: Listrik"></div>
-                <div class="input-group"><label>Jumlah (Rp)</label><input type="number" id="expNom" class="clean-input"></div>
-                <button class="btn-primary" style="background:var(--accent-pink);" onclick="saveTrans('exp')">SIMPAN PENGELUARAN</button>
+                <div class="input-group"><label>Keterangan</label><input type="text" id="descInput" class="clean-input" placeholder="Contoh: Listrik"></div>
+                <div class="input-group"><label>Jumlah (Rp)</label><input type="number" id="expNom" class="clean-input" placeholder="0"></div>
+                <button class="btn-primary" style="background:var(--recovery);" onclick="saveTrans('exp')">SIMPAN BEBAN</button>
             </div>
 
             <div id="formWd" style="display:none;">
-                <div class="input-group"><label>Jumlah Withdraw</label><input type="number" id="wdNom" class="clean-input"></div>
-                <button class="btn-primary" style="background:var(--accent-purple);" onclick="saveTrans('wd')">TARIK DANA</button>
+                <div class="input-group"><label>Jumlah Penarikan (Rp)</label><input type="number" id="wdNom" class="clean-input" placeholder="Rp"></div>
+                <button class="btn-primary" style="background:#A855F7;" onclick="saveTrans('wd')">TARIK DANA</button>
             </div>
         </div>
     </div>
 
     <div id="editModal" class="modal-overlay">
         <div class="sheet-content">
-            <h3 style="margin:0 0 20px;">Edit Transaksi</h3>
+            <h3 style="color:var(--text-main); margin-bottom:20px;">Edit Data</h3>
             <input type="hidden" id="editId">
             <div class="input-group">
                 <label>Tipe</label>
-                <select id="editType" class="clean-input">
+                <select id="editType" class="clean-input" onchange="toggleEditFields()" style="background:var(--input-bg);">
                     <option value="inc">Penjualan</option>
                     <option value="buy">Restock</option>
-                    <option value="exp">Pengeluaran</option>
+                    <option value="exp">Beban</option>
                     <option value="wd">Withdraw</option>
                 </select>
             </div>
@@ -613,130 +700,198 @@
             <div id="editLiterWrap" class="input-group"><label>Liter</label><input type="number" id="editLit" class="clean-input"></div>
             <div class="input-group"><label>Catatan</label><input type="text" id="editDesc" class="clean-input"></div>
             
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-                <button class="btn-primary" onclick="saveEditTrans()">UPDATE</button>
-                <button class="btn-primary" onclick="deleteTrans()" style="background:rgba(255, 77, 141, 0.15); color:var(--accent-pink); box-shadow:none;">HAPUS</button>
+            <button class="btn-primary" onclick="saveEditTrans()">UPDATE</button>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                <button class="btn-primary" onclick="deleteTrans()" style="background:var(--recovery-bg); color:var(--recovery); box-shadow:none;">HAPUS</button>
+                <button class="btn-primary" onclick="closeModal('editModal')" style="background:transparent; box-shadow:none; border:1px solid var(--text-sec); color:var(--text-sec);">BATAL</button>
             </div>
-            <button class="btn-primary" onclick="closeModal('editModal')" style="background:rgba(128,128,128,0.1); color:var(--text-muted); margin-top:10px; box-shadow:none;">BATAL</button>
         </div>
     </div>
 
     <div id="kasbonModal" class="modal-overlay">
         <div class="sheet-content">
-             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0;">Buku Kasbon</h3>
-                <span class="material-icons-round" onclick="closeModal('kasbonModal')" style="cursor:pointer;">close</span>
+             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0; color:var(--text-main);">Catatan Kasbon</h3>
+                <span class="material-icons-round" onclick="closeModal('kasbonModal')" style="color:var(--text-sec); cursor:pointer;">close</span>
             </div>
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
                 <input type="text" id="kasbonName" class="clean-input" placeholder="Nama" style="margin:0; flex:1;">
                 <input type="number" id="kasbonNom" class="clean-input" placeholder="Rp" style="margin:0; width:100px;">
-                <button onclick="addKasbon()" style="background:var(--primary); color:white; border:none; border-radius:14px; width:50px; cursor:pointer;"><span class="material-icons-round">add</span></button>
+                <button onclick="addKasbon()" style="background:var(--primary); color:white; border:none; border-radius:12px; width:50px; cursor:pointer;"><span class="material-icons-round">add</span></button>
             </div>
-            <div id="kasbonList" style="max-height:300px; overflow-y:auto; padding-bottom:10px;"></div>
+            <div id="kasbonList" style="max-height:300px; overflow-y:auto;">
+                </div>
         </div>
     </div>
 
     <div id="receiptModal" class="modal-overlay" style="align-items:center; justify-content:center;">
-        <div style="width:85%; max-width:340px; padding:25px; border-radius:24px; background:white; color:black; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
-            <div style="text-align:center; margin-bottom:15px; font-weight:800; color:#00D084; font-size:18px;">TRANSAKSI SUKSES</div>
-            <div style="border:1px dashed #ccc; padding:20px; border-radius:16px; font-family:'Courier New', monospace; text-align:center; background:#f9f9f9;">
-                <div style="font-weight:bold; font-size:18px; margin-bottom:5px;" id="rcStore">STORE</div>
-                <div style="font-size:11px; margin-bottom:15px;" id="rcAddr">Addr</div>
-                <div style="border-bottom:1px dashed #000; margin-bottom:15px;"></div>
+        <div class="sheet-content" style="width:85%; max-width:320px; border-radius:24px; position:relative; bottom:auto; top:auto;">
+            <div style="text-align:center; margin-bottom:15px; font-weight:700; color:var(--profit);">TRANSAKSI BERHASIL</div>
+            <div style="border:1px dashed #ccc; padding:15px; border-radius:10px; font-family:'Courier New', monospace; text-align:center;">
+                <div style="font-weight:bold; font-size:16px; margin-bottom:5px;" id="rcStore">DEAR LOVE</div>
+                <div style="font-size:10px; margin-bottom:15px;" id="rcAddr"></div>
+                <div style="border-bottom:1px dashed #000; margin-bottom:10px;"></div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                     <span id="rcItem">BBM</span>
                     <span id="rcTotal" style="font-weight:bold;">Rp 0</span>
                 </div>
-                <div style="text-align:left; font-size:12px;" id="rcDet">0 L</div>
-                <div style="text-align:center; font-size:12px; margin-top:15px; font-weight:bold;" id="rcMethod">TUNAI</div>
-                <div style="font-size:10px; color:#555; margin-top:5px;" id="rcTime"></div>
+                <div style="text-align:left; font-size:10px;" id="rcDet">0 L</div>
+                <div style="text-align:center; font-size:10px; margin-top:5px; font-weight:bold;" id="rcMethod">TUNAI</div>
+                <div style="border-bottom:1px dashed #000; margin:10px 0;"></div>
+                <div style="font-size:10px;" id="rcTime">Date</div>
             </div>
             <button class="btn-primary" onclick="closeModal('receiptModal')" style="margin-top:20px;">Tutup</button>
         </div>
     </div>
 
-    <div class="bottom-nav-wrap">
-        <div class="bottom-nav">
-            <div class="nav-item active" onclick="nav('adminScreen')"><span class="material-icons-round">grid_view</span></div>
-            <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span></div>
-            <div style="width:56px;"></div> <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span></div>
-            <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">pie_chart</span></div>
-            
-            <div class="fab-add" onclick="openInputModal()"><span class="material-icons-round">add</span></div>
-        </div>
-    </div>
-
     <script>
-        // --- CONFIG ---
+        // --- CONFIG & INIT ---
         const firebaseConfig = { apiKey: "AIzaSyBpwNPIYhelOhkPvJsBmKvlZnaH9FVnmM4", authDomain: "pom-mini-50b1e.firebaseapp.com", projectId: "pom-mini-50b1e", storageBucket: "pom-mini-50b1e.firebasestorage.app", messagingSenderId: "77499696502", appId: "1:77499696502:web:8080c37da62a12c9566657", measurementId: "G-KRRHTTGBRF" };
-        let db; try { if(typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } } catch(e) { console.log("Firebase Offline"); }
+        let db; 
+        try { if(typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } } catch(e) { console.log("Firebase Offline"); }
 
+        // DEFAULT DATA STRUCTURE
         let data = { 
-            pass: "DearLove2025", store: "DEAR LOVE", addr: "Jonggol, Jawa Barat", 
-            price: 12000, modalPrice: 10000, photo: "logo.png", stokLiter: 0, 
-            dailyTarget: 170000, trans: [], kasbon: [], holidays: [], groqKey: "", theme: 'dark' 
+            pass: "DearLove2025", 
+            store: "DEAR LOVE", 
+            addr: "Jl. Raya Pertamini", 
+            price: 12000, 
+            modalPrice: 10000, 
+            photo: "logo.png", 
+            stokLiter: 0,
+            modalGantung: 0, 
+            trans: [], 
+            kasbon: [], // Added array for Kasbon
+            holidays: [], 
+            groqKey: "" 
         };
 
-        // LOAD DATA V4
+        // LOAD DATA
         try { let saved = localStorage.getItem('dl_super_v4'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
         if(!Array.isArray(data.trans)) data.trans = [];
-
-        let currentMode = 'inc', reportMode = 'daily', currentWeather = 'sunny'; 
-        let selectedDetailDate = null; 
+        if(!Array.isArray(data.kasbon)) data.kasbon = [];
+        
+        let currentMode = 'inc', reportMode = 'daily', currentWeather = 'sunny';
         const fmtMoney = (n) => "Rp " + parseInt(n).toLocaleString('id-ID');
 
-        // --- THEME ---
-        const applyTheme = () => {
-            document.documentElement.setAttribute('data-theme', data.theme);
-            document.getElementById('themeIcon').innerText = data.theme === 'light' ? 'light_mode' : 'dark_mode';
-        }
-        const toggleTheme = () => {
-            data.theme = data.theme === 'light' ? 'dark' : 'light';
-            applyTheme();
-            localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            renderDash(); 
-        }
-        applyTheme();
+        // --- CORE HELPER: FISCAL PERIOD (18-17) ---
+        // Ini adalah fungsi kunci untuk semua fitur yang menggunakan tanggal
+        function getFiscalPeriod(refDate = new Date()) {
+            let d = refDate.getDate();
+            let m = refDate.getMonth();
+            let y = refDate.getFullYear();
+            let start, end;
 
-        // --- DASHBOARD LOGIC ---
+            if (d >= 18) {
+                // Periode Mulai 18 bulan ini, Selesai 17 bulan depan
+                start = new Date(y, m, 18);
+                end = new Date(y, m + 1, 17);
+            } else {
+                // Periode Mulai 18 bulan lalu, Selesai 17 bulan ini
+                start = new Date(y, m - 1, 18);
+                end = new Date(y, m, 17);
+            }
+            start.setHours(0,0,0,0);
+            end.setHours(23,59,59,999);
+            return { start, end };
+        }
+
+        // --- THEME SYSTEM ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            document.getElementById('themeIcon').innerText = next === 'light' ? 'light_mode' : 'dark_mode';
+        }
+
+        // --- DASHBOARD LOGIC (MODAL GANTUNG & 18-17 Logic) ---
         window.renderDash = () => {
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
             let today = new Date().toLocaleDateString();
-            let dInc=0, dBuy=0, dExp=0, dWd=0, dLit=0, realTimeCash=0;
+            let period = getFiscalPeriod(); // Get active 18-17 period
             
+            // Stats Today (Tetap Hari Ini)
+            let dInc=0, dExp=0, dWd=0, dLit=0;
             data.trans.forEach(t => { 
                 if(t.date === today) { 
-                    if(t.type === 'inc') { dInc+=t.n; dLit+=(t.l||0); if(t.metode==='Tunai') realTimeCash+=t.n; }
-                    else if(t.type === 'buy') { dBuy+=t.n; realTimeCash-=t.n; }
-                    else if(t.type === 'wd') { dWd+=t.n; realTimeCash-=t.n; } 
-                    else { dExp+=t.n; realTimeCash-=t.n; }
-                } 
+                    if(t.type === 'inc') { dInc+=t.n; dLit+=(t.l||0); }
+                    else if(t.type === 'wd') { dWd+=t.n; } 
+                    else if(t.type === 'exp') { dExp+=t.n; }
+                }
             });
-            
-            // LOGIC: REAL MARGIN PER LITER DARI STOK
-            // Margin = (Total Omzet - Modal dari barang yg terjual) / Liter Terjual
-            let hppSold = dLit * data.modalPrice;
-            let marginTotal = dInc - hppSold; 
-            let realMarginPerLiter = dLit > 0 ? (marginTotal / dLit) : 0;
 
-            document.getElementById('realTimeProfit').innerText = fmtMoney(realTimeCash);
-            document.getElementById('avgMargin').innerText = fmtMoney(realMarginPerLiter);
-            document.getElementById('hppStatus').innerText = `HPP Terjual: ${fmtMoney(hppSold)}`;
-
-            let target = data.dailyTarget || 150000;
-            let progressPct = Math.max(0, Math.min(100, (marginTotal / target) * 100)).toFixed(0);
-            document.getElementById('targetPct').innerText = progressPct + "%";
+            // LOGIC CASH FLOW (Running Total for Balance, Period Total for Hero Stats)
+            let totalModalInput = 0; // Running total
+            let totalRevenue = 0;    // Running total
+            let periodRestock = 0;   // Period specific
+            let periodOmzet = 0;     // Period specific
             
+            data.trans.forEach(t => {
+                let tDate = new Date(t.ts);
+                
+                // Running Total (Global)
+                if(t.type === 'buy') totalModalInput += t.n;
+                if(t.type === 'inc') totalRevenue += t.n;
+
+                // Period Total (18-17)
+                if (tDate >= period.start && tDate <= period.end) {
+                    if(t.type === 'buy') periodRestock += t.n;
+                    if(t.type === 'inc') periodOmzet += t.n;
+                }
+            });
+
+            let currentModalGantung = totalModalInput - totalRevenue;
+            let isProfit = currentModalGantung <= 0;
+            
+            // UPDATE HERO CARD
+            const heroStatus = document.getElementById('heroStatus');
+            const heroDesc = document.getElementById('heroDesc');
+            const heroMain = document.getElementById('heroMainValue');
+            const marginBox = document.getElementById('realMarginBox');
+
+            // Tampilkan Statistik Periode 18-17 di Hero Card
+            document.getElementById('dispTotalRestock').innerText = fmtMoney(periodRestock);
+            document.getElementById('dispTotalOmzet').innerText = fmtMoney(periodOmzet);
+            
+            // Update label periode agar user tahu
+            let pStartStr = period.start.toLocaleDateString('id-ID', {day:'numeric', month:'short'});
+            let pEndStr = period.end.toLocaleDateString('id-ID', {day:'numeric', month:'short'});
+            // document.getElementById('periodLabel1').innerText = `Restock (${pStartStr}-${pEndStr})`; // Optional update text
+
+            if (isProfit) {
+                let surplus = Math.abs(currentModalGantung);
+                heroStatus.className = "status-badge st-profit";
+                heroStatus.innerText = "PROFIT";
+                heroDesc.innerText = "Surplus (Keuntungan)";
+                heroMain.innerText = fmtMoney(surplus);
+                
+                if(dLit > 0) {
+                    let realMargin = surplus / dLit; 
+                    document.getElementById('realMarginVal').innerText = fmtMoney(realMargin);
+                    marginBox.style.display = 'block';
+                } else {
+                    marginBox.style.display = 'none';
+                }
+            } else {
+                heroStatus.className = "status-badge st-recovery";
+                heroStatus.innerText = "RECOVERY";
+                heroDesc.innerText = "Sisa Modal Tertanam";
+                heroMain.innerText = fmtMoney(currentModalGantung);
+                marginBox.style.display = 'none';
+            }
+            
+            // SMALL STATS
             document.getElementById('stokVal').innerText = data.stokLiter.toFixed(1);
-            document.getElementById('todayLiter').innerText = dLit.toFixed(1);
             document.getElementById('dashTodayInc').innerText = fmtMoney(dInc);
             document.getElementById('dashTodayExp').innerText = fmtMoney(dExp);
+            document.getElementById('dashTodayWd').innerText = fmtMoney(dWd);
             
             document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
         }
 
-        // --- NAVIGATION ---
+        // --- NAVIGATION & MODALS ---
         const toggleNav = (show) => document.querySelector('.bottom-nav-wrap').style.transform = show ? 'translateY(0)' : 'translateY(200%)';
         
         window.nav = (id) => {
@@ -772,59 +927,70 @@
             document.getElementById(m==='inc'?'formInc':(m==='buy'?'formBuy':(m==='exp'?'formExp':'formWd'))).style.display = 'block';
         }
 
-        // --- CRUD ---
+        // --- TRANSACTIONS ---
         window.saveTrans = async (type) => {
             let now = new Date();
-            let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), type:type, weather: currentWeather };
+            let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), type:type };
             
             if(type === 'inc') {
                 let n=parseInt(document.getElementById('admNom').value); if(!n) return;
                 let l=parseFloat((n/data.price).toFixed(2)); 
-                let radios = document.getElementsByName('payMethod');
-                let method = 'Tunai'; for(let r of radios) { if(r.checked) method = r.value; }
-
+                let radios = document.getElementsByName('payMethod'); let method = 'Tunai'; for(let r of radios) { if(r.checked) method = r.value; }
                 tx.n=n; tx.l=l; tx.metode=method; data.stokLiter=Math.max(0, data.stokLiter-l);
                 
-                if(db) await db.collection("struk_public").doc("current").set({ nominal: n, liter: l, waktu: now.toLocaleString('id-ID'), status: "PAID", metode: method, nama_toko: data.store, alamat_toko: data.addr });
-                
-                document.getElementById('rcStore').innerText=data.store; document.getElementById('rcAddr').innerText=data.addr; 
-                document.getElementById('rcTotal').innerText=fmtMoney(n); document.getElementById('rcDet').innerText=l+" Liter"; 
-                document.getElementById('rcMethod').innerText=method.toUpperCase(); document.getElementById('rcTime').innerText=now.toLocaleString(); 
+                // Receipt Data
+                document.getElementById('rcTotal').innerText=fmtMoney(n); 
+                document.getElementById('rcDet').innerText=l+" L"; 
+                document.getElementById('rcMethod').innerText=method.toUpperCase();
+                document.getElementById('rcTime').innerText=now.toLocaleString(); 
                 document.getElementById('receiptModal').style.display='flex';
+
             } else if (type === 'buy') {
-                let n=parseInt(document.getElementById('buyNom').value), l=parseFloat(document.getElementById('buyLit').value); if(!n||!l) return;
-                tx.n=n; tx.l=l; tx.desc="Restock"; data.stokLiter+=l;
+                let n=parseInt(document.getElementById('buyNom').value); if(!n) return;
+                let l = parseFloat((n / data.modalPrice).toFixed(2));
+                tx.n=n; tx.l=l; tx.desc="Restock Modal"; 
+                data.stokLiter+=l;
             } else if (type === 'exp') {
                 let n=parseInt(document.getElementById('expNom').value), d=document.getElementById('descInput').value; if(!n) return;
-                tx.n=n; tx.desc=d||"Beban";
+                tx.n=n; tx.desc=d||"Expense";
             } else if (type === 'wd') {
                 let n=parseInt(document.getElementById('wdNom').value); if(!n) return;
                 tx.n=n; tx.desc="Withdrawal";
             }
 
-            data.trans.unshift(tx); localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            ['admNom','buyNom','buyLit','expNom','descInput','wdNom'].forEach(i=>document.getElementById(i).value='');
+            data.trans.unshift(tx); 
+            localStorage.setItem('dl_super_v4', JSON.stringify(data));
+            ['admNom','buyNom','expNom','descInput','wdNom'].forEach(i=>document.getElementById(i).value='');
             closeModal('inputModal'); renderDash();
         }
 
         window.saveEditTrans = () => {
             let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id); if(idx<0) return;
-            let oldT=data.trans[idx]; if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
+            let oldT=data.trans[idx]; 
+            if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); 
+            if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
             
             let type=document.getElementById('editType').value, n=parseInt(document.getElementById('editNom').value), l=parseFloat(document.getElementById('editLit').value)||0, d=document.getElementById('editDesc').value;
             
-            data.trans[idx]={...data.trans[idx], type:type, n:n, l:l};
-            if(type==='inc') { data.trans[idx].metode=d; data.stokLiter-=l; } 
-            else if(type==='buy') { data.trans[idx].desc="Restock"; data.stokLiter+=l; }
-            else data.trans[idx].desc=d;
+            data.trans[idx]={...data.trans[idx], type:type, n:n, l:l, desc:d};
+            if(type==='inc') data.stokLiter-=l; 
+            if(type==='buy') data.stokLiter+=l;
             
-            localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
+            localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); 
+            if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); 
+            renderDash();
         }
 
         window.deleteTrans = () => {
-            if(!confirm("Yakin hapus?")) return; let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id);
-            let oldT=data.trans[idx]; if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
-            data.trans.splice(idx,1); localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
+            if(!confirm("Hapus data ini?")) return; 
+            let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id);
+            let oldT=data.trans[idx]; 
+            if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); 
+            if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
+            data.trans.splice(idx,1); 
+            localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); 
+            if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); 
+            renderDash();
         }
 
         window.openEdit = (id) => {
@@ -840,207 +1006,249 @@
 
         window.renderHistory = () => { document.getElementById('fullHistoryList').innerHTML = data.trans.map(t => makeTransItem(t)).join(''); }
 
-        // --- UPDATED LIST ITEM DESIGN ---
         window.makeTransItem = (t) => {
-            let icon='local_gas_station', cls='inc-bg', title='Penjualan', val=`+ ${t.n/1000}k`;
-            if(t.type==='buy'){ icon='water_drop'; cls='buy-bg'; title='Restock'; val=`- ${t.n/1000}k`; }
-            else if(t.type==='exp'){ icon='payments'; cls='exp-bg'; title=t.desc||'Beban'; val=`- ${t.n/1000}k`; }
-            else if(t.type==='wd'){ icon='account_balance_wallet'; cls='buy-bg'; title='Withdraw'; val=`- ${t.n/1000}k`; }
-            else { title = t.metode || 'Cash'; }
+            let ic='ti-inc', iname='local_gas_station', s='+', ti='Sale', su=(t.l||0).toFixed(2)+" L";
+            if(t.type==='buy'){ ic='ti-buy'; iname='water_drop'; s='-'; ti='Restock'; su="+"+(t.l||0).toFixed(2)+" L"; }
+            else if(t.type==='exp'){ ic='ti-exp'; iname='payments'; s='-'; ti=t.desc; su="Expense"; }
+            else if(t.type==='wd'){ ic='ti-wd'; iname='account_balance_wallet'; s='-'; ti='Withdraw'; su="Ambil Profit"; }
+            else ti=t.metode||"Cash";
+            
             return `
             <div class="trans-item" onclick="openEdit(${t.id})">
                 <div class="ti-left">
-                    <div class="ti-icon ${cls}"><span class="material-icons-round">${icon}</span></div>
-                    <div class="ti-det"><h4>${title}</h4><p>${t.l?t.l.toFixed(2)+' L':''}</p></div>
+                    <div class="ti-icon ${ic}"><span class="material-icons-round">${iname}</span></div>
+                    <div class="ti-info"><h4>${ti}</h4><p>${su}</p></div>
                 </div>
-                <div class="ti-right"><span class="ti-val ${t.type==='inc'?'text-inc':'text-exp'}">${val}</span><span class="ti-time">${t.time}</span></div>
+                <div>
+                    <div class="ti-val">${s} ${fmtMoney(t.n)}</div>
+                    <span class="ti-date">${t.date}</span>
+                </div>
             </div>`;
         }
 
-        // --- REPORTING ---
-        const getPeriodRange = () => {
-            let now = new Date(); let d = now.getDate();
-            let start, end;
-            if (d >= 18) { start = new Date(now.getFullYear(), now.getMonth(), 18); end = new Date(now.getFullYear(), now.getMonth() + 1, 17); } 
-            else { start = new Date(now.getFullYear(), now.getMonth() - 1, 18); end = new Date(now.getFullYear(), now.getMonth(), 17); }
-            start.setHours(0,0,0,0); end.setHours(23,59,59,999);
-            return { start, end };
+        // --- KASBON SYSTEM (FIXED & COMPLETE) ---
+        window.openKasbon = () => {
+            document.getElementById('kasbonModal').style.display='flex';
+            toggleNav(false);
+            renderKasbonList();
         }
 
+        window.addKasbon = () => {
+            let name = document.getElementById('kasbonName').value;
+            let nom = parseInt(document.getElementById('kasbonNom').value);
+            if(!name || !nom) { alert("Isi nama dan nominal!"); return; }
+            
+            data.kasbon.push({ id: Date.now(), name: name, n: nom, date: new Date().toLocaleDateString() });
+            localStorage.setItem('dl_super_v4', JSON.stringify(data));
+            
+            document.getElementById('kasbonName').value = '';
+            document.getElementById('kasbonNom').value = '';
+            renderKasbonList();
+        }
+
+        window.deleteKasbon = (id) => {
+            if(!confirm("Hapus kasbon ini?")) return;
+            data.kasbon = data.kasbon.filter(k => k.id !== id);
+            localStorage.setItem('dl_super_v4', JSON.stringify(data));
+            renderKasbonList();
+        }
+
+        window.renderKasbonList = () => {
+            let html = "";
+            if(data.kasbon.length === 0) {
+                html = "<div style='text-align:center; color:var(--text-sec); padding:20px;'>Tidak ada data kasbon.</div>";
+            } else {
+                data.kasbon.forEach(k => {
+                    html += `
+                    <div class="kasbon-item">
+                        <div class="ki-info">
+                            <div class="ki-name">${k.name}</div>
+                            <div style="font-size:10px; color:var(--text-sec);">${k.date}</div>
+                        </div>
+                        <div class="ki-val">${fmtMoney(k.n)}</div>
+                        <button class="ki-btn" onclick="deleteKasbon(${k.id})"><span class="material-icons-round" style="font-size:16px;">delete</span></button>
+                    </div>`;
+                });
+            }
+            document.getElementById('kasbonList').innerHTML = html;
+        }
+
+        // --- CALENDAR (FIXED 18-17 GRID) ---
+        window.renderCalendar = () => {
+            let period = getFiscalPeriod();
+            let start = period.start;
+            let end = period.end;
+            
+            let pStr = `${start.getDate()} ${start.toLocaleDateString('id-ID',{month:'short'})} - ${end.getDate()} ${end.toLocaleDateString('id-ID',{month:'short'})}`;
+            document.getElementById('calPeriodLabel').innerText = pStr;
+
+            let calHTML = "";
+            let currentLoop = new Date(start);
+            
+            // Add padding for first row (start day of week)
+            let startDay = start.getDay(); // 0 (Sun) - 6 (Sat)
+            for(let i=0; i<startDay; i++) {
+                calHTML += `<div class="cal-day empty"></div>`;
+            }
+
+            // Loop days
+            while (currentLoop <= end) {
+                let dStr = currentLoop.toLocaleDateString();
+                let dateNum = currentLoop.getDate();
+                let isToday = (dStr === new Date().toLocaleDateString());
+                
+                // Check data existence
+                let hasData = data.trans.some(t => t.date === dStr && t.type === 'inc');
+                let statusClass = hasData ? 'has-data' : '';
+                
+                calHTML += `
+                <div class="cal-day ${isToday ? 'today' : ''}" onclick="alert('Detail: ${dStr}')">
+                    <div class="cd-date">${dateNum}</div>
+                    <div class="cd-status ${statusClass}"></div>
+                </div>`;
+                
+                currentLoop.setDate(currentLoop.getDate() + 1);
+            }
+            
+            document.getElementById('calendarBody').innerHTML = calHTML;
+        }
+
+        // --- REPORT SYSTEM (18-17 LOGIC) ---
         window.renderReport = () => {
-            let gr={}, tInc=0, tExp=0, tLit=0, tWd=0;
+            let gr={}, tInc=0, tExp=0, tWd=0, tBuy=0;
             let filterStart = 0, filterEnd = 9999999999999;
             let today = new Date().toLocaleDateString();
 
-            if (reportMode === 'monthly') {
-                let p = getPeriodRange(); filterStart = p.start.getTime(); filterEnd = p.end.getTime();
-                document.getElementById('rpTitle').innerText = "NET PROFIT (PERIODE INI)";
-            } else if (reportMode === 'daily') {
-                document.getElementById('rpTitle').innerText = "NET PROFIT (HARI INI)";
-            } else { document.getElementById('rpTitle').innerText = "NET PROFIT (TAHUNAN)"; }
-
+            if (reportMode === 'monthly') { 
+                let p = getPeriodRange(); // Uses the same 18-17 logic
+                filterStart = p.start.getTime(); 
+                filterEnd = p.end.getTime(); 
+            }
+            
             data.trans.forEach(t => {
                 let isValid = true;
                 if (reportMode === 'monthly') { if(t.ts < filterStart || t.ts > filterEnd) isValid = false; } 
                 else if (reportMode === 'daily') { if(t.date !== today) isValid = false; }
 
                 if (isValid) {
-                    let k = reportMode==='daily'?t.date:(reportMode==='monthly'?'Current':new Date(t.ts).getFullYear().toString());
+                    // Grouping Logic
+                    let k;
+                    if(reportMode==='daily') k = t.time.substring(0,2)+":00";
+                    else if(reportMode==='monthly') k = t.date;
+                    else k = new Date(t.ts).toLocaleDateString('id-ID',{month:'short', year:'numeric'});
+
                     if(!gr[k]) gr[k]={i:0,b:0,e:0,w:0};
-                    if(t.type==='inc') { gr[k].i+=t.n; tInc+=t.n; tLit+=(t.l||0); }
+                    if(t.type==='inc') { gr[k].i+=t.n; tInc+=t.n; }
+                    else if(t.type==='buy') { gr[k].b+=t.n; tBuy+=t.n; } 
                     else if(t.type==='wd') { gr[k].w+=t.n; tWd+=t.n; }
-                    else if(t.type!=='buy') { gr[k].e+=t.n; tExp+=t.n; }
+                    else { gr[k].e+=t.n; tExp+=t.n; }
                 }
             });
             
-            let currentMargin = data.price - data.modalPrice;
-            let grossProfit = tLit * currentMargin;
-            let netProfit = grossProfit - tExp;
-            let totalHPP = tLit * data.modalPrice;
+            let surplus = tInc - tExp - tBuy; 
 
-            document.getElementById('rpNet').innerText = fmtMoney(netProfit); 
+            document.getElementById('rpWd').innerText = fmtMoney(tWd); 
             document.getElementById('rpOmzet').innerText = fmtMoney(tInc); 
-            document.getElementById('rpHpp').innerText = "- " + fmtMoney(totalHPP);
-            document.getElementById('rpGross').innerText = fmtMoney(grossProfit);
+            document.getElementById('rpModal').innerText = "- " + fmtMoney(tBuy);
             document.getElementById('rpBeban').innerText = "- " + fmtMoney(tExp);
-            document.getElementById('rpWd').innerText = fmtMoney(tWd);
+            document.getElementById('rpSurplus').innerText = surplus > 0 ? "+ "+fmtMoney(surplus) : fmtMoney(surplus);
             
             document.getElementById('reportContent').innerHTML=Object.keys(gr).map(k=>`
-                <div class="trans-item"><div style="flex:1;"><div class="ti-det"><h4>${reportMode==='monthly'?'Laporan Periode':k}</h4></div><div style="font-size:10px; color:var(--text-muted); margin-top:5px; display:flex; gap:10px;"><span class="text-inc">Sales: ${fmtMoney(gr[k].i)}</span><span class="text-exp">Exp: ${fmtMoney(gr[k].e)}</span></div></div></div>`).join('');
+                <div class="trans-item"><div style="flex:1;"><div class="ti-info"><h4>${k}</h4></div><div style="font-size:10px; color:var(--text-sec); margin-top:5px; display:grid; grid-template-columns: 1fr 1fr; gap:5px;"><span class="text-green">In: ${fmtMoney(gr[k].i)}</span><span class="text-red">Out: ${fmtMoney(gr[k].e + gr[k].b)}</span></div></div></div>`).join('');
         }
+        
+        // Helper for Report Range (Same as global but used for local report refresh)
+        const getPeriodRange = () => {
+            return getFiscalPeriod(new Date());
+        }
+        
         window.setReportMode = (m) => { reportMode=m; document.querySelectorAll('.report-tabs .rt-btn').forEach(b=>b.classList.remove('active')); document.getElementById(m==='daily'?'rtDay':(m==='monthly'?'rtMonth':'rtYear')).classList.add('active'); renderReport(); }
 
-        // --- CHARTS ---
-        window.renderDataInsight = () => {
-            let hourStats = {}, hC = Array(24).fill(0), dC = Array(7).fill(0);
-            let dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
-            let now = new Date(); let todayDate = now.toLocaleDateString();
-            let weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay()); weekStart.setHours(0,0,0,0);
-            let weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 7);
-
-            data.trans.forEach(t => {
-                if(t.type === 'inc') {
-                    let d = new Date(t.ts);
-                    if (t.date === todayDate) { let h = parseInt(t.time.split(':')[0]); if(!isNaN(h)) hC[h] += t.n; }
-                    if (d >= weekStart && d < weekEnd) { dC[d.getDay()] += t.n; }
-                    if(d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
-                        let h = parseInt(t.time.split(':')[0]);
-                        if(!hourStats[h]) hourStats[h] = {omzet:0, lit:0};
-                        hourStats[h].omzet += t.n; hourStats[h].lit += (t.l||0);
-                    }
-                }
-            });
-
-            let gridColor = data.theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
-            let textColor = data.theme === 'light' ? '#666' : '#888';
-
-            updateChart('hourChart', 'hourChartInstance', 'line', Array.from({length:24},(_,i)=>i), hC, 'Sales Today', gridColor, textColor);
-            updateChart('dayChart', 'dayChartInstance', 'bar', dayNames, dC, 'Weekly', gridColor, textColor);
-
-            let sortedHours = Object.keys(hourStats).map(k => ({h:k, ...hourStats[k]})).sort((a,b) => b.omzet - a.omzet).slice(0, 5);
-            document.getElementById('topHoursTableBody').innerHTML = sortedHours.map((x, i) => `<tr><td><div class="rank-box" style="background:${i===0?'var(--primary)':''}; color:${i===0?'white':''}">${i+1}</div></td><td style="font-weight:600;">${x.h}:00</td><td style="text-align:right;">${x.lit.toFixed(1)}</td><td style="text-align:right; font-weight:600;">${fmtMoney(x.omzet)}</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center; padding:15px; color:var(--text-muted);">No data</td></tr>';
-        }
-
-        // --- CALENDAR ---
-        window.renderCalendar = () => {
-            let { start, end } = getPeriodRange();
-            document.getElementById('calPeriodLabel').innerText = `${start.getDate()} ${start.toLocaleString('id-ID',{month:'short'})} - ${end.getDate()} ${end.toLocaleString('id-ID',{month:'short'})}`;
-            let dateMap = {}; let loopDate = new Date(start);
-            while(loopDate <= end) { dateMap[loopDate.toLocaleDateString()] = { omzet:0, hours:{} }; loopDate.setDate(loopDate.getDate() + 1); }
-            data.trans.forEach(t => { if (t.type === 'inc') { let d = t.date; if(dateMap[d]) { dateMap[d].omzet += t.n; } } });
-            let calHTML = ""; let sortedKeys = Object.keys(dateMap).sort((a,b) => new Date(a.split('/').reverse().join('-')) - new Date(b.split('/').reverse().join('-')));
-            for(let i=0; i<new Date(start).getDay(); i++) calHTML += `<div></div>`;
-            sortedKeys.forEach(k => {
-                let item = dateMap[k]; let hasData = item.omzet > 0 ? 'show' : '';
-                calHTML += `<div class="cal-day" onclick="selectDate('${k}')" id="cell-${k.replace(/\//g,'-')}"><div class="cd-date">${k.split('/')[0]}</div><div class="cd-dot ${hasData}"></div></div>`;
-            });
-            document.getElementById('calendarBody').innerHTML = calHTML;
-        }
-        window.selectDate = (dateStr) => {
-            document.querySelectorAll('.cal-day').forEach(d => d.style.borderColor='transparent');
-            document.getElementById(`cell-${dateStr.replace(/\//g,'-')}`).style.borderColor='var(--primary)';
-            let omzet = 0; data.trans.forEach(t => { if(t.date === dateStr && t.type === 'inc') omzet += t.n; });
-            document.getElementById('calDetailPanel').innerHTML = `<div style="font-weight:700; font-size:16px; margin-bottom:5px; color:var(--text-main);">${dateStr}</div><div style="color:var(--text-muted);">Total Omzet: <span style="color:var(--text-main); font-weight:700;">${fmtMoney(omzet)}</span></div>`;
-        }
-
-        function updateChart(id, iN, t, l, d, lb, gc, tc) {
-            const ctx=document.getElementById(id).getContext('2d'); if(window[iN]) window[iN].destroy();
-            Chart.defaults.color=tc; Chart.defaults.borderColor=gc;
-            window[iN] = new Chart(ctx, { type:t, data:{ labels:l, datasets:[{ label:lb, data:d, backgroundColor:t==='bar'?'#9D59F5':'rgba(74,108,250,0.1)', borderColor:t==='bar'?'#9D59F5':'#4A6CFA', borderWidth:2, tension:0.4, fill:t==='line', pointRadius:0, pointHoverRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gc}, ticks:{display:false}} } } });
-        }
-
-        // --- PRINT & DOWNLOAD (WD FOCUSED) ---
+        // --- PRINT & DOWNLOAD ---
         window.generatePrintReport = () => {
             let { start, end } = getPeriodRange();
-            let tInc=0, tExp=0, tLit=0, tWd=0;
-            data.trans.forEach(t => { 
-                let d = new Date(t.ts);
-                if(d >= start && d <= end) {
-                   if(t.type==='inc') { tInc+=t.n; tLit+=(t.l||0); } 
-                   else if(t.type==='wd') { tWd+=t.n; }
-                   else if(t.type!=='buy') { tExp+=t.n; } 
-                }
+            let monthName = `${start.getDate()} ${start.toLocaleString('id-ID',{month:'short'})} - ${end.getDate()} ${end.toLocaleString('id-ID',{month:'short', year:'numeric'})}`;
+            let tInc=0, tExp=0, tWd=0, tBuy=0;
+            let monthlyTrans = data.trans.filter(t => { let d = new Date(t.ts); return d >= start && d <= end; });
+            monthlyTrans.forEach(t => { 
+                if(t.type==='inc') tInc+=t.n; 
+                else if(t.type==='buy') tBuy+=t.n;
+                else if(t.type==='wd') tWd+=t.n;
+                else tExp+=t.n; 
             });
+            let surplus = tInc - tExp - tBuy;
 
             let html = `
-                <div style="font-family:sans-serif; text-align:center; padding:20px; border:1px solid #000; background:white; color:black;">
-                    <h2 style="margin:0;">${data.store}</h2>
-                    <p>${data.addr}</p>
-                    <hr>
-                    <h3 style="margin:20px 0;">LAPORAN PERIODE</h3>
-                    <p>${start.toLocaleDateString()} - ${end.toLocaleDateString()}</p>
-                    <table style="width:100%; border-collapse:collapse; margin-top:20px; text-align:left;">
-                        <tr style="border-bottom:1px solid #ddd;"><td style="padding:10px;">Total Omzet</td><td style="text-align:right;">${fmtMoney(tInc)}</td></tr>
-                        <tr style="border-bottom:1px solid #ddd;"><td style="padding:10px;">Liter Terjual</td><td style="text-align:right;">${tLit.toFixed(2)} L</td></tr>
-                        <tr style="border-bottom:1px solid #ddd;"><td style="padding:10px;">Beban Operasional</td><td style="text-align:right;">(${fmtMoney(tExp)})</td></tr>
-                        <tr><td style="padding:15px 10px; font-weight:bold; font-size:14px;">TOTAL WITHDRAW (WD)</td><td style="text-align:right; font-weight:bold; font-size:16px;">${fmtMoney(tWd)}</td></tr>
-                    </table>
-                    <div style="margin-top:50px; text-align:right;"><p>Admin</p><br><br><p>( ................. )</p></div>
+                <div id="captureTarget" style="font-family:sans-serif; background:white; color:black; padding:20px;">
+                    <div style="text-align:center; margin-bottom:30px;">
+                        <h2 style="margin:0; font-size:24px;">${data.store}</h2>
+                        <div style="font-size:14px; color:#555;">${data.addr}</div>
+                        <h3 style="margin:20px 0 0; border-bottom:1px solid #000; display:inline-block;">LAPORAN KEUANGAN</h3>
+                        <div style="font-size:12px; margin-top:5px;">Periode: ${monthName}</div>
+                    </div>
+                    <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px;">
+                        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                            <tr><td style="padding:5px;">Total Omzet</td><td style="text-align:right;">${fmtMoney(tInc)}</td></tr>
+                            <tr><td style="padding:5px;">Total Modal Restock</td><td style="text-align:right; color:red;">(${fmtMoney(tBuy)})</td></tr>
+                            <tr><td style="padding:5px;">Total Beban Operasional</td><td style="text-align:right; color:red;">(${fmtMoney(tExp)})</td></tr>
+                            <tr style="border-top:1px solid #000; font-weight:bold;"><td style="padding:10px 5px;">SURPLUS CASH FLOW</td><td style="text-align:right; padding:10px 5px;">${fmtMoney(surplus)}</td></tr>
+                        </table>
+                    </div>
+                    <div style="text-align:center; font-size:18px; font-weight:bold; border:2px solid #000; padding:10px; margin-bottom:40px;">
+                        TOTAL DANA DITARIK (WD): ${fmtMoney(tWd)}
+                    </div>
+                    <div style="text-align:right; font-size:12px;">Dicetak: ${new Date().toLocaleString()}</div>
                 </div>`;
             document.getElementById('printPreviewContent').innerHTML = html;
             document.getElementById('printArea').innerHTML = html;
         }
+        
         window.doPrint = () => window.print();
-        window.doDownload = () => {
-            html2canvas(document.getElementById('printPreviewContent')).then(canvas => {
-                let a = document.createElement('a'); a.href = canvas.toDataURL("image/jpeg"); a.download = `Laporan-${data.store}.jpg`; a.click();
+        window.downloadReport = () => {
+            const target = document.getElementById('captureTarget') || document.getElementById('printPreviewContent');
+            html2canvas(target).then(canvas => {
+                let link = document.createElement('a');
+                link.download = `Laporan-${new Date().toISOString().slice(0,10)}.jpg`;
+                link.href = canvas.toDataURL("image/jpeg");
+                link.click();
             });
         }
 
-        // --- AI & SYSTEM ---
+        // --- CHARTS & AI ---
+        window.renderDataInsight = () => {
+            let hC = Array(24).fill(0); let dC = Array(7).fill(0);
+            let today = new Date().toLocaleDateString();
+            data.trans.forEach(t => {
+                if(t.type === 'inc') {
+                    if(t.date === today) hC[parseInt(t.time.split(':')[0])] += t.n;
+                }
+            });
+            updateChart('hourChart', 'hourChartInstance', 'line', Array.from({length:24},(_,i)=>i), hC);
+        }
+        function updateChart(id,iN,t,l,d){const ctx=document.getElementById(id).getContext('2d');if(window[iN])window[iN].destroy();window[iN]=new Chart(ctx,{type:t,data:{labels:l,datasets:[{label:'Omzet',data:d,borderColor:'#4318FF',backgroundColor:'rgba(67, 24, 255, 0.1)',fill:true}]}});}
+
         window.sendAIChat = async () => {
-            let i = document.getElementById('aiInput'); let m = i.value; let b = document.getElementById('chatBox');
-            if(!m) return; i.value=''; b.innerHTML += `<div class="chat-bubble cb-user">${m}</div>`;
-            if(!data.groqKey){ b.innerHTML += `<div class="chat-bubble cb-ai" style="color:var(--accent-pink);">API Key Missing</div>`; return; }
-            b.innerHTML += `<div id="aiLoad" style="font-size:10px; color:var(--text-muted); margin-left:10px;">Thinking...</div>`;
-            let stats = { stock: data.stokLiter, price: data.price, modal: data.modalPrice };
-            let prompt = `Role: Business Consultant. Context: Gas Station (Pertamini). Data: Stock ${stats.stock}L, Margin/L ${stats.price - stats.modal}. Question: "${m}". Keep it short and actionable.`;
-            try { 
-                let r = await fetch("https://api.groq.com/openai/v1/chat/completions",{ method:"POST", headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`}, body:JSON.stringify({ model:"llama-3.3-70b-versatile", messages:[{role:"user",content:prompt}] }) }); 
-                let j = await r.json(); document.getElementById('aiLoad').remove(); 
-                b.innerHTML += `<div class="chat-bubble cb-ai">${marked.parse(j.choices[0].message.content)}</div>`; b.scrollTop = b.scrollHeight; 
-            } catch(e){ document.getElementById('aiLoad').remove(); b.innerHTML += `<div class="chat-bubble cb-ai">Error connection.</div>`; }
+             let m = document.getElementById('aiInput').value; if(!m)return;
+             document.getElementById('chatBox').innerHTML += `<div style="text-align:right; margin-bottom:10px;"><span style="background:var(--primary); color:white; padding:10px 14px; border-radius:12px; display:inline-block;">${m}</span></div>`;
+             document.getElementById('aiInput').value='';
         }
 
+        // --- UTILS ---
+        window.calcAdm = () => { let n=parseInt(document.getElementById('admNom').value)||0; document.getElementById('admLit').innerText=(n/data.price).toFixed(2); }
+        window.toggleWeather = () => { currentWeather = currentWeather==='sunny'?'rain':'sunny'; document.querySelector('.wt-icon').innerText = currentWeather==='sunny'?'wb_sunny':'thunderstorm'; }
+        window.renderSet = () => { document.getElementById('setStore').value = data.store; document.getElementById('setPrice').value = data.price; document.getElementById('setModalPrice').value = data.modalPrice; document.getElementById('setStok').value = data.stokLiter; document.getElementById('setGroqKey').value = data.groqKey; }
+        window.saveSet = () => { data.store=document.getElementById('setStore').value; data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value); data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value; localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("Settings Saved"); renderDash(); }
+        window.resetStock = () => { if(confirm("Reset Stok ke 0?")) { data.stokLiter=0; saveSet(); } }
+        window.updatePhoto=(e)=>{let r=new FileReader(); r.onload=v=>{data.photo=v.target.result; renderDash();}; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]);}
         window.doLogin=()=>{if(document.getElementById('passInput').value===data.pass){localStorage.setItem('dl_log','1');nav('adminScreen');}else alert("Wrong PIN");}
         window.doLogout=()=>{localStorage.removeItem('dl_log');nav('loginScreen');}
-        window.clearData=()=>{if(confirm("RESET DATA?")){data.trans=[];data.kasbon=[];localStorage.setItem('dl_super_v4',JSON.stringify(data));renderDash();}}
-        window.calcAdm = () => { let n=parseInt(document.getElementById('admNom').value)||0; document.getElementById('admLit').innerText=(n/data.price).toFixed(2)+" L"; }
-        window.toggleWeather = () => { const i = document.querySelector('.wt-icon'); if(currentWeather === 'sunny') { currentWeather = 'rain'; i.innerText = 'thunderstorm'; i.style.color = 'var(--primary)'; } else { currentWeather = 'sunny'; i.innerText = 'wb_sunny'; i.style.color = '#FFD700'; } }
-        window.renderSet = () => { document.getElementById('setStore').value = data.store; document.getElementById('setAddr').value = data.addr; document.getElementById('setPrice').value = data.price; document.getElementById('setModalPrice').value = data.modalPrice; document.getElementById('setStok').value = data.stokLiter; document.getElementById('setGroqKey').value = data.groqKey || ""; document.getElementById('setTarget').value = data.dailyTarget || 170000; document.getElementById('setPhoto').src = data.photo; }
-        window.saveSet = () => { data.store=document.getElementById('setStore').value; data.addr=document.getElementById('setAddr').value; data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value); data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value; data.dailyTarget=parseInt(document.getElementById('setTarget').value); localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("Tersimpan"); renderDash(); }
-        window.resetStock = () => { if(confirm("Reset stok ke 0?")) { data.stokLiter = 0; localStorage.setItem('dl_super_v4', JSON.stringify(data)); renderSet(); } }
-        window.updatePhoto=(e)=>{let r=new FileReader(); r.onload=v=>{data.photo=v.target.result; renderSet();}; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]);}
-        window.openKasbon = () => {
-            document.getElementById('kasbonModal').style.display='flex'; toggleNav(false);
-            const renderK = () => { document.getElementById('kasbonList').innerHTML = data.kasbon.map((k,i) => `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(128,128,128,0.1); font-size:13px;"><span>${k.name}</span><div style="display:flex; gap:10px;"><span style="font-weight:bold;">${fmtMoney(k.nom)}</span><span onclick="delKasbon(${i})" style="color:red; cursor:pointer;">x</span></div></div>`).join(''); };
-            window.addKasbon = () => { let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); if(nm&&no){ data.kasbon.push({name:nm, nom:no}); localStorage.setItem('dl_super_v4', JSON.stringify(data)); document.getElementById('kasbonName').value=''; document.getElementById('kasbonNom').value=''; renderK(); } };
-            window.delKasbon = (i) => { data.kasbon.splice(i,1); localStorage.setItem('dl_super_v4', JSON.stringify(data)); renderK(); };
-            renderK();
-        }
+        window.clearData=()=>{if(confirm("HAPUS SEMUA DATA?")){data.trans=[]; data.kasbon=[]; localStorage.setItem('dl_super_v4',JSON.stringify(data)); renderDash();}}
 
-        const startApp=()=>{ if(localStorage.getItem('dl_log')) nav('adminScreen'); }
-        window.addEventListener('DOMContentLoaded', startApp);
+        // STARTUP
+        window.addEventListener('DOMContentLoaded', ()=>{ 
+            setTimeout(()=>{document.getElementById('splashScreen').style.opacity='0'; setTimeout(()=>document.getElementById('splashScreen').style.display='none',500);}, 2000);
+            if(localStorage.getItem('dl_log')) nav('adminScreen');
+        });
     </script>
 </body>
 </html>
