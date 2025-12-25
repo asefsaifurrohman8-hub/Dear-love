@@ -147,6 +147,7 @@
         }
         .st-recovery { color: #FFD1D1; border: 1px solid rgba(255, 209, 209, 0.4); }
         .st-profit { color: #AAFFD9; border: 1px solid rgba(170, 255, 217, 0.4); }
+        .st-warn { color: #FFEFD1; border: 1px solid rgba(255, 239, 209, 0.4); }
 
         .hero-balance { font-size: 28px; font-weight: 800; margin: 5px 0 0; letter-spacing: -0.5px; }
         
@@ -364,22 +365,22 @@
         <div class="scroll-content">
             <div class="hero-card">
                 <div class="hero-top">
-                    <span class="hero-label">Status Hari Ini (Real-Time)</span>
+                    <span class="hero-label">Status Modal (Hari Ini)</span>
                     <div id="heroStatus" class="status-badge st-recovery">LOADING...</div>
                 </div>
                 
                 <div>
                     <div class="hero-balance" id="heroMainValue">Rp 0</div>
-                    <div class="hero-label" id="heroDesc" style="margin-top:5px; opacity:0.7;">Keuntungan Bersih Hari Ini</div>
+                    <div class="hero-label" id="heroDesc" style="margin-top:5px; opacity:0.7;">Analisa Cash Flow</div>
                 </div>
 
                 <div class="hero-grid">
                     <div class="hg-item">
-                        <span class="hg-lbl">Restock (Hari Ini)</span>
+                        <span class="hg-lbl">Modal Keluar</span>
                         <span class="hg-val" id="dispTotalRestock">Rp 0</span>
                     </div>
                     <div class="hg-item" style="text-align:right;">
-                        <span class="hg-lbl">Omzet (Hari Ini)</span>
+                        <span class="hg-lbl">Omzet Masuk</span>
                         <span class="hg-val" id="dispTotalOmzet">Rp 0</span>
                     </div>
                 </div>
@@ -388,8 +389,8 @@
             <div class="compact-grid">
                 <div class="stat-box">
                     <div class="sb-icon-wrap sb-blue"><span class="material-icons-round">water_drop</span></div>
-                    <span class="sb-val" id="stokVal">0</span>
-                    <span class="sb-lbl">Sisa Stok (L)</span>
+                    <span class="sb-val" id="dashTodayLit">0</span>
+                    <span class="sb-lbl">Terjual (L)</span>
                 </div>
                 <div class="stat-box">
                     <div class="sb-icon-wrap sb-green"><span class="material-icons-round">payments</span></div>
@@ -693,11 +694,11 @@
 
             <div id="formBuy" style="display:none;">
                 <div class="input-group">
-                    <label>Nominal Belanja (Rp)</label>
+                    <label>Nominal Modal (Rp)</label>
                     <input type="number" id="buyNom" class="clean-input" placeholder="0" style="font-size:20px; font-weight:700;">
                 </div>
-                <p style="font-size:11px; color:var(--text-sec); margin-bottom: 15px;">*Hanya input Rupiah. Stok liter akan dihitung otomatis dari harga modal di settings.</p>
-                <button class="btn-primary" style="background:var(--primary);" onclick="saveTrans('buy')">INPUT MODAL</button>
+                <p style="font-size:11px; color:var(--text-sec); margin-bottom: 15px;">*Input Rupiah Belanja. Volume stok Liter dihitung otomatis dari harga modal di Settings.</p>
+                <button class="btn-primary" style="background:var(--primary);" onclick="saveTrans('buy')">INPUT MODAL GANTUNG</button>
             </div>
 
             <div id="formExp" style="display:none;">
@@ -789,7 +790,6 @@
             modalPrice: 10000, 
             photo: "logo.png", 
             stokLiter: 0,
-            modalGantung: 0, 
             trans: [], 
             kasbon: [], 
             holidays: [], 
@@ -834,13 +834,13 @@
             document.getElementById('themeIcon').innerText = next === 'light' ? 'light_mode' : 'dark_mode';
         }
 
-        // --- DASHBOARD LOGIC (FIXED: REAL TIME TODAY ONLY) ---
+        // --- DASHBOARD LOGIC (MODIFIED: CASH FLOW / MODAL GANTUNG) ---
         window.renderDash = () => {
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
             let today = new Date().toLocaleDateString();
             
-            // 1. Hitung Stats Khusus HARI INI (TODAY ONLY)
+            // 1. Hitung Stats HARI INI
             let dInc=0, dExp=0, dWd=0, dLit=0, dRestock=0;
             
             data.trans.forEach(t => { 
@@ -852,36 +852,42 @@
                 }
             });
 
-            // 2. Logic "Real Time Today Balance"
-            // Saldo Hari Ini = Omzet Hari Ini - (Restock Hari Ini + Beban Hari Ini)
-            // Ini menunjukkan apakah operasional hari ini profit/minus
-            let dailyNet = dInc - (dRestock + dExp);
-            let isProfit = dailyNet >= 0;
+            // 2. Logic "Modal Gantung" & Recovery
+            // Posisi Modal = Total Belanja Modal Hari Ini - Total Omzet Masuk Hari Ini
+            let sisaModalGantung = dRestock - dInc;
+            let isRecovered = sisaModalGantung <= 0;
             
             // UPDATE HERO CARD
             const heroStatus = document.getElementById('heroStatus');
             const heroDesc = document.getElementById('heroDesc');
             const heroMain = document.getElementById('heroMainValue');
 
-            // Tampilkan Angka HARI INI
             document.getElementById('dispTotalRestock').innerText = fmtMoney(dRestock);
             document.getElementById('dispTotalOmzet').innerText = fmtMoney(dInc);
             
-            if (isProfit) {
-                heroStatus.className = "status-badge st-profit";
-                heroStatus.innerText = "PROFIT TODAY";
-                heroDesc.innerText = "Keuntungan Bersih Hari Ini";
-                heroMain.innerText = "+ " + fmtMoney(dailyNet);
-                heroMain.style.color = "#FFFFFF"; // Keep white on colored card
-            } else {
+            if (!isRecovered) {
+                // MASIH ADA MODAL GANTUNG (Belum Balik Modal)
                 heroStatus.className = "status-badge st-recovery";
-                heroStatus.innerText = "MINUS TODAY";
-                heroDesc.innerText = "Defisit Hari Ini";
-                heroMain.innerText = "- " + fmtMoney(Math.abs(dailyNet));
+                heroStatus.innerText = "RECOVERY MODE";
+                heroDesc.innerText = "Sisa Modal Belum Kembali";
+                heroMain.innerText = fmtMoney(sisaModalGantung);
+                heroMain.style.color = "#FFD1D1"; 
+            } else {
+                // SUDAH BALIK MODAL -> PROFIT (SURPLUS)
+                let surplus = Math.abs(sisaModalGantung);
+                let estMargin = dLit > 0 ? (surplus / dLit) : 0;
+                
+                heroStatus.className = "status-badge st-profit";
+                heroStatus.innerText = "PROFIT / SURPLUS";
+                heroDesc.innerText = `Est. Margin: ${fmtMoney(estMargin)}/Liter`;
+                heroMain.innerText = "+ " + fmtMoney(surplus);
+                heroMain.style.color = "#FFFFFF"; 
             }
             
             // SMALL STATS (TODAY)
-            document.getElementById('stokVal').innerText = data.stokLiter.toFixed(1);
+            // UPDATED HERE: Menampilkan dLit (Stok Terjual Hari Ini) bukan Sisa Stok
+            document.getElementById('dashTodayLit').innerText = dLit.toFixed(1);
+            
             document.getElementById('dashTodayInc').innerText = fmtMoney(dInc);
             document.getElementById('dashTodayExp').innerText = fmtMoney(dExp);
             document.getElementById('dashTodayWd').innerText = fmtMoney(dWd);
@@ -944,10 +950,14 @@
                 document.getElementById('receiptModal').style.display='flex';
 
             } else if (type === 'buy') {
+                // MODIFIED: Input is Nominal Rupiah ONLY
                 let n=parseInt(document.getElementById('buyNom').value); if(!n) return;
+                // Auto-calculate liters for stock tracking based on Modal Price setting
+                // (But financial logic uses 'n' directly)
                 let l = parseFloat((n / data.modalPrice).toFixed(2));
+                
                 tx.n=n; tx.l=l; tx.desc="Restock Modal"; 
-                data.stokLiter+=l;
+                data.stokLiter+=l; // Update stock liter inventory
             } else if (type === 'exp') {
                 let n=parseInt(document.getElementById('expNom').value), d=document.getElementById('descInput').value; if(!n) return;
                 tx.n=n; tx.desc=d||"Expense";
@@ -1006,7 +1016,7 @@
 
         window.makeTransItem = (t) => {
             let ic='ti-inc', iname='local_gas_station', s='+', ti='Sale', su=(t.l||0).toFixed(2)+" L";
-            if(t.type==='buy'){ ic='ti-buy'; iname='water_drop'; s='-'; ti='Restock'; su="+"+(t.l||0).toFixed(2)+" L"; }
+            if(t.type==='buy'){ ic='ti-buy'; iname='water_drop'; s='-'; ti='Restock Modal'; su="+"+(t.l||0).toFixed(2)+" L (Stok)"; }
             else if(t.type==='exp'){ ic='ti-exp'; iname='payments'; s='-'; ti=t.desc; su="Expense"; }
             else if(t.type==='wd'){ ic='ti-wd'; iname='account_balance_wallet'; s='-'; ti='Withdraw'; su="Ambil Profit"; }
             else ti=t.metode||"Cash";
@@ -1024,7 +1034,7 @@
             </div>`;
         }
 
-        // --- KASBON SYSTEM (FIXED & COMPLETE) ---
+        // --- KASBON SYSTEM ---
         window.openKasbon = () => {
             document.getElementById('kasbonModal').style.display='flex';
             toggleNav(false);
@@ -1083,19 +1093,16 @@
             let calHTML = "";
             let currentLoop = new Date(start);
             
-            // Add padding for first row (start day of week)
-            let startDay = start.getDay(); // 0 (Sun) - 6 (Sat)
+            let startDay = start.getDay(); 
             for(let i=0; i<startDay; i++) {
                 calHTML += `<div class="cal-day empty"></div>`;
             }
 
-            // Loop days
             while (currentLoop <= end) {
                 let dStr = currentLoop.toLocaleDateString();
                 let dateNum = currentLoop.getDate();
                 let isToday = (dStr === new Date().toLocaleDateString());
                 
-                // Check data existence
                 let hasData = data.trans.some(t => t.date === dStr && t.type === 'inc');
                 let statusClass = hasData ? 'has-data' : '';
                 
@@ -1115,7 +1122,6 @@
         let detailChartInstance = null;
 
         window.openDateDetail = (dateStr) => {
-            // Filter Transactions
             let dailyTrans = data.trans.filter(t => t.date === dateStr);
             
             let totalInc = 0;
@@ -1129,29 +1135,24 @@
                 if(t.type === 'inc') { 
                     totalInc += t.n; 
                     totalLit += (t.l || 0);
-                    // Hour Analysis
                     let h = t.time.split(':')[0];
                     hourCounts[h] = (hourCounts[h] || 0) + 1;
-                    // Weather Analysis
                     if(t.weather) weathers[t.weather] = (weathers[t.weather] || 0) + 1;
                 }
                 else if (t.type === 'exp') totalExp += t.n;
                 else if (t.type === 'wd') totalWd += t.n;
             });
 
-            // Find Busiest Hour
             let busiestHour = "-";
             let maxCount = 0;
             for(let h in hourCounts) { if(hourCounts[h] > maxCount) { maxCount = hourCounts[h]; busiestHour = h + ":00"; } }
 
-            // Find Dominant Weather
             let domWeather = "-";
             let maxW = 0;
             for(let w in weathers) { if(weathers[w] > maxW) { maxW = weathers[w]; domWeather = w === 'sunny' ? 'Cerah' : 'Hujan'; } }
 
             let net = totalInc - totalExp - totalWd;
 
-            // Populate Table
             document.getElementById('cdmDate').innerText = dateStr;
             document.getElementById('cdmOmzet').innerText = fmtMoney(totalInc);
             document.getElementById('cdmLiter').innerText = totalLit.toFixed(2) + " L";
@@ -1162,7 +1163,6 @@
             document.getElementById('cdmNet').innerText = fmtMoney(net);
             document.getElementById('cdmNet').style.color = net >= 0 ? "var(--profit)" : "var(--recovery)";
 
-            // Render Chart
             const ctx = document.getElementById('dailyStatsChart').getContext('2d');
             if(detailChartInstance) detailChartInstance.destroy();
 
@@ -1187,7 +1187,6 @@
                 }
             });
 
-            // Show Modal
             document.getElementById('calDetailModal').style.display = 'flex';
             toggleNav(false);
         }
@@ -1199,7 +1198,7 @@
             let today = new Date().toLocaleDateString();
 
             if (reportMode === 'monthly') { 
-                let p = getPeriodRange(); // Uses the same 18-17 logic
+                let p = getPeriodRange(); 
                 filterStart = p.start.getTime(); 
                 filterEnd = p.end.getTime(); 
             }
@@ -1210,7 +1209,6 @@
                 else if (reportMode === 'daily') { if(t.date !== today) isValid = false; }
 
                 if (isValid) {
-                    // Grouping Logic
                     let k;
                     if(reportMode==='daily') k = t.time.substring(0,2)+":00";
                     else if(reportMode==='monthly') k = t.date;
@@ -1236,7 +1234,6 @@
                 <div class="trans-item"><div style="flex:1;"><div class="ti-info"><h4>${k}</h4></div><div style="font-size:10px; color:var(--text-sec); margin-top:5px; display:grid; grid-template-columns: 1fr 1fr; gap:5px;"><span class="text-green">In: ${fmtMoney(gr[k].i)}</span><span class="text-red">Out: ${fmtMoney(gr[k].e + gr[k].b)}</span></div></div></div>`).join('');
         }
         
-        // Helper for Report Range (Same as global but used for local report refresh)
         const getPeriodRange = () => {
             return getFiscalPeriod(new Date());
         }
