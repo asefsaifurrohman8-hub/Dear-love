@@ -43,7 +43,7 @@
             --text-main: #1F2937;
             --text-muted: #9CA3AF;
             --shadow-soft: 0 4px 25px rgba(0,0,0,0.05);
-            --blur-val: 0px; /* Clean look for light mode */
+            --blur-val: 0px; 
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -650,6 +650,7 @@
             dailyTarget: 170000, trans: [], kasbon: [], holidays: [], groqKey: "", theme: 'dark' 
         };
 
+        // KEMBALIKAN KE KEY "dl_super_v4" AGAR DATA LAMA MUNCUL
         try { let saved = localStorage.getItem('dl_super_v4'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
         if(!Array.isArray(data.trans)) data.trans = [];
 
@@ -666,7 +667,7 @@
             data.theme = data.theme === 'light' ? 'dark' : 'light';
             applyTheme();
             localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            renderDash(); // Re-render to update charts colors
+            renderDash(); 
         }
         applyTheme();
 
@@ -687,19 +688,16 @@
             });
             
             // --- NEW DYNAMIC MARGIN LOGIC ---
-            // Profit = (Liter Sold * (Selling Price - Modal Price)) - Expense
             let currentMarginPerLiter = data.price - data.modalPrice;
             let grossProfit = dLit * currentMarginPerLiter; 
             let netProfit = grossProfit - dExp;
             
-            // Calculate HPP (Modal that has been sold)
             let hppSold = dLit * data.modalPrice;
 
             document.getElementById('realTimeProfit').innerText = fmtMoney(realTimeCash);
             document.getElementById('netProfit').innerText = fmtMoney(Math.max(0, netProfit)); 
             document.getElementById('hppStatus').innerText = `HPP Terjual: ${fmtMoney(hppSold)}`;
 
-            // Target Progress based on Net Profit vs Target
             let target = data.dailyTarget || 150000;
             let progressPct = Math.max(0, Math.min(100, (netProfit / target) * 100)).toFixed(0);
             document.getElementById('targetPct').innerText = progressPct + "%";
@@ -794,7 +792,7 @@
             else if(type==='buy') { data.trans[idx].desc="Restock"; data.stokLiter+=l; }
             else data.trans[idx].desc=d;
             
-            localStorage.setItem('dl_super_v', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
+            localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
         }
 
         window.deleteTrans = () => {
