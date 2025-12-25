@@ -39,6 +39,7 @@
             --recovery: #EE5D50;
             --recovery-bg: #FFECEB;
             --warning: #FFB547;
+            --accent-wd: #D946EF;
             
             /* SHADOWS & RADIUS */
             --shadow-card: 0px 18px 40px rgba(112, 144, 176, 0.12);
@@ -117,7 +118,7 @@
         }
         .icon-btn:active { transform: scale(0.92); background: var(--input-bg); }
 
-        /* --- HERO CARD --- */
+        /* --- HERO CARD (WALLET STYLE) --- */
         .hero-card {
             background: linear-gradient(110deg, #4318FF 0%, #868CFF 100%);
             border-radius: var(--radius-l);
@@ -288,13 +289,21 @@
         /* CALENDAR */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 20px; }
         .cal-header { text-align: center; font-size: 10px; color: var(--text-sec); font-weight: 700; padding-bottom: 8px; }
-        .cal-day { background: var(--card-bg); border-radius: 10px; height: 45px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 1px solid transparent; box-shadow: var(--shadow-card); position: relative; }
+        .cal-day { background: var(--card-bg); border-radius: 10px; height: 45px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 1px solid transparent; box-shadow: var(--shadow-card); position: relative; transition:0.2s;}
+        .cal-day:active { transform: scale(0.95); }
         .cal-day.active { border-color: var(--primary); background: var(--primary-soft); }
         .cal-day.today { border: 1px solid var(--profit); }
         .cal-day.empty { background: transparent; box-shadow: none; cursor: default; }
         .cd-date { font-size: 11px; font-weight: 700; color: var(--text-main); }
         .cd-status { width: 4px; height: 4px; border-radius: 50%; background: transparent; margin-top: 3px; }
         .cd-status.has-data { background: var(--profit); }
+
+        /* DETAIL TABLE STYLE */
+        .detail-table { width: 100%; border-collapse: collapse; font-size: 12px; color: var(--text-main); margin-top: 15px; }
+        .detail-table th { text-align: left; padding: 10px; color: var(--text-sec); border-bottom: 1px solid var(--text-sec); opacity: 0.5; font-size: 10px; text-transform: uppercase; }
+        .detail-table td { padding: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); font-weight: 600; }
+        [data-theme="dark"] .detail-table td { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .detail-row-val { text-align: right; }
 
         /* SPLASH & ANIMATION */
         @keyframes pulseLogo {
@@ -355,7 +364,7 @@
         <div class="scroll-content">
             <div class="hero-card">
                 <div class="hero-top">
-                    <span class="hero-label">Modal Gantung</span>
+                    <span class="hero-label">Status Modal (All Time)</span>
                     <div id="heroStatus" class="status-badge st-recovery">RECOVERY</div>
                 </div>
                 
@@ -366,11 +375,11 @@
 
                 <div class="hero-grid">
                     <div class="hg-item">
-                        <span class="hg-lbl" id="periodLabel1">Restock (Periode 18-17)</span>
+                        <span class="hg-lbl" id="periodLabel1">Total Restock</span>
                         <span class="hg-val" id="dispTotalRestock">Rp 0</span>
                     </div>
                     <div class="hg-item" style="text-align:right;">
-                        <span class="hg-lbl" id="periodLabel2">Omzet (Periode 18-17)</span>
+                        <span class="hg-lbl" id="periodLabel2">Total Omzet</span>
                         <span class="hg-val" id="dispTotalOmzet">Rp 0</span>
                     </div>
                 </div>
@@ -482,10 +491,35 @@
 
             <div class="stat-box" style="margin-top: 20px;">
                 <div class="section-title" style="margin-bottom:10px;">DETAIL HARIAN</div>
-                <div id="calDetailPanel" style="padding-top:10px; border-top: 1px solid var(--card-border);">
-                    <div style="text-align:center; color:var(--text-sec); font-style:italic;">Pilih tanggal untuk detail</div>
-                </div>
+                <div style="text-align:center; color:var(--text-sec); font-style:italic;">Klik tanggal untuk melihat detail lengkap</div>
             </div>
+        </div>
+    </div>
+
+    <div id="calDetailModal" class="modal-overlay">
+        <div class="sheet-content" style="max-height: 85vh;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 id="cdmDate" style="margin:0; font-size:18px; font-weight:700; color:var(--text-main);">Detail Tanggal</h3>
+                <span class="material-icons-round" onclick="closeModal('calDetailModal')" style="cursor:pointer; color:var(--text-sec);">close</span>
+            </div>
+            
+            <div style="position:relative; height:200px; width:100%; display:flex; justify-content:center; margin-bottom:20px;">
+                <canvas id="dailyStatsChart"></canvas>
+            </div>
+
+            <div class="section-header"><h3 class="section-title">Ringkasan Harian</h3></div>
+            <table class="detail-table">
+                <tr><td>Total Omzet</td><td class="detail-row-val text-green" id="cdmOmzet">0</td></tr>
+                <tr><td>Total Liter</td><td class="detail-row-val" id="cdmLiter">0 L</td></tr>
+                <tr><td>Pengeluaran</td><td class="detail-row-val text-red" id="cdmExp">0</td></tr>
+                <tr><td>Withdraw (WD)</td><td class="detail-row-val" style="color:var(--accent-wd);" id="cdmWd">0</td></tr>
+                <tr><td>Jam Teramai</td><td class="detail-row-val" id="cdmBusy">-</td></tr>
+                <tr><td>Cuaca Dominan</td><td class="detail-row-val" id="cdmWeather">-</td></tr>
+                <tr style="border-top:1px solid var(--text-sec);">
+                    <td style="font-weight:700;">NET CASH FLOW</td>
+                    <td class="detail-row-val" style="font-weight:800;" id="cdmNet">0</td>
+                </tr>
+            </table>
         </div>
     </div>
 
@@ -805,12 +839,11 @@
             document.getElementById('themeIcon').innerText = next === 'light' ? 'light_mode' : 'dark_mode';
         }
 
-        // --- DASHBOARD LOGIC (MODAL GANTUNG & 18-17 Logic) ---
+        // --- DASHBOARD LOGIC (REAL TIME HERO & TODAY STATS) ---
         window.renderDash = () => {
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
             let today = new Date().toLocaleDateString();
-            let period = getFiscalPeriod(); // Get active 18-17 period
             
             // Stats Today (Tetap Hari Ini)
             let dInc=0, dExp=0, dWd=0, dLit=0;
@@ -822,24 +855,13 @@
                 }
             });
 
-            // LOGIC CASH FLOW (Running Total for Balance, Period Total for Hero Stats)
-            let totalModalInput = 0; // Running total
-            let totalRevenue = 0;    // Running total
-            let periodRestock = 0;   // Period specific
-            let periodOmzet = 0;     // Period specific
+            // LOGIC CASH FLOW: ALL TIME (Untuk Hero Card)
+            let totalModalInput = 0; // Total Investasi
+            let totalRevenue = 0;    // Total Balik Modal
             
             data.trans.forEach(t => {
-                let tDate = new Date(t.ts);
-                
-                // Running Total (Global)
                 if(t.type === 'buy') totalModalInput += t.n;
                 if(t.type === 'inc') totalRevenue += t.n;
-
-                // Period Total (18-17)
-                if (tDate >= period.start && tDate <= period.end) {
-                    if(t.type === 'buy') periodRestock += t.n;
-                    if(t.type === 'inc') periodOmzet += t.n;
-                }
             });
 
             let currentModalGantung = totalModalInput - totalRevenue;
@@ -851,15 +873,10 @@
             const heroMain = document.getElementById('heroMainValue');
             const marginBox = document.getElementById('realMarginBox');
 
-            // Tampilkan Statistik Periode 18-17 di Hero Card
-            document.getElementById('dispTotalRestock').innerText = fmtMoney(periodRestock);
-            document.getElementById('dispTotalOmzet').innerText = fmtMoney(periodOmzet);
+            // Tampilkan Statistik ALL TIME di Hero Card (Bukan Periode)
+            document.getElementById('dispTotalRestock').innerText = fmtMoney(totalModalInput);
+            document.getElementById('dispTotalOmzet').innerText = fmtMoney(totalRevenue);
             
-            // Update label periode agar user tahu
-            let pStartStr = period.start.toLocaleDateString('id-ID', {day:'numeric', month:'short'});
-            let pEndStr = period.end.toLocaleDateString('id-ID', {day:'numeric', month:'short'});
-            // document.getElementById('periodLabel1').innerText = `Restock (${pStartStr}-${pEndStr})`; // Optional update text
-
             if (isProfit) {
                 let surplus = Math.abs(currentModalGantung);
                 heroStatus.className = "status-badge st-profit";
@@ -882,7 +899,7 @@
                 marginBox.style.display = 'none';
             }
             
-            // SMALL STATS
+            // SMALL STATS (TODAY)
             document.getElementById('stokVal').innerText = data.stokLiter.toFixed(1);
             document.getElementById('dashTodayInc').innerText = fmtMoney(dInc);
             document.getElementById('dashTodayExp').innerText = fmtMoney(dExp);
@@ -930,7 +947,7 @@
         // --- TRANSACTIONS ---
         window.saveTrans = async (type) => {
             let now = new Date();
-            let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), type:type };
+            let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), type:type, weather: currentWeather };
             
             if(type === 'inc') {
                 let n=parseInt(document.getElementById('admNom').value); if(!n) return;
@@ -1102,7 +1119,7 @@
                 let statusClass = hasData ? 'has-data' : '';
                 
                 calHTML += `
-                <div class="cal-day ${isToday ? 'today' : ''}" onclick="alert('Detail: ${dStr}')">
+                <div class="cal-day ${isToday ? 'today' : ''}" onclick="openDateDetail('${dStr}')">
                     <div class="cd-date">${dateNum}</div>
                     <div class="cd-status ${statusClass}"></div>
                 </div>`;
@@ -1111,6 +1128,87 @@
             }
             
             document.getElementById('calendarBody').innerHTML = calHTML;
+        }
+
+        // --- CALENDAR DETAIL MODAL ---
+        let detailChartInstance = null;
+
+        window.openDateDetail = (dateStr) => {
+            // Filter Transactions
+            let dailyTrans = data.trans.filter(t => t.date === dateStr);
+            
+            let totalInc = 0;
+            let totalLit = 0;
+            let totalExp = 0;
+            let totalWd = 0;
+            let hourCounts = {};
+            let weathers = {};
+
+            dailyTrans.forEach(t => {
+                if(t.type === 'inc') { 
+                    totalInc += t.n; 
+                    totalLit += (t.l || 0);
+                    // Hour Analysis
+                    let h = t.time.split(':')[0];
+                    hourCounts[h] = (hourCounts[h] || 0) + 1;
+                    // Weather Analysis
+                    if(t.weather) weathers[t.weather] = (weathers[t.weather] || 0) + 1;
+                }
+                else if (t.type === 'exp') totalExp += t.n;
+                else if (t.type === 'wd') totalWd += t.n;
+            });
+
+            // Find Busiest Hour
+            let busiestHour = "-";
+            let maxCount = 0;
+            for(let h in hourCounts) { if(hourCounts[h] > maxCount) { maxCount = hourCounts[h]; busiestHour = h + ":00"; } }
+
+            // Find Dominant Weather
+            let domWeather = "-";
+            let maxW = 0;
+            for(let w in weathers) { if(weathers[w] > maxW) { maxW = weathers[w]; domWeather = w === 'sunny' ? 'Cerah' : 'Hujan'; } }
+
+            let net = totalInc - totalExp - totalWd;
+
+            // Populate Table
+            document.getElementById('cdmDate').innerText = dateStr;
+            document.getElementById('cdmOmzet').innerText = fmtMoney(totalInc);
+            document.getElementById('cdmLiter').innerText = totalLit.toFixed(2) + " L";
+            document.getElementById('cdmExp').innerText = fmtMoney(totalExp);
+            document.getElementById('cdmWd').innerText = fmtMoney(totalWd);
+            document.getElementById('cdmBusy').innerText = busiestHour;
+            document.getElementById('cdmWeather').innerText = domWeather;
+            document.getElementById('cdmNet').innerText = fmtMoney(net);
+            document.getElementById('cdmNet').style.color = net >= 0 ? "var(--profit)" : "var(--recovery)";
+
+            // Render Chart
+            const ctx = document.getElementById('dailyStatsChart').getContext('2d');
+            if(detailChartInstance) detailChartInstance.destroy();
+
+            detailChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Omzet', 'Exp', 'WD'],
+                    datasets: [{
+                        data: [totalInc, totalExp, totalWd],
+                        backgroundColor: ['#05CD99', '#EE5D50', '#D946EF'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: "'Plus Jakarta Sans'" } } }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Show Modal
+            document.getElementById('calDetailModal').style.display = 'flex';
+            toggleNav(false);
         }
 
         // --- REPORT SYSTEM (18-17 LOGIC) ---
