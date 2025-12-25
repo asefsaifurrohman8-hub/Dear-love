@@ -5,323 +5,267 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DEAR LOVE - Cyber POS</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="console.warn('ChartJS gagal load')"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" onerror="console.warn('Firebase gagal load')"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" onerror="console.warn('Firestore gagal load')"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" onerror="console.warn('Marked gagal load')"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        /* --- CYBER THEME VARIABLES --- */
+        /* --- THEME VARIABLES --- */
         :root {
-            --bg-body: #1F202F;
-            --bg-gradient: linear-gradient(180deg, #242538 0%, #151620 100%);
-            --card-bg: rgba(255, 255, 255, 0.04);
+            /* DARK THEME (DEFAULT) */
+            --bg-body: #121212;
+            --bg-surface: #1E1E1E;
+            --card-bg: #252525;
             --card-border: 1px solid rgba(255, 255, 255, 0.08);
+            --text-main: #FFFFFF;
+            --text-muted: #888888;
             --primary: #4A6CFA;
             --accent-purple: #9D59F5;
-            --accent-pink: #F54EA2;
-            --accent-green: #2ECC71;
-            --accent-wd: #D946EF; 
-            --text-main: #FFFFFF;
-            --text-muted: #8F90A6;
-            --radius-l: 24px;
+            --accent-pink: #FF4D8D;
+            --accent-green: #00D084;
+            --shadow-soft: 0 4px 20px rgba(0,0,0,0.2);
+            --radius-l: 20px;
+            --radius-m: 16px;
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --blur-val: 10px;
         }
 
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
+        [data-theme="light"] {
+            --bg-body: #F3F4F6;
+            --bg-surface: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --card-border: 1px solid rgba(0, 0, 0, 0.04);
+            --text-main: #1F2937;
+            --text-muted: #9CA3AF;
+            --shadow-soft: 0 4px 25px rgba(0,0,0,0.05);
+            --blur-val: 0px; /* Clean look for light mode */
         }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
         body { 
             margin: 0; 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
             background: var(--bg-body); 
-            background-image: var(--bg-gradient);
-            background-attachment: fixed;
             color: var(--text-main);
             height: 100vh; 
             overflow: hidden; 
-            font-size: 14px;
+            font-size: 13px;
+            transition: background 0.3s, color 0.3s;
         }
 
-        /* --- PRINT STYLES (A4) --- */
+        /* --- PRINT STYLES --- */
         @media print {
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; }
-            #printArea { 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 100%; 
-                background: white; 
-                color: black; 
-                padding: 40px; 
-                z-index: 99999; 
-            }
-            @page { 
-                size: A4; 
-                margin: 0; 
-            }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; background: white; color: black; padding: 40px; z-index: 99999; }
+            @page { size: A4; margin: 0; }
         }
 
-        /* --- LAYOUT UTILS --- */
-        .screen { 
-            display: none; 
-            height: 100%; 
-            flex-direction: column; 
-            position: relative; 
-        }
-        .screen.active { 
-            display: flex; 
-        }
+        /* --- LAYOUT --- */
+        .screen { display: none; height: 100%; flex-direction: column; position: relative; background: var(--bg-body); transition: background 0.3s; }
+        .screen.active { display: flex; }
         
         .top-header {
-            padding: calc(var(--safe-top) + 20px) 24px 10px;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            position: sticky; 
-            top: 0; 
-            z-index: 50; 
-            background: transparent;
+            padding: calc(var(--safe-top) + 15px) 24px 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-body); z-index: 50; transition: background 0.3s;
         }
 
-        .header-profile-wrap { display: flex; align-items: center; gap: 12px; }
-        .profile-pic { width: 42px; height: 42px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.2); }
-        .header-title { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: 0.5px; }
-        .header-sub { font-size: 12px; color: var(--text-muted); }
+        .header-profile-wrap { display: flex; align-items: center; gap: 10px; }
+        .profile-pic { width: 38px; height: 38px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(128,128,128,0.2); }
+        .header-title { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .header-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
         
         .icon-btn { 
-            color: var(--text-main); 
-            background: rgba(255,255,255,0.05); 
-            width: 40px; 
-            height: 40px; 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            backdrop-filter: blur(5px); 
-            border: var(--card-border); 
-            transition: 0.2s; 
-            cursor: pointer; 
+            color: var(--text-main); background: var(--card-bg); 
+            width: 38px; height: 38px; border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center; 
+            border: var(--card-border); cursor: pointer; transition: 0.2s; 
+            box-shadow: var(--shadow-soft);
         }
-        .icon-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
+        .icon-btn:active { transform: scale(0.95); }
 
-        .scroll-content {
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 10px 24px calc(60px + var(--safe-bottom) + 30px); 
-            scrollbar-width: none;
-        }
+        .scroll-content { flex: 1; overflow-y: auto; padding: 5px 24px calc(80px + var(--safe-bottom)); scrollbar-width: none; }
         .scroll-content::-webkit-scrollbar { display: none; }
 
-        /* --- DASHBOARD STYLES --- */
+        /* --- DASHBOARD REFINED --- */
         .hero-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01));
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 28px;
-            padding: 24px;
+            background: linear-gradient(135deg, var(--primary), #354dbd);
+            border-radius: var(--radius-l);
+            padding: 20px;
             margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
-        }
-
-        .hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-        .hero-label { font-size: 12px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; }
-        
-        .hero-balance {
-            font-size: 42px;
-            font-weight: 700;
             color: white;
-            margin: 10px 0;
-            letter-spacing: -1.5px;
-            line-height: 1;
+            box-shadow: 0 10px 30px rgba(74, 108, 250, 0.3);
+            position: relative; overflow: hidden;
+        }
+        /* Abstract shape decoration */
+        .hero-card::after { content:''; position: absolute; right:-20px; top:-20px; width:100px; height:100px; background:rgba(255,255,255,0.1); border-radius:50%; }
+
+        .hero-label { font-size: 11px; font-weight: 600; opacity: 0.8; letter-spacing: 0.5px; }
+        .hero-balance { font-size: 32px; font-weight: 800; margin: 5px 0 15px; letter-spacing: -0.5px; }
+        
+        .hero-stats { display: flex; gap: 20px; align-items: flex-end; }
+        .hs-item h4 { margin: 0; font-size: 11px; opacity: 0.7; font-weight: 500; }
+        .hs-item p { margin: 2px 0 0; font-size: 16px; font-weight: 700; }
+        
+        .target-pill { 
+            background: rgba(0,0,0,0.2); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; 
+            margin-left: auto;
         }
 
-        .hero-stats-row {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+        .compact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .mini-card {
+            background: var(--card-bg); border: var(--card-border);
+            border-radius: var(--radius-m); padding: 15px;
+            display: flex; flex-direction: column; justify-content: center;
+            box-shadow: var(--shadow-soft); transition: 0.2s;
         }
+        .mc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .mc-val { font-size: 18px; font-weight: 700; color: var(--text-main); }
+        .mc-icon { font-size: 16px; color: var(--primary); }
+        .text-inc { color: var(--accent-green); }
+        .text-exp { color: var(--accent-pink); }
 
-        .hs-item { flex: 1; }
-        .hs-val { font-size: 15px; font-weight: 600; color: white; margin-bottom: 2px; }
-        .hs-lbl { font-size: 11px; color: var(--text-muted); }
+        .section-title { font-size: 12px; font-weight: 700; color: var(--text-muted); margin: 25px 0 10px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.5px; }
 
-        .mini-target-bar {
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            margin-top: 8px;
-            overflow: hidden;
+        /* --- MENU TOOLS --- */
+        .tools-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
+        .tool-btn { 
+            background: var(--card-bg); border: var(--card-border); 
+            border-radius: 16px; padding: 12px 5px; 
+            display: flex; flex-direction: column; align-items: center; gap: 8px; 
+            cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-soft);
         }
-        .mt-fill {
-            height: 100%;
-            width: 0%;
-            background: #2ECC71;
-            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        .tool-btn:active { transform: scale(0.96); }
+        .tool-icon-box { 
+            width: 36px; height: 36px; border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 20px; 
         }
+        .tool-lbl { font-size: 10px; font-weight: 600; color: var(--text-main); text-align: center; }
+        
+        .tb-blue { background: rgba(74, 108, 250, 0.1); color: var(--primary); }
+        .tb-purp { background: rgba(157, 89, 245, 0.1); color: var(--accent-purple); }
+        .tb-green { background: rgba(0, 208, 132, 0.1); color: var(--accent-green); }
+        .tb-pink { background: rgba(255, 77, 141, 0.1); color: var(--accent-pink); }
 
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 25px;
+        /* --- LIST ITEMS --- */
+        .trans-list { display: flex; flex-direction: column; gap: 10px; }
+        .trans-item { 
+            background: var(--card-bg); padding: 12px 15px; border-radius: 16px; 
+            display: flex; align-items: center; justify-content: space-between;
+            border: var(--card-border); cursor: pointer;
         }
+        .ti-left { display: flex; align-items: center; gap: 12px; }
+        .ti-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .ti-det h4 { margin: 0 0 2px; font-size: 13px; font-weight: 600; color: var(--text-main); }
+        .ti-det p { margin: 0; font-size: 10px; color: var(--text-muted); }
+        .ti-right { text-align: right; }
+        .ti-val { font-size: 13px; font-weight: 700; display: block; }
+        .ti-time { font-size: 10px; color: var(--text-muted); }
 
-        .info-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 16px;
-            border: var(--card-border);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 110px;
+        .inc-bg { background: rgba(0, 208, 132, 0.1); color: var(--accent-green); }
+        .exp-bg { background: rgba(255, 77, 141, 0.1); color: var(--accent-pink); }
+        .buy-bg { background: rgba(157, 89, 245, 0.1); color: var(--accent-purple); }
+        
+        /* --- BOTTOM NAV --- */
+        .bottom-nav-wrap { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; padding-bottom: calc(var(--safe-bottom) + 15px); pointer-events: none; z-index: 100; transition: transform 0.3s; }
+        .bottom-nav { 
+            pointer-events: auto; background: var(--bg-surface); 
+            width: 90%; max-width: 380px; height: 60px; 
+            border-radius: 20px; display: flex; justify-content: space-around; align-items: center; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); border: var(--card-border);
         }
-
-        .ic-icon { width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 10px; }
-        .ic-blue { background: rgba(74, 108, 250, 0.15); color: var(--primary); }
-        .ic-pink { background: rgba(245, 78, 162, 0.15); color: var(--accent-pink); }
-        .ic-green { background: rgba(46, 204, 113, 0.15); color: var(--accent-green); }
-        .ic-val { font-size: 18px; font-weight: 700; color: white; }
-        .ic-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-        .section-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-
-        /* --- CARDS & TOOLS --- */
-        .cyber-card { background: var(--card-bg); border: var(--card-border); border-radius: var(--radius-l); padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); }
-
-        .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 30px; }
-        .tool-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
-        .tool-icon { width: 100%; aspect-ratio: 1/1; border-radius: 22px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid rgba(255,255,255,0.08); transition: 0.2s; background: rgba(255,255,255,0.03); }
-        .tool-item:active .tool-icon { transform: scale(0.95); background: rgba(255,255,255,0.06); }
-        .t-blue { color: #4A6CFA; } 
-        .t-purple { color: #9D59F5; } 
-        .t-pink { color: #F54EA2; } 
-        .t-green { color: #2ECC71; }
-        .tool-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-align:center; line-height:1.2; }
-
-        .trans-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-        .trans-item:last-child { border-bottom: none; }
-        .ti-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 14px; font-size: 18px; }
-        .ti-icon.inc { background: rgba(46, 204, 113, 0.1); color: #2ECC71; }
-        .ti-icon.buy { background: rgba(157, 89, 245, 0.1); color: #9D59F5; }
-        .ti-icon.exp { background: rgba(245, 78, 162, 0.1); color: #F54EA2; }
-        .ti-icon.wd  { background: rgba(217, 70, 239, 0.1); color: #D946EF; }
-        .ti-info h4 { margin: 0 0 2px 0; font-size: 14px; font-weight: 600; color: var(--text-main); }
-        .ti-info p { margin: 0; font-size: 11px; color: var(--text-muted); }
-        .ti-val { font-size: 14px; font-weight: 700; display: block; text-align: right; }
-        .ti-time { font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 2px; display: block; }
-        .val-plus { color: #2ECC71; } 
-        .val-minus { color: var(--text-main); }
-
-        /* --- NAVIGATION --- */
-        .bottom-nav-wrap { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; z-index: 999; padding-bottom: calc(var(--safe-bottom) + 15px); pointer-events: none; }
-        .bottom-nav { pointer-events: auto; background: rgba(31, 32, 47, 0.95); width: 88%; max-width: 380px; height: 64px; border-radius: 24px; display: flex; justify-content: space-around; align-items: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.5); backdrop-filter: blur(20px); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; color: #6E6F89; cursor: pointer; position: relative; }
+        .nav-item { color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; }
         .nav-item.active { color: var(--primary); }
-        .nav-item .material-icons-round { font-size: 26px; transition: 0.3s; }
-        .nav-item.active .material-icons-round { transform: translateY(-4px); }
-        .nav-dot { width: 4px; height: 4px; background: var(--primary); border-radius: 50%; position: absolute; bottom: -8px; opacity: 0; transition: 0.3s; }
-        .nav-item.active .nav-dot { opacity: 1; bottom: -4px; }
-        .fab-add { width: 54px; height: 54px; background: linear-gradient(135deg, #2ECC71, #27ae60); border-radius: 18px; display: flex; align-items: center; justify-content: center; color: #fff; position: absolute; top: -20px; box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3); cursor: pointer; transition: 0.2s; border: 2px solid #1F202F; }
+        .nav-item .material-icons-round { font-size: 24px; }
+        .fab-add { 
+            width: 50px; height: 50px; background: var(--primary); 
+            border-radius: 16px; display: flex; align-items: center; justify-content: center; 
+            color: white; position: absolute; top: -20px; 
+            box-shadow: 0 8px 20px rgba(74, 108, 250, 0.4); 
+            cursor: pointer; border: 3px solid var(--bg-body); transition: 0.2s;
+        }
         .fab-add:active { transform: scale(0.9); }
 
         /* --- FORMS & MODALS --- */
-        .modal-overlay { background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; position: fixed; inset: 0; z-index: 1000; justify-content: center; align-items: flex-end; }
-        .sheet-content { background: #1F202F; border-top: 1px solid rgba(255,255,255,0.1); padding: 24px; position: absolute; bottom: 0; left: 0; right: 0; border-radius: 30px 30px 0 0; max-height: 90vh; overflow-y: auto; padding-bottom: calc(var(--safe-bottom) + 20px); box-shadow: 0 -10px 40px rgba(0,0,0,0.5); }
+        .modal-overlay { 
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); 
+            display: none; position: fixed; inset: 0; z-index: 1000; 
+            justify-content: center; align-items: flex-end; 
+        }
+        .sheet-content { 
+            background: var(--bg-surface); width: 100%; max-width: 500px;
+            border-radius: 24px 24px 0 0; padding: 25px; 
+            max-height: 90vh; overflow-y: auto; 
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.2); 
+            color: var(--text-main);
+        }
         
-        .clean-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 16px; padding: 16px; margin-bottom: 15px; outline: none; font-size: 14px; transition: 0.3s; }
-        .clean-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
+        .clean-input { 
+            width: 100%; background: var(--bg-body); 
+            border: 1px solid rgba(128,128,128,0.1); 
+            color: var(--text-main); border-radius: 12px; 
+            padding: 14px; margin-bottom: 15px; font-size: 14px; 
+            font-family: inherit; transition: 0.2s;
+        }
+        .clean-input:focus { border-color: var(--primary); background: var(--card-bg); }
         
-        .btn-primary { background: linear-gradient(135deg, var(--primary), #354dbd); padding: 16px; border-radius: 16px; width: 100%; border: none; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; font-size: 14px; letter-spacing: 0.5px; box-shadow: 0 5px 15px rgba(74, 108, 250, 0.2); }
-        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary { 
+            background: var(--primary); color: white; border: none; 
+            padding: 14px; border-radius: 12px; width: 100%; 
+            font-weight: 700; font-size: 13px; cursor: pointer; 
+            box-shadow: 0 4px 15px rgba(74, 108, 250, 0.3);
+        }
         
-        .report-tabs { background: rgba(0,0,0,0.2); border-radius: 16px; display: flex; padding: 4px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05); }
-        .rt-btn { flex: 1; text-align: center; padding: 10px; border-radius: 12px; font-size: 12px; color: var(--text-muted); cursor: pointer; transition: 0.2s; font-weight: 600; }
-        .rt-btn.active { background: rgba(255,255,255,0.1); color: white; }
+        .report-tabs { background: var(--bg-body); border-radius: 12px; display: flex; padding: 4px; margin-bottom: 20px; }
+        .rt-btn { flex: 1; text-align: center; padding: 8px; border-radius: 8px; font-size: 11px; color: var(--text-muted); cursor: pointer; font-weight: 600; }
+        .rt-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
 
-        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .rg-item { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
-        .rg-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
-        .rg-val { font-size: 16px; font-weight: 700; color: white; }
-
-        .text-green { color: var(--accent-green); } .text-red { color: var(--accent-pink); } .text-blue { color: var(--primary); }
-        .input-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        /* --- SPECIFIC PAGES TWEAKS --- */
+        .input-group label { display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; text-transform: uppercase; }
         
-        .btn-reset-stock { background: rgba(245, 78, 162, 0.1); color: var(--accent-pink); border: 1px solid rgba(245, 78, 162, 0.2); margin-top: 5px; width: auto; padding: 10px 20px; font-size: 12px; }
-
-        /* TABLE INSIGHT STYLE */
-        .insight-table { width: 100%; border-collapse: collapse; font-size: 11px; color: white; margin-bottom: 20px; }
-        .insight-table th { text-align: left; padding: 10px 5px; border-bottom: 1px solid rgba(255,255,255,0.2); color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 10px; }
-        .insight-table td { padding: 10px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .insight-table tr:last-child td { border-bottom: none; }
-        .rank-badge { width: 20px; height: 20px; background: rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; }
-        .is-top { background: var(--primary); color: white; box-shadow: 0 2px 10px rgba(74, 108, 250, 0.4); }
-
-        /* CALENDAR STYLE - REFINED */
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 20px; }
-        .cal-header { text-align: center; font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; padding-bottom: 5px; }
-        .cal-day { background: rgba(255,255,255,0.05); border-radius: 8px; height: 60px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; cursor: pointer; border: 1px solid transparent; transition:0.2s; }
-        .cal-day.active { border-color: var(--primary); background: rgba(74, 108, 250, 0.15); box-shadow: 0 0 10px rgba(74, 108, 250, 0.2); }
-        .cal-day.holiday { background: rgba(245, 78, 162, 0.1); border: 1px dashed var(--accent-pink); }
-        .cd-date { font-size: 14px; font-weight: 700; color: white; }
-        .cd-status { width: 6px; height: 6px; border-radius: 50%; background: transparent; margin-top: 4px; }
-        .cd-status.has-data { background: var(--accent-green); }
-        .cal-empty { background: transparent; cursor: default; }
+        /* CALENDAR */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 15px; }
+        .cal-header { text-align: center; font-size: 10px; color: var(--text-muted); font-weight: 700; padding-bottom: 5px; }
+        .cal-day { 
+            background: var(--card-bg); border-radius: 8px; height: 50px; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            cursor: pointer; border: 1px solid transparent; 
+        }
+        .cal-day.active { border-color: var(--primary); background: rgba(74, 108, 250, 0.1); }
+        .cal-day.holiday { border: 1px dashed var(--accent-pink); background: rgba(255, 77, 141, 0.05); }
+        .cd-date { font-size: 13px; font-weight: 700; color: var(--text-main); }
+        .cd-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent-green); margin-top: 4px; opacity: 0; }
+        .cd-dot.show { opacity: 1; }
         
-        /* CALENDAR DETAIL PANEL (PAPAN INFORMASI) */
-        .cal-detail-panel { background: #26273B; border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); min-height: 200px; }
-        .cdp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-        .cdp-date { font-size: 16px; font-weight: 700; color: white; }
-        .cdp-info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; }
-        .cdp-empty { text-align: center; color: var(--text-muted); padding: 30px 0; font-style: italic; }
+        /* AI CHAT */
+        .chat-bubble { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 13px; line-height: 1.5; margin-bottom: 10px; }
+        .cb-user { background: var(--primary); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
+        .cb-ai { background: var(--card-bg); color: var(--text-main); margin-right: auto; border-bottom-left-radius: 4px; border: var(--card-border); }
 
-        /* ELEGANT CARD */
-        .elegant-card { background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 25px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); text-align: center; }
-        .ec-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
-        .ec-main { font-size: 42px; font-weight: 800; color: var(--accent-green); letter-spacing: -1px; text-shadow: 0 0 30px rgba(46, 204, 113, 0.2); }
-        .ec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
-        .ec-item { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .ec-lbl { font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
-        .ec-val { font-size: 16px; font-weight: 700; color: white; }
-
-        /* SWITCH */
-        .switch { position: relative; display: inline-block; width: 40px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--accent-pink); }
-        input:checked + .slider:before { transform: translateX(16px); }
+        /* TABLES */
+        .simple-table { width: 100%; border-collapse: collapse; font-size: 11px; color: var(--text-main); }
+        .simple-table th { text-align: left; padding: 8px 4px; border-bottom: 1px solid var(--text-muted); opacity: 0.5; }
+        .simple-table td { padding: 8px 4px; border-bottom: 1px solid rgba(128,128,128,0.1); }
+        .rank-box { width: 18px; height: 18px; background: var(--bg-body); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
     </style>
 </head>
 <body>
 
-    <div id="splashScreen" style="position:fixed; inset:0; background:#151620; z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; transition:0.5s;">
-        <img src="logo.png" style="width:100px; height:100px; border-radius:25px; object-fit:cover; margin-bottom:20px; box-shadow:0 0 50px rgba(74, 108, 250, 0.3);" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
-        <div style="color:white; font-weight:800; font-size:28px;">DEAR LOVE</div>
-        <div style="color:rgba(255,255,255,0.5); font-size:12px; margin-top:5px; letter-spacing:4px;">CYBER POS</div>
-    </div>
-
-    <div id="printArea" style="display:none;"></div>
-
-    <div id="loginScreen" class="screen active">
-        <div style="text-align:center; padding: 40px; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-            <div style="width:80px; height:80px; background:linear-gradient(135deg, var(--primary), var(--accent-purple)); border-radius:24px; margin:0 auto 30px; display:flex; align-items:center; justify-content:center; color:white; font-size:24px; font-weight:800; box-shadow: 0 0 40px rgba(74, 108, 250, 0.3);">DL</div>
-            <h2 style="color:white; margin:0 0 10px;">Cyber Admin</h2>
-            <p style="color:var(--text-muted); margin-bottom:40px;">Enter security PIN to continue</p>
-            <input type="password" id="passInput" class="clean-input" placeholder="••••" style="text-align:center; font-size:24px; letter-spacing:8px; font-weight:bold; background:rgba(0,0,0,0.2);">
-            <button class="btn-primary" onclick="doLogin()">UNLOCK SYSTEM</button>
+    <div id="loginScreen" class="screen active" style="justify-content:center; padding:40px;">
+        <div style="text-align:center;">
+            <div style="width:70px; height:70px; background:var(--primary); border-radius:20px; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; color:white; font-size:24px; font-weight:800; box-shadow: 0 10px 30px rgba(74, 108, 250, 0.4);">DL</div>
+            <h2 style="color:var(--text-main); margin:0 0 5px;">Cyber Admin</h2>
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:30px;">Security Access Required</p>
+            <input type="password" id="passInput" class="clean-input" placeholder="Enter PIN" style="text-align:center; font-size:18px; font-weight:bold; letter-spacing:5px;">
+            <button class="btn-primary" onclick="doLogin()">UNLOCK</button>
         </div>
     </div>
 
@@ -330,296 +274,252 @@
             <div class="header-profile-wrap" onclick="nav('settingScreen')">
                 <img id="dispPhoto" class="profile-pic" src="logo.png" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
                 <div>
-                    <div class="header-sub">System Online</div>
                     <div class="header-title" id="dispStoreName">DEAR LOVE</div>
+                    <div class="header-sub">Online</div>
                 </div>
             </div>
-            <div id="weatherBtn" class="icon-btn" onclick="toggleWeather()">
-                <span class="material-icons-round wt-icon" style="color:#FFD700;">wb_sunny</span>
+            <div style="display:flex; gap:8px;">
+                <div class="icon-btn" onclick="toggleTheme()"><span class="material-icons-round" id="themeIcon">dark_mode</span></div>
+                <div class="icon-btn" onclick="toggleWeather()"><span class="material-icons-round wt-icon" style="color:#FFD700;">wb_sunny</span></div>
             </div>
         </div>
 
         <div class="scroll-content">
             <div class="hero-card">
-                <div class="hero-top">
-                    <span class="hero-label">CASH IN DRAWER</span>
-                    <span style="font-size:10px; color:var(--accent-green); background:rgba(46,204,113,0.1); padding:2px 8px; border-radius:6px; font-weight:bold;">LIVE</span>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="hero-label">CASH BALANCE</span>
+                    <div class="target-pill" style="background:rgba(255,255,255,0.2);">
+                        <span id="targetPct">0%</span> Target
+                    </div>
                 </div>
-                
                 <div class="hero-balance" id="realTimeProfit">Rp 0</div>
-                
-                <div class="hero-stats-row">
+                <div class="hero-stats">
                     <div class="hs-item">
-                        <div class="hs-val text-green" id="netProfit">Rp 0</div>
-                        <div class="hs-lbl">Current Profit</div>
+                        <h4>PROFIT HARI INI</h4>
+                        <p id="netProfit">Rp 0</p>
                     </div>
-                    <div class="hs-item" style="border-left:1px solid rgba(255,255,255,0.1); padding-left:15px;">
-                         <div class="hs-val" id="targetPct">0%</div>
-                         <div class="hs-lbl">Margin Target</div>
-                         <div class="mini-target-bar"><div id="targetBar" class="mt-fill"></div></div>
+                    <div class="hs-item">
+                        <h4>MODAL (HPP)</h4>
+                        <p id="hppStatus" style="font-size:11px; margin-top:5px; opacity:0.8;">Calculating...</p>
                     </div>
-                </div>
-                <div id="hppStatus" style="font-size:10px; color:var(--text-muted); margin-top:15px; font-weight:600; text-align:center; opacity:0.7;">CALCULATING HPP...</div>
-            </div>
-
-            <div class="info-grid">
-                <div class="info-card">
-                    <div>
-                        <div class="ic-icon ic-blue"><span class="material-icons-round">water_drop</span></div>
-                        <div class="ic-val" id="stokVal">0</div>
-                    </div>
-                    <div class="ic-lbl">Stock (Liter)</div>
-                </div>
-                <div class="info-card">
-                    <div>
-                        <div class="ic-icon ic-pink"><span class="material-icons-round">trending_up</span></div>
-                        <div class="ic-val" id="todayLiter">0</div>
-                    </div>
-                    <div class="ic-lbl">Sold Today (Liter)</div>
                 </div>
             </div>
 
-            <div class="info-grid">
-                <div class="info-card">
-                    <div>
-                        <div class="ic-icon ic-green"><span class="material-icons-round">arrow_downward</span></div>
-                        <div class="ic-val text-green" id="dashTodayInc">0</div>
-                    </div>
-                    <div class="ic-lbl">Uang Masuk (Hari Ini)</div>
+            <div class="compact-grid">
+                <div class="mini-card">
+                    <div class="mc-head"><span class="material-icons-round mc-icon">water_drop</span> Stok (L)</div>
+                    <div class="mc-val" id="stokVal">0</div>
                 </div>
-                <div class="info-card">
-                    <div>
-                        <div class="ic-icon ic-pink"><span class="material-icons-round">arrow_upward</span></div>
-                        <div class="ic-val text-red" id="dashTodayExp">0</div>
-                    </div>
-                    <div class="ic-lbl">Uang Keluar (Hari Ini)</div>
+                <div class="mini-card">
+                    <div class="mc-head"><span class="material-icons-round mc-icon" style="color:var(--accent-purple);">trending_up</span> Sold (L)</div>
+                    <div class="mc-val" id="todayLiter">0</div>
+                </div>
+                <div class="mini-card">
+                    <div class="mc-head"><span class="material-icons-round mc-icon" style="color:var(--accent-green);">arrow_downward</span> Masuk</div>
+                    <div class="mc-val text-inc" id="dashTodayInc" style="font-size:15px;">0</div>
+                </div>
+                <div class="mini-card">
+                    <div class="mc-head"><span class="material-icons-round mc-icon" style="color:var(--accent-pink);">arrow_upward</span> Keluar</div>
+                    <div class="mc-val text-exp" id="dashTodayExp" style="font-size:15px;">0</div>
                 </div>
             </div>
 
-            <div class="tools-grid">
-                <div class="tool-item" onclick="openKasbon()"><div class="tool-icon"><span class="material-icons-round t-blue">book</span></div><span class="tool-label">Kasbon</span></div>
-                
-                <div class="tool-item" onclick="nav('insightScreen')"><div class="tool-icon"><span class="material-icons-round t-purple">insights</span></div><span class="tool-label">Data<br>Insight</span></div>
-                
-                <div class="tool-item" onclick="nav('printScreen')"><div class="tool-icon"><span class="material-icons-round t-green">print</span></div><span class="tool-label">Laporan<br>A4</span></div>
-                
-                <div class="tool-item" onclick="nav('calendarScreen')"><div class="tool-icon"><span class="material-icons-round t-pink">calendar_month</span></div><span class="tool-label">Kalender</span></div>
+            <div class="tools-row">
+                <div class="tool-btn" onclick="openKasbon()">
+                    <div class="tool-icon-box tb-blue"><span class="material-icons-round">book</span></div>
+                    <span class="tool-lbl">Kasbon</span>
+                </div>
+                <div class="tool-btn" onclick="nav('insightScreen')">
+                    <div class="tool-icon-box tb-purp"><span class="material-icons-round">insights</span></div>
+                    <span class="tool-lbl">Analisa</span>
+                </div>
+                <div class="tool-btn" onclick="nav('printScreen')">
+                    <div class="tool-icon-box tb-green"><span class="material-icons-round">print</span></div>
+                    <span class="tool-lbl">Laporan</span>
+                </div>
+                <div class="tool-btn" onclick="nav('calendarScreen')">
+                    <div class="tool-icon-box tb-pink"><span class="material-icons-round">calendar_month</span></div>
+                    <span class="tool-lbl">Kalender</span>
+                </div>
             </div>
 
             <div class="section-title">
                 <span>Recent Activity</span>
-                <span onclick="nav('historyScreen')" style="font-size:11px; color:var(--primary); cursor:pointer;">View All</span>
+                <span onclick="nav('historyScreen')" style="color:var(--primary); cursor:pointer; font-size:11px;">View All</span>
             </div>
-            <div id="recentTrans"></div>
-        </div>
-
-        <div class="bottom-nav-wrap">
-            <div class="bottom-nav">
-                <div class="nav-item active" onclick="nav('adminScreen')"><span class="material-icons-round">grid_view</span><div class="nav-dot"></div></div>
-                <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span><div class="nav-dot"></div></div>
-                <div style="width:70px;"></div>
-                <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span><div class="nav-dot"></div></div>
-                <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">pie_chart</span><div class="nav-dot"></div></div>
-                <div class="fab-add" onclick="openInputModal()"><span class="material-icons-round">add</span></div>
-            </div>
+            <div id="recentTrans" class="trans-list"></div>
         </div>
     </div>
 
     <div id="insightScreen" class="screen">
         <div class="top-header">
-            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-            <span class="header-title">Analisa Bisnis</span>
-            <span></span>
+            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
+            <div class="header-title">Analisa Bisnis</div>
+            <div style="width:38px;"></div>
         </div>
         <div class="scroll-content">
-            <div class="cyber-card" style="height:300px;">
-                 <div class="section-title"><span>Grafik Jam (Hari Ini)</span><span style="font-size:10px; color:var(--accent-green);">LIVE</span></div>
-                 <canvas id="hourChart"></canvas>
-             </div>
-             <div class="cyber-card" style="height:300px;">
-                 <div class="section-title"><span>Grafik Hari (Minggu Ini)</span><span style="font-size:10px; color:var(--accent-purple);">WEEKLY</span></div>
-                 <canvas id="dayChart"></canvas>
-             </div>
-
-            <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px; font-weight:600; border-left:3px solid var(--primary); padding-left:10px;">
-                TOP JAM SIBUK (Bulan Ini)
+            <div style="background:var(--card-bg); padding:15px; border-radius:16px; border:var(--card-border); margin-bottom:15px;">
+                <div class="section-title" style="margin-top:0;">Grafik Jam (Live)</div>
+                <div style="height:200px;"><canvas id="hourChart"></canvas></div>
             </div>
-            <table class="insight-table">
-                <thead><tr><th style="width:30px;">#</th><th>Jam</th><th style="text-align:right;">Vol</th><th style="text-align:right;">Omzet</th><th style="text-align:right;">Profit</th></tr></thead>
+            <div style="background:var(--card-bg); padding:15px; border-radius:16px; border:var(--card-border); margin-bottom:20px;">
+                <div class="section-title" style="margin-top:0;">Grafik Mingguan</div>
+                <div style="height:200px;"><canvas id="dayChart"></canvas></div>
+            </div>
+
+            <div class="section-title">TOP HOURS (Bulan Ini)</div>
+            <table class="simple-table">
+                <thead><tr><th>#</th><th>Jam</th><th style="text-align:right">Liter</th><th style="text-align:right">Omzet</th></tr></thead>
                 <tbody id="topHoursTableBody"></tbody>
-            </table>
-
-            <div style="font-size:12px; color:var(--text-muted); margin:30px 0 10px 0; font-weight:600; border-left:3px solid var(--accent-purple); padding-left:10px;">
-                TOP HARI RAMAI (Tahun Ini)
-            </div>
-            <table class="insight-table">
-                <thead><tr><th style="width:30px;">#</th><th>Hari</th><th style="text-align:right;">Vol</th><th style="text-align:right;">Omzet</th><th style="text-align:right;">Profit</th></tr></thead>
-                <tbody id="topDaysTableBody"></tbody>
             </table>
         </div>
     </div>
 
     <div id="calendarScreen" class="screen">
         <div class="top-header">
-            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-            <span class="header-title">Kalender Operasional</span>
-            <span id="calPeriodLabel" style="font-size:10px; color:var(--primary); font-weight:700; border:1px solid var(--primary); padding:4px 8px; border-radius:8px;"></span>
+            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
+            <div class="header-title">Operasional</div>
+            <div id="calPeriodLabel" style="font-size:10px; color:var(--primary); font-weight:700; background:var(--card-bg); padding:4px 8px; border-radius:8px; border:var(--card-border);"></div>
         </div>
         <div class="scroll-content">
-            
-            <div class="section-title"><span>PERIODE 18 s/d 17</span><span style="font-size:10px; color:var(--text-muted);">Pilih Tgl Utk Detail</span></div>
-            
-            <div class="calendar-grid" id="calendarHeader">
+            <div class="calendar-grid">
                 <div class="cal-header">M</div><div class="cal-header">S</div><div class="cal-header">S</div><div class="cal-header">R</div><div class="cal-header">K</div><div class="cal-header">J</div><div class="cal-header">S</div>
             </div>
-            <div class="calendar-grid" id="calendarBody"></div>
+            <div id="calendarBody" class="calendar-grid"></div>
 
-            <div class="section-title">PAPAN INFORMASI</div>
-            <div id="calDetailPanel" class="cal-detail-panel">
-                <div class="cdp-empty">Pilih tanggal di kalender untuk melihat detail</div>
+            <div style="background:var(--card-bg); border-radius:16px; padding:20px; border:var(--card-border); margin-top:20px; text-align:center;">
+                <div id="calDetailPanel">
+                    <div style="color:var(--text-muted); font-style:italic;">Pilih tanggal untuk detail</div>
+                </div>
             </div>
-
         </div>
     </div>
 
     <div id="aiScreen" class="screen">
         <div class="top-header">
-            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-            <div class="header-title">AI Assistant</div>
-            <div style="font-size:10px; color:var(--accent-green); background:rgba(46,204,113,0.1); padding:2px 6px; border-radius:4px;">ONLINE</div>
+            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
+            <div class="header-title">Smart Assistant</div>
+            <div style="font-size:10px; color:var(--accent-green); background:rgba(0,208,132,0.1); padding:2px 6px; border-radius:4px;">AI</div>
         </div>
         <div id="chatBox" style="flex:1; overflow-y:auto; padding:20px;">
-            <div style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:30px;">
-                <span class="material-icons-round" style="font-size:40px; margin-bottom:10px; display:block; opacity:0.5;">smart_toy</span>
-                AI Ready. Tanya strategi penjualan atau analisa stok.
+            <div style="text-align:center; color:var(--text-muted); margin-top:50px;">
+                <span class="material-icons-round" style="font-size:40px; margin-bottom:10px; opacity:0.3;">smart_toy</span>
+                <p>Tanya strategi, analisa stok, atau prediksi penjualan.</p>
             </div>
         </div>
-        <div style="padding:20px; display:flex; gap:10px; background:#1F202F; border-top:1px solid rgba(255,255,255,0.05);">
-            <input id="aiInput" class="clean-input" style="margin:0;" placeholder="Tanya sesuatu...">
-            <button onclick="sendAIChat()" class="icon-btn" style="background:var(--primary); width:50px;"><span class="material-icons-round">send</span></button>
+        <div style="padding:15px; display:flex; gap:10px; background:var(--bg-surface); border-top:var(--card-border);">
+            <input id="aiInput" class="clean-input" style="margin:0;" placeholder="Tanya AI...">
+            <button onclick="sendAIChat()" class="icon-btn" style="background:var(--primary); color:white; width:50px; border:none;"><span class="material-icons-round">send</span></button>
         </div>
     </div>
 
     <div id="historyScreen" class="screen">
         <div class="top-header">
-            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-            <span class="header-title">Transaction History</span>
-            <span class="material-icons-round icon-btn" onclick="clearData()" style="color:var(--accent-pink);">delete</span>
+            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
+            <div class="header-title">Riwayat</div>
+            <div class="icon-btn" onclick="clearData()" style="color:var(--accent-pink);"><span class="material-icons-round">delete</span></div>
         </div>
-        <div class="scroll-content" id="fullHistoryList"></div>
+        <div class="scroll-content" id="fullHistoryList" class="trans-list"></div>
     </div>
 
     <div id="reportScreen" class="screen">
         <div class="top-header">
-            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-            <span class="header-title">Financial Report</span>
-            <span></span>
+            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
+            <div class="header-title">Laporan Keuangan</div>
+            <div style="width:38px;"></div>
         </div>
         <div class="scroll-content">
             <div class="report-tabs">
-                <div id="rtDay" class="rt-btn active" onclick="setReportMode('daily')">Daily (Today)</div>
-                <div id="rtMonth" class="rt-btn" onclick="setReportMode('monthly')">Monthly (18-17)</div>
-                <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Yearly</div>
+                <div id="rtDay" class="rt-btn active" onclick="setReportMode('daily')">Hari Ini</div>
+                <div id="rtMonth" class="rt-btn" onclick="setReportMode('monthly')">Periode</div>
+                <div id="rtYear" class="rt-btn" onclick="setReportMode('yearly')">Tahunan</div>
             </div>
             
-            <div class="elegant-card">
-                <div class="ec-title" id="rpTitle">NET PROFIT</div>
-                <div class="ec-main" id="rpNet">Rp 0</div>
-                <div class="ec-grid">
-                    <div class="ec-item">
-                        <div class="ec-lbl">Omzet (Sales)</div>
-                        <div class="ec-val text-green" id="rpOmzet">0</div>
-                    </div>
-                    <div class="ec-item">
-                        <div class="ec-lbl">Gross Profit</div>
-                        <div class="ec-val text-blue" id="rpGross">0</div>
-                    </div>
-                    <div class="ec-item">
-                        <div class="ec-lbl">HPP Modal</div>
-                        <div class="ec-val text-red" id="rpHpp">0</div>
-                    </div>
-                    <div class="ec-item">
-                        <div class="ec-lbl">Beban (Exp)</div>
-                        <div class="ec-val text-red" id="rpBeban">0</div>
-                    </div>
+            <div style="background:var(--card-bg); padding:25px; border-radius:20px; border:var(--card-border); text-align:center; margin-bottom:20px; box-shadow:var(--shadow-soft);">
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;" id="rpTitle">NET PROFIT</div>
+                <div style="font-size:32px; font-weight:800; color:var(--accent-green);" id="rpNet">Rp 0</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px;">
+                    <div><div style="font-size:10px; color:var(--text-muted);">Omzet</div><div style="font-size:14px; font-weight:700;" id="rpOmzet">0</div></div>
+                    <div><div style="font-size:10px; color:var(--text-muted);">HPP Modal</div><div style="font-size:14px; font-weight:700; color:var(--accent-pink);" id="rpHpp">0</div></div>
+                    <div><div style="font-size:10px; color:var(--text-muted);">Gross Profit</div><div style="font-size:14px; font-weight:700; color:var(--primary);" id="rpGross">0</div></div>
+                    <div><div style="font-size:10px; color:var(--text-muted);">Beban</div><div style="font-size:14px; font-weight:700; color:var(--accent-pink);" id="rpBeban">0</div></div>
                 </div>
-                <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:11px; color:var(--accent-wd);">OWNER WITHDRAW</span>
-                    <span style="font-weight:700; color:var(--accent-wd);" id="rpWd">Rp 0</span>
+                <div style="margin-top:15px; padding-top:15px; border-top:1px solid rgba(128,128,128,0.1); display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:11px; font-weight:600; color:var(--accent-purple);">OWNER WITHDRAW</span>
+                    <span style="font-weight:700; color:var(--accent-purple);" id="rpWd">Rp 0</span>
                 </div>
             </div>
-            <h4 style="margin:20px 0 10px 0; color:var(--text-muted); font-size:12px; text-transform:uppercase;">Detail Report</h4>
-            <div id="reportContent"></div>
+            <div id="reportContent" class="trans-list"></div>
         </div>
     </div>
 
     <div id="printScreen" class="screen">
         <div class="top-header">
-            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-            <span class="header-title">Laporan A4</span>
-            <span class="material-icons-round icon-btn" onclick="doPrint()" style="color:var(--accent-green);">print</span>
+            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
+            <div class="header-title">Cetak Laporan</div>
+            <div class="icon-btn" onclick="doPrint()" style="background:var(--accent-green); color:white; border:none;"><span class="material-icons-round">print</span></div>
         </div>
         <div class="scroll-content">
-            <div id="printPreviewContent" style="background:white; color:black; padding:40px; border-radius:4px; font-size:12px; min-height:800px; margin-bottom:20px; box-shadow:0 10px 30px rgba(0,0,0,0.5);"></div>
+            <div id="printPreviewContent" style="background:white; color:black; padding:30px; border-radius:4px; font-size:12px; min-height:600px; box-shadow:0 10px 30px rgba(0,0,0,0.2);"></div>
         </div>
     </div>
 
     <div id="settingScreen" class="screen">
         <div class="top-header">
-            <span class="material-icons-round icon-btn" onclick="nav('adminScreen')">arrow_back</span>
-            <span class="header-title">System Settings</span>
-            <span></span>
+            <div class="icon-btn" onclick="nav('adminScreen')"><span class="material-icons-round">arrow_back</span></div>
+            <div class="header-title">Pengaturan</div>
+            <div style="width:38px;"></div>
         </div>
         <div class="scroll-content">
             <div style="text-align:center; margin:10px 0 30px;">
                 <div style="position:relative; display:inline-block;">
-                    <img id="setPhoto" src="logo.png" style="width:90px; height:90px; border-radius:30px; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 20px rgba(74, 108, 250, 0.3);" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
-                    <label style="position:absolute; bottom:-5px; right:-5px; background:var(--primary); color:white; width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 5px 15px rgba(0,0,0,0.3);">
+                    <img id="setPhoto" src="logo.png" style="width:80px; height:80px; border-radius:24px; object-fit:cover; border:2px solid var(--primary);" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
+                    <label style="position:absolute; bottom:-5px; right:-5px; background:var(--primary); color:white; width:30px; height:30px; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
                         <span class="material-icons-round" style="font-size:16px;">edit</span>
                         <input type="file" onchange="updatePhoto(event)" style="display:none;">
                     </label>
                 </div>
             </div>
 
-            <div class="cyber-card">
+            <div style="background:var(--card-bg); border-radius:20px; padding:20px; border:var(--card-border);">
                 <div class="input-group">
-                    <label>STORE NAME</label>
+                    <label>Nama Toko</label>
                     <input id="setStore" class="clean-input">
                 </div>
                 <div class="input-group">
-                    <label>ADDRESS</label>
+                    <label>Alamat</label>
                     <input id="setAddr" class="clean-input">
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                     <div class="input-group">
-                        <label>JUAL/L (Rp)</label>
+                        <label>Jual / L (Rp)</label>
                         <input id="setPrice" type="number" class="clean-input">
                     </div>
                     <div class="input-group">
-                        <label>MODAL/L (Rp)</label>
+                        <label>Modal / L (Rp)</label>
                         <input id="setModalPrice" type="number" class="clean-input">
                     </div>
                 </div>
                 
                 <div class="input-group">
-                    <label>MANUAL STOCK ADJUSTMENT (L)</label>
-                    <div style="display:flex; gap:10px; align-items:center;">
+                    <label>Koreksi Stok (L)</label>
+                    <div style="display:flex; gap:10px;">
                         <input id="setStok" type="number" class="clean-input" style="margin-bottom:0;">
-                        <button class="btn-primary btn-reset-stock" onclick="resetStock()">RESET 0</button>
+                        <button onclick="resetStock()" style="background:rgba(255, 77, 141, 0.1); color:var(--accent-pink); border:1px solid rgba(255, 77, 141, 0.3); border-radius:12px; font-size:11px; font-weight:700; width:100px; cursor:pointer;">RESET 0</button>
                     </div>
                 </div>
 
                 <div class="input-group" style="margin-top:15px;">
-                    <label>DAILY TARGET (MARGIN)</label>
+                    <label>Target Harian (Margin)</label>
                     <input id="setTarget" type="number" class="clean-input">
                 </div>
                 <div class="input-group">
-                    <label>GROQ API KEY</label>
+                    <label>Groq API Key (AI)</label>
                     <input id="setGroqKey" class="clean-input" type="password">
                 </div>
                 
-                <button class="btn-primary" onclick="saveSet()" style="margin-top:10px;">UPDATE SYSTEM</button>
-                <button class="btn-primary" onclick="doLogout()" style="background:rgba(255,255,255,0.05); color:var(--accent-pink); margin-top:15px; box-shadow:none; border:1px solid rgba(255,255,255,0.1);">LOG OUT</button>
+                <button class="btn-primary" onclick="saveSet()" style="margin-top:10px;">SIMPAN PERUBAHAN</button>
+                <button class="btn-primary" onclick="doLogout()" style="background:transparent; color:var(--accent-pink); border:1px solid var(--accent-pink); margin-top:10px; box-shadow:none;">LOG OUT</button>
             </div>
         </div>
     </div>
@@ -627,166 +527,150 @@
     <div id="inputModal" class="modal-overlay">
         <div class="sheet-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0; font-size:18px; font-weight:700; color:white;">New Transaction</h3>
+                <h3 style="margin:0; font-size:16px;">Transaksi Baru</h3>
                 <span class="material-icons-round" onclick="closeModal('inputModal')" style="cursor:pointer; color:var(--text-muted);">close</span>
             </div>
             
             <div class="report-tabs">
-                <div id="mtInc" class="rt-btn active" onclick="setMode('inc')">SALE</div>
-                <div id="mtBuy" class="rt-btn" onclick="setMode('buy')">STOCK</div>
-                <div id="mtExp" class="rt-btn" onclick="setMode('exp')">EXPENSE</div>
+                <div id="mtInc" class="rt-btn active" onclick="setMode('inc')">JUAL</div>
+                <div id="mtBuy" class="rt-btn" onclick="setMode('buy')">STOK</div>
+                <div id="mtExp" class="rt-btn" onclick="setMode('exp')">BEBAN</div>
                 <div id="mtWd" class="rt-btn" onclick="setMode('wd')">WD</div>
             </div>
 
             <div id="formInc">
-                <input type="number" id="admNom" class="clean-input" placeholder="Rp" style="font-size:24px; font-weight:800;" oninput="calcAdm()">
+                <input type="number" id="admNom" class="clean-input" placeholder="0" style="font-size:28px; font-weight:800; text-align:center; padding:20px;" oninput="calcAdm()">
                 
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <label style="flex:1; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; text-align:center; cursor:pointer;">
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <label style="flex:1; background:var(--bg-body); padding:10px; border-radius:12px; text-align:center; cursor:pointer; border:1px solid rgba(128,128,128,0.1);">
                         <input type="radio" name="payMethod" value="Tunai" checked> Tunai
                     </label>
-                    <label style="flex:1; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; text-align:center; cursor:pointer;">
+                    <label style="flex:1; background:var(--bg-body); padding:10px; border-radius:12px; text-align:center; cursor:pointer; border:1px solid rgba(128,128,128,0.1);">
                         <input type="radio" name="payMethod" value="QRIS"> QRIS
                     </label>
                 </div>
-
-                <div style="text-align:right; font-size:12px; color:var(--accent-green); margin-bottom:15px;">Volume: <span id="admLit">0</span> L</div>
-                <button class="btn-primary" onclick="saveTrans('inc')">SUBMIT SALE</button>
+                <div style="text-align:center; margin-bottom:20px; font-size:14px; color:var(--accent-green); font-weight:700;">Volume: <span id="admLit">0.00 L</span></div>
+                <button class="btn-primary" onclick="saveTrans('inc')">SIMPAN PENJUALAN</button>
             </div>
 
             <div id="formBuy" style="display:none;">
-                <div class="input-group">
-                    <label>Total Cost (Rp)</label>
-                    <input type="number" id="buyNom" class="clean-input" placeholder="0">
-                </div>
-                <div class="input-group">
-                    <label>Liters Received</label>
-                    <input type="number" id="buyLit" class="clean-input" placeholder="0">
-                </div>
-                <button class="btn-primary" style="background:var(--accent-purple);" onclick="saveTrans('buy')">REFILL STOCK</button>
+                <div class="input-group"><label>Total Biaya (Rp)</label><input type="number" id="buyNom" class="clean-input"></div>
+                <div class="input-group"><label>Liter Diterima</label><input type="number" id="buyLit" class="clean-input"></div>
+                <button class="btn-primary" style="background:var(--accent-purple);" onclick="saveTrans('buy')">TAMBAH STOK</button>
             </div>
 
             <div id="formExp" style="display:none;">
-                <div class="input-group">
-                    <label>Description</label>
-                    <input type="text" id="descInput" class="clean-input" placeholder="e.g. Listrik">
-                </div>
-                <div class="input-group">
-                    <label>Amount (Rp)</label>
-                    <input type="number" id="expNom" class="clean-input" placeholder="0">
-                </div>
-                <button class="btn-primary" style="background:var(--accent-pink);" onclick="saveTrans('exp')">SAVE EXPENSE</button>
+                <div class="input-group"><label>Keterangan</label><input type="text" id="descInput" class="clean-input" placeholder="cth: Listrik"></div>
+                <div class="input-group"><label>Jumlah (Rp)</label><input type="number" id="expNom" class="clean-input"></div>
+                <button class="btn-primary" style="background:var(--accent-pink);" onclick="saveTrans('exp')">SIMPAN PENGELUARAN</button>
             </div>
 
             <div id="formWd" style="display:none;">
-                <div class="input-group">
-                    <label>Withdraw Amount</label>
-                    <input type="number" id="wdNom" class="clean-input" placeholder="Rp">
-                </div>
-                <button class="btn-primary" style="background:var(--accent-wd);" onclick="saveTrans('wd')">WITHDRAW</button>
+                <div class="input-group"><label>Jumlah Withdraw</label><input type="number" id="wdNom" class="clean-input"></div>
+                <button class="btn-primary" style="background:var(--accent-purple);" onclick="saveTrans('wd')">TARIK DANA</button>
             </div>
         </div>
     </div>
 
     <div id="editModal" class="modal-overlay">
         <div class="sheet-content">
-            <h3 style="color:white; margin-bottom:20px;">Edit Transaction</h3>
+            <h3 style="margin:0 0 20px;">Edit Transaksi</h3>
             <input type="hidden" id="editId">
             <div class="input-group">
-                <label>Type</label>
-                <select id="editType" class="clean-input" onchange="toggleEditFields()" style="background:#222;">
-                    <option value="inc">Sale</option>
+                <label>Tipe</label>
+                <select id="editType" class="clean-input">
+                    <option value="inc">Penjualan</option>
                     <option value="buy">Restock</option>
-                    <option value="exp">Expense</option>
-                    <option value="wd">Withdraw (WD)</option>
+                    <option value="exp">Pengeluaran</option>
+                    <option value="wd">Withdraw</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label>Nominal</label>
-                <input type="number" id="editNom" class="clean-input">
-            </div>
-            <div id="editLiterWrap" class="input-group">
-                <label>Liter</label>
-                <input type="number" id="editLit" class="clean-input">
-            </div>
-            <div class="input-group">
-                <label>Note</label>
-                <input type="text" id="editDesc" class="clean-input">
-            </div>
-            <button class="btn-primary" onclick="saveEditTrans()">UPDATE</button>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
-                <button class="btn-primary" onclick="deleteTrans()" style="background:rgba(245, 78, 162, 0.1); color:var(--accent-pink); box-shadow:none;">DELETE</button>
-                <button class="btn-primary" onclick="closeModal('editModal')" style="background:transparent; box-shadow:none;">CANCEL</button>
-            </div>
+            <div class="input-group"><label>Nominal</label><input type="number" id="editNom" class="clean-input"></div>
+            <div id="editLiterWrap" class="input-group"><label>Liter</label><input type="number" id="editLit" class="clean-input"></div>
+            <div class="input-group"><label>Catatan</label><input type="text" id="editDesc" class="clean-input"></div>
+            
+            <button class="btn-primary" onclick="saveEditTrans()">UPDATE DATA</button>
+            <button class="btn-primary" onclick="deleteTrans()" style="background:transparent; color:var(--accent-pink); border:1px solid var(--accent-pink); margin-top:10px; box-shadow:none;">HAPUS PERMANEN</button>
         </div>
     </div>
 
     <div id="kasbonModal" class="modal-overlay">
         <div class="sheet-content">
              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0; color:white;">Kasbon (Debt)</h3>
-                <span class="material-icons-round" onclick="closeModal('kasbonModal')" style="color:white; cursor:pointer;">close</span>
+                <h3 style="margin:0;">Buku Kasbon</h3>
+                <span class="material-icons-round" onclick="closeModal('kasbonModal')" style="cursor:pointer;">close</span>
             </div>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <input type="text" id="kasbonName" class="clean-input" placeholder="Name" style="margin:0; flex:1;">
+                <input type="text" id="kasbonName" class="clean-input" placeholder="Nama" style="margin:0; flex:1;">
                 <input type="number" id="kasbonNom" class="clean-input" placeholder="Rp" style="margin:0; width:100px;">
                 <button onclick="addKasbon()" style="background:var(--primary); color:white; border:none; border-radius:12px; width:50px; cursor:pointer;"><span class="material-icons-round">add</span></button>
             </div>
-            <div id="kasbonList" style="max-height:300px; overflow-y:auto;"></div>
+            <div id="kasbonList" style="max-height:300px; overflow-y:auto; padding-bottom:10px;"></div>
         </div>
     </div>
 
     <div id="receiptModal" class="modal-overlay" style="align-items:center; justify-content:center;">
-        <div class="popup-content" style="width:85%; max-width:320px; padding:20px; border-radius:20px; background:white; color:black;">
-            <div style="text-align:center; margin-bottom:15px; font-weight:700; color:#2ECC71;">TRANSACTION SUCCESS</div>
+        <div style="width:85%; max-width:320px; padding:20px; border-radius:20px; background:white; color:black; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+            <div style="text-align:center; margin-bottom:10px; font-weight:800; color:#00D084; font-size:16px;">SUKSES</div>
             <div style="border:1px dashed #ccc; padding:15px; border-radius:10px; font-family:'Courier New', monospace; text-align:center;">
-                <div style="font-weight:bold; font-size:16px; margin-bottom:5px;" id="rcStore">DEAR LOVE</div>
-                <div style="font-size:10px; margin-bottom:15px;" id="rcAddr"></div>
+                <div style="font-weight:bold; font-size:16px; margin-bottom:5px;" id="rcStore">STORE</div>
+                <div style="font-size:10px; margin-bottom:10px;" id="rcAddr">Addr</div>
                 <div style="border-bottom:1px dashed #000; margin-bottom:10px;"></div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span id="rcItem">Fuel</span>
-                    <span id="rcTotal" style="font-weight:bold;">Rp 10.000</span>
+                    <span id="rcItem">BBM</span>
+                    <span id="rcTotal" style="font-weight:bold;">Rp 0</span>
                 </div>
-                <div style="text-align:left; font-size:10px;" id="rcDet">1.00 Liter</div>
-                <div style="text-align:center; font-size:10px; margin-top:5px; font-weight:bold;" id="rcMethod">TUNAI</div>
-                <div style="border-bottom:1px dashed #000; margin:10px 0;"></div>
-                <div style="font-size:10px;" id="rcTime">12/12/2025</div>
+                <div style="text-align:left; font-size:10px;" id="rcDet">0 L</div>
+                <div style="text-align:center; font-size:10px; margin-top:10px; font-weight:bold;" id="rcMethod">TUNAI</div>
+                <div style="font-size:9px; color:#555; margin-top:5px;" id="rcTime"></div>
             </div>
-            <button class="btn-primary" onclick="closeModal('receiptModal')" style="margin-top:20px;">Close</button>
+            <button class="btn-primary" onclick="closeModal('receiptModal')" style="margin-top:15px;">Tutup</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav-wrap">
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="nav('adminScreen')"><span class="material-icons-round">grid_view</span></div>
+            <div class="nav-item" onclick="nav('historyScreen')"><span class="material-icons-round">receipt_long</span></div>
+            <div style="width:50px;"></div> <div class="nav-item" onclick="nav('aiScreen')"><span class="material-icons-round">smart_toy</span></div>
+            <div class="nav-item" onclick="nav('reportScreen')"><span class="material-icons-round">pie_chart</span></div>
+            
+            <div class="fab-add" onclick="openInputModal()"><span class="material-icons-round">add</span></div>
         </div>
     </div>
 
     <script>
-        // --- CONFIG & INIT ---
+        // --- CONFIG & FIREBASE ---
         const firebaseConfig = { apiKey: "AIzaSyBpwNPIYhelOhkPvJsBmKvlZnaH9FVnmM4", authDomain: "pom-mini-50b1e.firebaseapp.com", projectId: "pom-mini-50b1e", storageBucket: "pom-mini-50b1e.firebasestorage.app", messagingSenderId: "77499696502", appId: "1:77499696502:web:8080c37da62a12c9566657", measurementId: "G-KRRHTTGBRF" };
-        let db; 
-        try { if(typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } } catch(e) { console.log("Firebase Offline"); }
+        let db; try { if(typeof firebase !== 'undefined') { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); db.settings({ experimentalForceLongPolling: true, merge: true }); } } catch(e) { console.log("Firebase Offline"); }
 
         let data = { 
-            pass: "DearLove2025", 
-            store: "DEAR LOVE", 
-            addr: "Jl. Raya Pertamini", 
-            price: 12000, 
-            modalPrice: 10000, 
-            photo: "logo.png", 
-            stokLiter: 0, 
-            dailyTarget: 170000, 
-            trans: [], 
-            kasbon: [],
-            holidays: [], 
-            groqKey: "" 
+            pass: "DearLove2025", store: "DEAR LOVE", addr: "Jonggol, Jawa Barat", 
+            price: 12000, modalPrice: 10000, photo: "logo.png", stokLiter: 0, 
+            dailyTarget: 170000, trans: [], kasbon: [], holidays: [], groqKey: "", theme: 'dark' 
         };
 
-        try { let saved = localStorage.getItem('dl_super_v4'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
+        try { let saved = localStorage.getItem('dl_super_v5'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
         if(!Array.isArray(data.trans)) data.trans = [];
-        if(!Array.isArray(data.kasbon)) data.kasbon = [];
-        if(!Array.isArray(data.holidays)) data.holidays = [];
 
         let currentMode = 'inc', reportMode = 'daily', currentWeather = 'sunny'; 
         let selectedDetailDate = null; 
         const fmtMoney = (n) => "Rp " + parseInt(n).toLocaleString('id-ID');
 
-        // --- DASHBOARD LOGIC ---
+        // --- THEME ---
+        const applyTheme = () => {
+            document.documentElement.setAttribute('data-theme', data.theme);
+            document.getElementById('themeIcon').innerText = data.theme === 'light' ? 'light_mode' : 'dark_mode';
+        }
+        const toggleTheme = () => {
+            data.theme = data.theme === 'light' ? 'dark' : 'light';
+            applyTheme();
+            localStorage.setItem('dl_super_v5', JSON.stringify(data));
+            renderDash(); // Re-render to update charts colors
+        }
+        applyTheme();
+
+        // --- DASHBOARD LOGIC (UPDATED MARGIN) ---
         window.renderDash = () => {
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
@@ -802,45 +686,33 @@
                 } 
             });
             
-            let hppTerpakai = dLit * data.modalPrice; 
-            let breakEvenPoint = hppTerpakai + dExp; 
-            let marginForce = (dLit * 3000) - dExp;
+            // --- NEW DYNAMIC MARGIN LOGIC ---
+            // Profit = (Liter Sold * (Selling Price - Modal Price)) - Expense
+            let currentMarginPerLiter = data.price - data.modalPrice;
+            let grossProfit = dLit * currentMarginPerLiter; 
+            let netProfit = grossProfit - dExp;
             
-            let statusText = "";
-            let statusColor = "";
-            let progressPct = 0;
+            // Calculate HPP (Modal that has been sold)
+            let hppSold = dLit * data.modalPrice;
 
-            if (dInc < breakEvenPoint) {
-                progressPct = 0;
-                let kurang = breakEvenPoint - dInc;
-                statusText = `MODAL BELUM KEMBALI (KURANG ${fmtMoney(kurang)})`;
-                statusColor = "var(--accent-pink)";
-            } else {
-                let target = data.dailyTarget || 170000;
-                let valBar = Math.max(0, marginForce);
-                progressPct = Math.min(100, (valBar / target) * 100).toFixed(1);
-                statusText = "PROFIT MARGIN 3000 ACTIVE";
-                statusColor = "var(--accent-green)";
-            }
-            
             document.getElementById('realTimeProfit').innerText = fmtMoney(realTimeCash);
-            document.getElementById('netProfit').innerText = fmtMoney(Math.max(0, marginForce)); 
+            document.getElementById('netProfit').innerText = fmtMoney(Math.max(0, netProfit)); 
+            document.getElementById('hppStatus').innerText = `HPP Terjual: ${fmtMoney(hppSold)}`;
+
+            // Target Progress based on Net Profit vs Target
+            let target = data.dailyTarget || 150000;
+            let progressPct = Math.max(0, Math.min(100, (netProfit / target) * 100)).toFixed(0);
             document.getElementById('targetPct').innerText = progressPct + "%";
-            document.getElementById('targetBar').style.width = progressPct + "%";
             
-            let stEl = document.getElementById('hppStatus');
-            stEl.innerText = statusText;
-            stEl.style.color = statusColor;
-            
-            document.getElementById('stokVal').innerText = data.stokLiter.toFixed(2);
-            document.getElementById('todayLiter').innerText = dLit.toFixed(2);
+            document.getElementById('stokVal').innerText = data.stokLiter.toFixed(1);
+            document.getElementById('todayLiter').innerText = dLit.toFixed(1);
             document.getElementById('dashTodayInc').innerText = fmtMoney(dInc);
             document.getElementById('dashTodayExp').innerText = fmtMoney(dExp);
             
             document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
         }
 
-        // --- NAVIGATION ---
+        // --- NAVIGATION & UI ---
         const toggleNav = (show) => document.querySelector('.bottom-nav-wrap').style.transform = show ? 'translateY(0)' : 'translateY(200%)';
         
         window.nav = (id) => {
@@ -876,7 +748,7 @@
             document.getElementById(m==='inc'?'formInc':(m==='buy'?'formBuy':(m==='exp'?'formExp':'formWd'))).style.display = 'block';
         }
 
-        // --- CRUD ---
+        // --- CRUD TRANSACTIONS ---
         window.saveTrans = async (type) => {
             let now = new Date();
             let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), type:type, weather: currentWeather };
@@ -884,43 +756,29 @@
             if(type === 'inc') {
                 let n=parseInt(document.getElementById('admNom').value); if(!n) return;
                 let l=parseFloat((n/data.price).toFixed(2)); 
-                // GET PAYMENT METHOD
                 let radios = document.getElementsByName('payMethod');
-                let method = 'Tunai';
-                for(let r of radios) { if(r.checked) method = r.value; }
+                let method = 'Tunai'; for(let r of radios) { if(r.checked) method = r.value; }
 
                 tx.n=n; tx.l=l; tx.metode=method; data.stokLiter=Math.max(0, data.stokLiter-l);
                 
-                if(db) await db.collection("struk_public").doc("current").set({ 
-                    nominal: n, 
-                    liter: l, 
-                    waktu: now.toLocaleString('id-ID'), 
-                    status: "PAID", 
-                    metode: method,
-                    nama_toko: data.store, 
-                    alamat_toko: data.addr 
-                });
+                if(db) await db.collection("struk_public").doc("current").set({ nominal: n, liter: l, waktu: now.toLocaleString('id-ID'), status: "PAID", metode: method, nama_toko: data.store, alamat_toko: data.addr });
                 
-                document.getElementById('rcStore').innerText=data.store; 
-                document.getElementById('rcAddr').innerText=data.addr; 
-                document.getElementById('rcTotal').innerText=fmtMoney(n); 
-                document.getElementById('rcDet').innerText=l+" Liter"; 
-                document.getElementById('rcMethod').innerText=method.toUpperCase();
-                document.getElementById('rcTime').innerText=now.toLocaleString(); 
+                document.getElementById('rcStore').innerText=data.store; document.getElementById('rcAddr').innerText=data.addr; 
+                document.getElementById('rcTotal').innerText=fmtMoney(n); document.getElementById('rcDet').innerText=l+" Liter"; 
+                document.getElementById('rcMethod').innerText=method.toUpperCase(); document.getElementById('rcTime').innerText=now.toLocaleString(); 
                 document.getElementById('receiptModal').style.display='flex';
             } else if (type === 'buy') {
                 let n=parseInt(document.getElementById('buyNom').value), l=parseFloat(document.getElementById('buyLit').value); if(!n||!l) return;
                 tx.n=n; tx.l=l; tx.desc="Restock"; data.stokLiter+=l;
             } else if (type === 'exp') {
                 let n=parseInt(document.getElementById('expNom').value), d=document.getElementById('descInput').value; if(!n) return;
-                if (n > 70000) { alert("GAGAL: Pengeluaran dibatasi maksimal Rp 70.000 untuk penghematan!"); return; }
-                tx.n=n; tx.desc=d||"Expense";
+                tx.n=n; tx.desc=d||"Beban";
             } else if (type === 'wd') {
                 let n=parseInt(document.getElementById('wdNom').value); if(!n) return;
-                tx.n=n; tx.desc="Withdrawal (Owner)";
+                tx.n=n; tx.desc="Withdrawal";
             }
 
-            data.trans.unshift(tx); localStorage.setItem('dl_super_v4', JSON.stringify(data));
+            data.trans.unshift(tx); localStorage.setItem('dl_super_v5', JSON.stringify(data));
             ['admNom','buyNom','buyLit','expNom','descInput','wdNom'].forEach(i=>document.getElementById(i).value='');
             closeModal('inputModal'); renderDash();
         }
@@ -934,16 +792,15 @@
             data.trans[idx]={...data.trans[idx], type:type, n:n, l:l};
             if(type==='inc') { data.trans[idx].metode=d; data.stokLiter-=l; } 
             else if(type==='buy') { data.trans[idx].desc="Restock"; data.stokLiter+=l; }
-            else if(type==='wd') { data.trans[idx].desc=d||"Withdrawal"; }
             else data.trans[idx].desc=d;
             
-            localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
+            localStorage.setItem('dl_super_v5', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
         }
 
         window.deleteTrans = () => {
-            if(!confirm("Delete?")) return; let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id);
+            if(!confirm("Yakin hapus?")) return; let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id);
             let oldT=data.trans[idx]; if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
-            data.trans.splice(idx,1); localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
+            data.trans.splice(idx,1); localStorage.setItem('dl_super_v5', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
         }
 
         window.openEdit = (id) => {
@@ -960,20 +817,26 @@
         window.renderHistory = () => { document.getElementById('fullHistoryList').innerHTML = data.trans.map(t => makeTransItem(t)).join(''); }
 
         window.makeTransItem = (t) => {
-            let ic='inc', iname='local_gas_station', s='+', c='val-plus', ti='Sale', su=(t.l||0).toFixed(2)+" L";
-            if(t.type==='buy'){ ic='buy'; iname='water_drop'; s='-'; c='val-minus'; ti='Restock'; su="+"+t.l+" L"; }
-            else if(t.type==='exp'){ ic='exp'; iname='payments'; s='-'; c='val-minus'; ti=t.desc; su="Expense"; }
-            else if(t.type==='wd'){ ic='wd'; iname='account_balance_wallet'; s='-'; c='val-minus'; ti='Withdraw'; su="Ambil Profit"; }
-            else ti=t.metode||"Cash";
-            return `<div class="trans-item" onclick="openEdit(${t.id})"><div style="display:flex; align-items:center;"><div class="ti-icon ${ic}"><span class="material-icons-round">${iname}</span></div><div class="ti-info"><h4>${ti}</h4><p>${su}</p></div></div><div><span class="ti-val ${c}">${s} ${t.n/1000}k</span><span class="ti-time">${t.time}</span></div></div>`;
+            let icon='local_gas_station', cls='inc-bg', title='Penjualan', val=`+ ${t.n/1000}k`;
+            if(t.type==='buy'){ icon='water_drop'; cls='buy-bg'; title='Restock'; val=`- ${t.n/1000}k`; }
+            else if(t.type==='exp'){ icon='payments'; cls='exp-bg'; title=t.desc||'Beban'; val=`- ${t.n/1000}k`; }
+            else if(t.type==='wd'){ icon='account_balance_wallet'; cls='buy-bg'; title='Withdraw'; val=`- ${t.n/1000}k`; }
+            else { title = t.metode || 'Cash'; }
+            return `
+            <div class="trans-item" onclick="openEdit(${t.id})">
+                <div class="ti-left">
+                    <div class="ti-icon ${cls}"><span class="material-icons-round">${icon}</span></div>
+                    <div class="ti-det"><h4>${title}</h4><p>${t.l?t.l.toFixed(2)+' L':''}</p></div>
+                </div>
+                <div class="ti-right"><span class="ti-val ${t.type==='inc'?'text-inc':'text-exp'}">${val}</span><span class="ti-time">${t.time} • ${t.date}</span></div>
+            </div>`;
         }
 
-        // --- REPORTS ---
+        // --- REPORTING (UPDATED MARGIN) ---
         const getPeriodRange = () => {
-            let now = new Date();
-            let currentDay = now.getDate();
+            let now = new Date(); let d = now.getDate();
             let start, end;
-            if (currentDay >= 18) { start = new Date(now.getFullYear(), now.getMonth(), 18); end = new Date(now.getFullYear(), now.getMonth() + 1, 17); } 
+            if (d >= 18) { start = new Date(now.getFullYear(), now.getMonth(), 18); end = new Date(now.getFullYear(), now.getMonth() + 1, 17); } 
             else { start = new Date(now.getFullYear(), now.getMonth() - 1, 18); end = new Date(now.getFullYear(), now.getMonth(), 17); }
             start.setHours(0,0,0,0); end.setHours(23,59,59,999);
             return { start, end };
@@ -986,7 +849,7 @@
 
             if (reportMode === 'monthly') {
                 let p = getPeriodRange(); filterStart = p.start.getTime(); filterEnd = p.end.getTime();
-                document.getElementById('rpTitle').innerText = "NET PROFIT (18 s/d 17)";
+                document.getElementById('rpTitle').innerText = "NET PROFIT (PERIODE INI)";
             } else if (reportMode === 'daily') {
                 document.getElementById('rpTitle').innerText = "NET PROFIT (HARI INI)";
             } else { document.getElementById('rpTitle').innerText = "NET PROFIT (TAHUNAN)"; }
@@ -997,261 +860,170 @@
                 else if (reportMode === 'daily') { if(t.date !== today) isValid = false; }
 
                 if (isValid) {
-                    let k = reportMode==='daily'?t.date:(reportMode==='monthly'?'Current Period':new Date(t.ts).getFullYear().toString());
+                    let k = reportMode==='daily'?t.date:(reportMode==='monthly'?'Current':new Date(t.ts).getFullYear().toString());
                     if(!gr[k]) gr[k]={i:0,b:0,e:0,w:0};
-                    if(t.type==='inc') { gr[k].i+=t.n; tInc+=t.n; tLit+=t.l; }
-                    else if(t.type==='buy') { gr[k].b+=t.n; } 
+                    if(t.type==='inc') { gr[k].i+=t.n; tInc+=t.n; tLit+=(t.l||0); }
                     else if(t.type==='wd') { gr[k].w+=t.n; tWd+=t.n; }
-                    else { gr[k].e+=t.n; tExp+=t.n; }
+                    else if(t.type!=='buy') { gr[k].e+=t.n; tExp+=t.n; }
                 }
             });
             
-            let forcedMarginTotal = (tLit * 3000) - tExp;
+            // DYNAMIC MARGIN CALCULATION
+            let currentMargin = data.price - data.modalPrice;
+            let grossProfit = tLit * currentMargin;
+            let netProfit = grossProfit - tExp;
             let totalHPP = tLit * data.modalPrice;
-            let forcedGross = tLit * 3000;
 
-            document.getElementById('rpNet').innerText = fmtMoney(forcedMarginTotal); 
+            document.getElementById('rpNet').innerText = fmtMoney(netProfit); 
             document.getElementById('rpOmzet').innerText = fmtMoney(tInc); 
             document.getElementById('rpHpp').innerText = "- " + fmtMoney(totalHPP);
-            document.getElementById('rpGross').innerText = fmtMoney(forcedGross);
+            document.getElementById('rpGross').innerText = fmtMoney(grossProfit);
             document.getElementById('rpBeban').innerText = "- " + fmtMoney(tExp);
             document.getElementById('rpWd').innerText = fmtMoney(tWd);
             
             document.getElementById('reportContent').innerHTML=Object.keys(gr).map(k=>`
-                <div class="trans-item"><div style="flex:1;"><div class="ti-info"><h4>${k}</h4></div><div style="font-size:10px; color:var(--text-muted); margin-top:5px; display:grid; grid-template-columns: 1fr 1fr; gap:5px;"><span class="text-green">Sales: ${fmtMoney(gr[k].i)}</span><span class="text-red">Exp: ${fmtMoney(gr[k].e)}</span><span style="color:var(--accent-wd);">WD: ${fmtMoney(gr[k].w)}</span></div></div></div>`).join('');
+                <div class="trans-item"><div style="flex:1;"><div class="ti-det"><h4>${reportMode==='monthly'?'Laporan Periode':k}</h4></div><div style="font-size:10px; color:var(--text-muted); margin-top:5px; display:flex; gap:10px;"><span class="text-inc">Sales: ${fmtMoney(gr[k].i)}</span><span class="text-exp">Exp: ${fmtMoney(gr[k].e)}</span></div></div></div>`).join('');
         }
         window.setReportMode = (m) => { reportMode=m; document.querySelectorAll('.report-tabs .rt-btn').forEach(b=>b.classList.remove('active')); document.getElementById(m==='daily'?'rtDay':(m==='monthly'?'rtMonth':'rtYear')).classList.add('active'); renderReport(); }
 
-        // --- MENU DATA INSIGHT (CHARTS + TABLES) ---
+        // --- CHARTS & INSIGHT ---
         window.renderDataInsight = () => {
-            let hourStats = {}; let dayStats = {};  
-            let hC = Array(24).fill(0);
-            let dayNames = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-            let dC = Array(7).fill(0);
+            let hourStats = {}, hC = Array(24).fill(0), dC = Array(7).fill(0);
+            let dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+            let now = new Date(); let todayDate = now.toLocaleDateString();
+            
             let weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay()); weekStart.setHours(0,0,0,0);
             let weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 7);
-            
-            let now = new Date(); let todayDate = now.toLocaleDateString();
-            let currentMonth = now.getMonth(); let currentYear = now.getFullYear();
 
             data.trans.forEach(t => {
                 if(t.type === 'inc') {
                     let d = new Date(t.ts);
-                    // Chart Data
                     if (t.date === todayDate) { let h = parseInt(t.time.split(':')[0]); if(!isNaN(h)) hC[h] += t.n; }
                     if (d >= weekStart && d < weekEnd) { dC[d.getDay()] += t.n; }
-
-                    // Table Data
-                    if(d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+                    
+                    if(d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
                         let h = parseInt(t.time.split(':')[0]);
                         if(!hourStats[h]) hourStats[h] = {omzet:0, lit:0};
                         hourStats[h].omzet += t.n; hourStats[h].lit += (t.l||0);
                     }
-                    if(d.getFullYear() === currentYear) {
-                        let dayName = d.toLocaleDateString('id-ID', {weekday:'long'});
-                        if(!dayStats[dayName]) dayStats[dayName] = {omzet:0, lit:0};
-                        dayStats[dayName].omzet += t.n; dayStats[dayName].lit += (t.l||0);
-                    }
                 }
             });
 
-            // Update Charts
-            updateChart('hourChart', 'hourChartInstance', 'line', Array.from({length:24},(_,i)=>`${i}`), hC, 'Sales Today');
-            updateChart('dayChart', 'dayChartInstance', 'bar', dayNames, dC, 'Sales This Week');
+            // CHART COLORS BASED ON THEME
+            let gridColor = data.theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
+            let textColor = data.theme === 'light' ? '#666' : '#888';
 
-            // Render Tables
+            updateChart('hourChart', 'hourChartInstance', 'line', Array.from({length:24},(_,i)=>i), hC, 'Sales Today', gridColor, textColor);
+            updateChart('dayChart', 'dayChartInstance', 'bar', dayNames, dC, 'Weekly', gridColor, textColor);
+
             let sortedHours = Object.keys(hourStats).map(k => ({h:k, ...hourStats[k]})).sort((a,b) => b.omzet - a.omzet).slice(0, 5);
-            let sortedDays = Object.keys(dayStats).map(k => ({d:k, ...dayStats[k]})).sort((a,b) => b.omzet - a.omzet);
-
-            let hHTML = sortedHours.map((x, i) => {
-                let profitEst = x.lit * 3000;
-                let rankClass = i === 0 ? 'is-top' : '';
-                return `<tr><td><div class="rank-badge ${rankClass}">${i+1}</div></td><td style="font-weight:600;">${x.h}:00</td><td style="text-align:right; color:var(--text-muted);">${x.lit.toFixed(1)} L</td><td style="text-align:right; font-weight:600; color:white;">${fmtMoney(x.omzet)}</td><td style="text-align:right; color:var(--accent-green);">${fmtMoney(profitEst)}</td></tr>`;
-            }).join('');
-            document.getElementById('topHoursTableBody').innerHTML = hHTML || '<tr><td colspan="5" style="text-align:center; padding:20px; color:grey;">Belum ada data bulan ini</td></tr>';
-
-            let dHTML = sortedDays.map((x, i) => {
-                let profitEst = x.lit * 3000;
-                let rankClass = i === 0 ? 'is-top' : '';
-                let styleBadge = i === 0 ? 'background:var(--accent-purple); box-shadow:0 2px 10px rgba(157, 89, 245, 0.4);' : '';
-                return `<tr><td><div class="rank-badge ${rankClass}" style="${styleBadge}">${i+1}</div></td><td style="font-weight:600;">${x.d}</td><td style="text-align:right; color:var(--text-muted);">${x.lit.toFixed(1)} L</td><td style="text-align:right; font-weight:600; color:white;">${fmtMoney(x.omzet)}</td><td style="text-align:right; color:var(--accent-green);">${fmtMoney(profitEst)}</td></tr>`;
-            }).join('');
-            document.getElementById('topDaysTableBody').innerHTML = dHTML || '<tr><td colspan="5" style="text-align:center; padding:20px; color:grey;">Belum ada data tahun ini</td></tr>';
+            document.getElementById('topHoursTableBody').innerHTML = sortedHours.map((x, i) => `<tr><td><div class="rank-box" style="background:${i===0?'var(--primary)':''}; color:${i===0?'white':''}">${i+1}</div></td><td style="font-weight:600;">${x.h}:00</td><td style="text-align:right;">${x.lit.toFixed(1)}</td><td style="text-align:right; font-weight:600;">${fmtMoney(x.omzet)}</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center; padding:15px; color:var(--text-muted);">No data</td></tr>';
         }
 
-        // --- NEW: MENU KALENDER (CLEAN GRID + PANEL BELOW) ---
+        // --- CALENDAR ---
         window.renderCalendar = () => {
             let { start, end } = getPeriodRange();
-            let pStr = `${start.getDate()} ${start.toLocaleString('id-ID',{month:'short'})} - ${end.getDate()} ${end.toLocaleString('id-ID',{month:'short'})}`;
-            document.getElementById('calPeriodLabel').innerText = pStr;
+            document.getElementById('calPeriodLabel').innerText = `${start.getDate()} ${start.toLocaleString('id-ID',{month:'short'})} - ${end.getDate()} ${end.toLocaleString('id-ID',{month:'short'})}`;
 
-            let dateMap = {}; 
-            let loopDate = new Date(start);
-            while(loopDate <= end) {
-                let dKey = loopDate.toLocaleDateString();
-                dateMap[dKey] = { omzet:0, vol:0, hours:{}, isHoliday: data.holidays.includes(dKey) };
-                loopDate.setDate(loopDate.getDate() + 1);
-            }
+            let dateMap = {}; let loopDate = new Date(start);
+            while(loopDate <= end) { dateMap[loopDate.toLocaleDateString()] = { omzet:0, hours:{} }; loopDate.setDate(loopDate.getDate() + 1); }
 
-            data.trans.forEach(t => {
-                if (t.type === 'inc') {
-                    let tDate = new Date(t.ts);
-                    if (tDate >= start && tDate <= end) {
-                        let dKey = t.date;
-                        if(dateMap[dKey]) {
-                            dateMap[dKey].omzet += t.n; dateMap[dKey].vol += (t.l||0);
-                            let h = parseInt(t.time.split(':')[0]);
-                            if(!dateMap[dKey].hours[h]) dateMap[dKey].hours[h] = 0; dateMap[dKey].hours[h]++;
-                        }
-                    }
-                }
-            });
+            data.trans.forEach(t => { if (t.type === 'inc') { let d = t.date; if(dateMap[d]) { dateMap[d].omzet += t.n; let h = parseInt(t.time.split(':')[0]); dateMap[d].hours[h] = (dateMap[d].hours[h] || 0) + 1; } } });
 
-            let calHTML = "";
-            let sortedKeys = Object.keys(dateMap).sort((a,b) => {
-                let da = a.split('/'); let db = b.split('/');
-                return new Date(da[2], da[1]-1, da[0]) - new Date(db[2], db[1]-1, db[0]);
-            });
-
-            let firstDayIndex = new Date(start).getDay(); 
-            for(let i=0; i<firstDayIndex; i++) calHTML += `<div class="cal-day cal-empty"></div>`;
+            let calHTML = ""; let sortedKeys = Object.keys(dateMap).sort((a,b) => new Date(a.split('/').reverse().join('-')) - new Date(b.split('/').reverse().join('-')));
+            for(let i=0; i<new Date(start).getDay(); i++) calHTML += `<div></div>`;
 
             sortedKeys.forEach(k => {
                 let item = dateMap[k];
-                let holidayClass = item.isHoliday ? 'holiday' : '';
-                let statusClass = item.omzet > 0 ? 'has-data' : '';
-                
-                calHTML += `
-                <div class="cal-day ${holidayClass}" onclick="selectDate('${k}')" id="cell-${k.replace(/\//g,'-')}">
-                    <div class="cd-date">${k.split('/')[0]}</div>
-                    <div class="cd-status ${statusClass}"></div>
-                </div>`;
+                let hasData = item.omzet > 0 ? 'show' : '';
+                calHTML += `<div class="cal-day" onclick="selectDate('${k}')" id="cell-${k.replace(/\//g,'-')}"><div class="cd-date">${k.split('/')[0]}</div><div class="cd-dot ${hasData}"></div></div>`;
             });
             document.getElementById('calendarBody').innerHTML = calHTML;
-            document.getElementById('calDetailPanel').innerHTML = '<div class="cdp-empty">Pilih tanggal di kalender untuk melihat detail</div>';
         }
 
         window.selectDate = (dateStr) => {
-            selectedDetailDate = dateStr;
-            
-            // Highlight active cell
-            document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('active'));
-            let cell = document.getElementById(`cell-${dateStr.replace(/\//g,'-')}`);
-            if(cell) cell.classList.add('active');
-
-            // Fetch Data
-            let dayOmzet = 0;
-            let dayHours = {};
-            let isHoliday = data.holidays.includes(dateStr);
-
-            data.trans.forEach(t => {
-                if(t.date === dateStr && t.type === 'inc') {
-                    dayOmzet += t.n;
-                    let h = t.time.split(':')[0] + ":00";
-                    if(!dayHours[h]) dayHours[h] = 0; dayHours[h] += t.n;
-                }
-            });
-
-            let sortedHours = Object.keys(dayHours).sort((a,b) => dayHours[b] - dayHours[a]).slice(0, 3);
-            let peaksHTML = sortedHours.map(h => `<div class="peak-badge" style="font-size:10px; margin-right:5px;">${h}</div>`).join('');
-            if(sortedHours.length === 0) peaksHTML = "<span style='color:#666; font-size:11px;'>Belum ada data</span>";
-
-            let panelHTML = `
-                <div class="cdp-header">
-                    <div class="cdp-date">${dateStr}</div>
-                    <label class="switch">
-                        <input type="checkbox" id="holidayToggle" ${isHoliday ? 'checked' : ''} onchange="toggleHoliday()">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="cdp-info-row">
-                    <span style="color:var(--text-muted);">Total Omzet</span>
-                    <span style="font-weight:700; color:white;">${isHoliday ? 'LIBUR' : fmtMoney(dayOmzet)}</span>
-                </div>
-                <div class="cdp-info-row">
-                    <span style="color:var(--text-muted);">Jam Tersibuk</span>
-                    <div style="display:flex;">${peaksHTML}</div>
-                </div>
-            `;
-            document.getElementById('calDetailPanel').innerHTML = panelHTML;
+            document.querySelectorAll('.cal-day').forEach(d => d.style.borderColor='transparent');
+            document.getElementById(`cell-${dateStr.replace(/\//g,'-')}`).style.borderColor='var(--primary)';
+            let omzet = 0; data.trans.forEach(t => { if(t.date === dateStr && t.type === 'inc') omzet += t.n; });
+            document.getElementById('calDetailPanel').innerHTML = `<div style="font-weight:700; font-size:16px; margin-bottom:5px; color:var(--text-main);">${dateStr}</div><div style="color:var(--text-muted);">Total Omzet: <span style="color:var(--text-main); font-weight:700;">${fmtMoney(omzet)}</span></div>`;
         }
 
-        window.toggleHoliday = () => {
-            if(!selectedDetailDate) return;
-            let isHoliday = document.getElementById('holidayToggle').checked;
-            if(isHoliday) { if(!data.holidays.includes(selectedDetailDate)) data.holidays.push(selectedDetailDate); } 
-            else { data.holidays = data.holidays.filter(d => d !== selectedDetailDate); }
-            localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            renderCalendar(); 
-            selectDate(selectedDetailDate); // Re-render panel
-        }
-
-        function updateChart(id, iN, t, l, d, lb) {
+        function updateChart(id, iN, t, l, d, lb, gc, tc) {
             const ctx=document.getElementById(id).getContext('2d'); if(window[iN]) window[iN].destroy();
-            Chart.defaults.color='#8F90A6'; Chart.defaults.borderColor='rgba(255,255,255,0.05)';
-            window[iN] = new Chart(ctx, { type:t, data:{ labels:l, datasets:[{ label:lb, data:d, backgroundColor:t==='bar'?'#9D59F5':'rgba(74,108,250,0.2)', borderColor:t==='bar'?'#9D59F5':'#4A6CFA', borderWidth:2, tension:0.4, fill:t==='line', pointBackgroundColor:'#1F202F' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:'rgba(255,255,255,0.05)'}} } } });
+            Chart.defaults.color=tc; Chart.defaults.borderColor=gc;
+            window[iN] = new Chart(ctx, { type:t, data:{ labels:l, datasets:[{ label:lb, data:d, backgroundColor:t==='bar'?'#9D59F5':'rgba(74,108,250,0.1)', borderColor:t==='bar'?'#9D59F5':'#4A6CFA', borderWidth:2, tension:0.4, fill:t==='line', pointRadius:0, pointHoverRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gc}, ticks:{display:false}} } } });
         }
 
-        // --- PRINT SUMMARY ---
+        // --- PRINT ---
         window.generatePrintReport = () => {
             let { start, end } = getPeriodRange();
-            let monthName = `${start.getDate()} ${start.toLocaleString('id-ID',{month:'short'})} - ${end.getDate()} ${end.toLocaleString('id-ID',{month:'short', year:'numeric'})}`;
             let tInc=0, tExp=0, tLit=0;
-            let monthlyTrans = data.trans.filter(t => { let d = new Date(t.ts); return d >= start && d <= end; });
-            monthlyTrans.forEach(t => { if(t.type==='inc') { tInc+=t.n; tLit+=(t.l||0); } else if(t.type!=='buy' && t.type!=='wd') { tExp+=t.n; } });
-            let gross = tLit * 3000; let net = gross - tExp;
+            data.trans.forEach(t => { 
+                let d = new Date(t.ts);
+                if(d >= start && d <= end) {
+                   if(t.type==='inc') { tInc+=t.n; tLit+=(t.l||0); } else if(t.type!=='buy' && t.type!=='wd') { tExp+=t.n; } 
+                }
+            });
+            let margin = data.price - data.modalPrice;
+            let net = (tLit * margin) - tExp;
 
             let html = `
-                <div style="font-family:sans-serif;">
-                    <div style="text-align:center; margin-bottom:40px;">
-                        <h2 style="margin:0; font-size:24px;">${data.store}</h2>
-                        <div style="font-size:14px; color:#555;">${data.addr}</div>
-                        <h3 style="margin:20px 0 0; text-decoration:underline;">LAPORAN KEUANGAN RINGKAS</h3>
-                        <div style="font-size:14px;">Periode: ${monthName}</div>
-                    </div>
-                    <div style="border:1px solid #000; padding:20px; max-width:500px; margin:0 auto;">
-                        <table style="width:100%; border-collapse:collapse; font-size:14px;">
-                            <tr><td style="padding:8px; font-weight:bold;">Total Penjualan (Omzet)</td><td style="padding:8px; text-align:right;">${fmtMoney(tInc)}</td></tr>
-                            <tr><td style="padding:8px; font-weight:bold;">Total Liter Terjual</td><td style="padding:8px; text-align:right;">${tLit.toFixed(2)} L</td></tr>
-                            <tr><td style="padding:8px; font-weight:bold;">Total Beban Operasional</td><td style="padding:8px; text-align:right; color:red;">(${fmtMoney(tExp)})</td></tr>
-                            <tr style="border-top:2px solid #000;"><td style="padding:15px 8px; font-weight:bold; font-size:16px;">NET PROFIT (Margin 3000)</td><td style="padding:15px 8px; text-align:right; font-weight:bold; font-size:16px;">${fmtMoney(net)}</td></tr>
-                        </table>
-                    </div>
-                    <div style="margin-top:60px; text-align:right; font-size:14px; padding-right:50px;"><div>Dicetak pada: ${new Date().toLocaleString()}</div><br><br><br><br><div>( ....................... )</div><div>Admin Pengelola</div></div>
+                <div style="font-family:sans-serif; text-align:center;">
+                    <h2 style="margin:0;">${data.store}</h2>
+                    <p>${data.addr}</p>
+                    <hr>
+                    <h3 style="margin:20px 0;">LAPORAN PERIODE</h3>
+                    <p>${start.toLocaleDateString()} - ${end.toLocaleDateString()}</p>
+                    <table style="width:100%; border-collapse:collapse; margin-top:20px; text-align:left;">
+                        <tr style="border-bottom:1px solid #ddd;"><td style="padding:10px;">Total Omzet</td><td style="text-align:right;">${fmtMoney(tInc)}</td></tr>
+                        <tr style="border-bottom:1px solid #ddd;"><td style="padding:10px;">Liter Terjual</td><td style="text-align:right;">${tLit.toFixed(2)} L</td></tr>
+                        <tr style="border-bottom:1px solid #ddd;"><td style="padding:10px;">Beban Operasional</td><td style="text-align:right;">(${fmtMoney(tExp)})</td></tr>
+                        <tr><td style="padding:15px 10px; font-weight:bold;">NET PROFIT</td><td style="text-align:right; font-weight:bold; font-size:16px;">${fmtMoney(net)}</td></tr>
+                    </table>
+                    <div style="margin-top:50px; text-align:right;"><p>Admin</p><br><br><p>( ................. )</p></div>
                 </div>`;
             document.getElementById('printPreviewContent').innerHTML = html;
             document.getElementById('printArea').innerHTML = html;
         }
-        window.doPrint = () => { window.print(); }
+        window.doPrint = () => window.print();
 
-        // --- AI ---
+        // --- AI CHAT ---
         window.sendAIChat = async () => {
             let i = document.getElementById('aiInput'); let m = i.value; let b = document.getElementById('chatBox');
-            if(!m) return; i.value=''; b.innerHTML += `<div style="background:var(--primary); color:white; margin-left:auto; border-radius:12px; padding:10px; margin-bottom:10px; max-width:80%; font-size:13px;">${m}</div>`;
-            if(!data.groqKey){ b.innerHTML += `<div style="background:rgba(255,255,255,0.05); color:var(--accent-pink); border-radius:12px; padding:10px; margin-bottom:10px; font-size:12px;">Groq API Key belum diatur di Settings.</div>`; return; }
-            b.innerHTML += `<div id="aiLoading" style="color:var(--text-muted); font-size:10px; margin-bottom:10px; font-style:italic;">Menganalisa data bisnis...</div>`;
-            const oneDay = 24 * 60 * 60 * 1000; const now = Date.now();
-            const getStats = (days) => { let s = { inc:0, exp:0, lit:0, count:0 }; data.trans.forEach(t => { let diff = (now - t.ts) / oneDay; if(diff <= days) { if(t.type === 'inc') { s.inc += t.n; s.lit += (t.l||0); s.count++; } else if(t.type === 'exp') { s.exp += t.n; } } }); return s; };
-            let sDay = getStats(1); let sWeek = getStats(7); let sMonth = getStats(30); 
-            let avgDailyLit = sWeek.lit > 0 ? (sWeek.lit / 7) : 0; let stockRunway = avgDailyLit > 0 ? (data.stokLiter / avgDailyLit).toFixed(1) : "Tidak terbatas";
-            let grossProfitMonth = sMonth.lit * 3000; let netProfitMonth = grossProfitMonth - sMonth.exp; let efficiencyScore = sMonth.inc > 0 ? ((netProfitMonth / sMonth.inc) * 100).toFixed(1) : 0;
-            let systemPrompt = `Peran: Business Analyst Senior. Fokus angka. DATA: Stok: ${data.stokLiter.toFixed(2)}L. Avg Jual: ${avgDailyLit.toFixed(2)}L/hari. Prediksi Habis: ${stockRunway} hari. KEUNAGAN: Hari Ini Omzet ${sDay.inc}. 7 Hari Omzet ${sWeek.inc}. PROFIT (Bulan Ini): Gross ${grossProfitMonth}, Net ${netProfitMonth}, Efisiensi ${efficiencyScore}%. Pertanyaan User: "${m}"`;
-            try{ let r = await fetch("https://api.groq.com/openai/v1/chat/completions",{ method:"POST", headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`}, body:JSON.stringify({ model:"llama-3.3-70b-versatile", messages:[{role:"system",content:systemPrompt},{role:"user",content:m}] }) }); let j = await r.json(); document.getElementById('aiLoading').remove(); b.innerHTML += `<div style="background:#333; color:white; margin-right:auto; border-radius:12px; padding:15px; margin-bottom:10px; max-width:85%; font-size:13px; line-height:1.6; border:1px solid rgba(255,255,255,0.1); box-shadow:0 5px 15px rgba(0,0,0,0.2);">${marked.parse(j.choices[0].message.content)}</div>`; b.scrollTop = b.scrollHeight; } catch(e){ document.getElementById('aiLoading').remove(); b.innerHTML += `<div style="color:var(--accent-pink); font-size:12px;">Gagal terhubung ke AI.</div>`; }
+            if(!m) return; i.value=''; b.innerHTML += `<div class="chat-bubble cb-user">${m}</div>`;
+            if(!data.groqKey){ b.innerHTML += `<div class="chat-bubble cb-ai" style="color:var(--accent-pink);">API Key Missing</div>`; return; }
+            
+            b.innerHTML += `<div id="aiLoad" style="font-size:10px; color:var(--text-muted); margin-left:10px;">Thinking...</div>`;
+            let stats = { stock: data.stokLiter, price: data.price, modal: data.modalPrice };
+            let prompt = `Role: Business Consultant. Context: Gas Station (Pertamini). Data: Stock ${stats.stock}L, Margin/L ${stats.price - stats.modal}. Question: "${m}". Keep it short and actionable.`;
+            
+            try { 
+                let r = await fetch("https://api.groq.com/openai/v1/chat/completions",{ method:"POST", headers:{"Content-Type":"application/json","Authorization":`Bearer ${data.groqKey}`}, body:JSON.stringify({ model:"llama-3.3-70b-versatile", messages:[{role:"user",content:prompt}] }) }); 
+                let j = await r.json(); document.getElementById('aiLoad').remove(); 
+                b.innerHTML += `<div class="chat-bubble cb-ai">${marked.parse(j.choices[0].message.content)}</div>`; b.scrollTop = b.scrollHeight; 
+            } catch(e){ document.getElementById('aiLoad').remove(); b.innerHTML += `<div class="chat-bubble cb-ai">Error connection.</div>`; }
         }
 
-        // --- AUTH & RESET ---
+        // --- SYSTEM ---
         window.doLogin=()=>{if(document.getElementById('passInput').value===data.pass){localStorage.setItem('dl_log','1');nav('adminScreen');}else alert("Wrong PIN");}
         window.doLogout=()=>{localStorage.removeItem('dl_log');nav('loginScreen');}
-        window.clearData=()=>{if(confirm("RESET ALL DATA PERMANENTLY?")){data.trans=[];data.kasbon=[];localStorage.setItem('dl_super_v4',JSON.stringify(data));renderDash();}}
-        window.calcAdm = () => { let n=parseInt(document.getElementById('admNom').value)||0; document.getElementById('admLit').innerText=(n/data.price).toFixed(2)+"L"; }
-        window.toggleWeather = () => { const i = document.querySelector('#weatherBtn .wt-icon'); if(currentWeather === 'sunny') { currentWeather = 'rain'; i.innerText = 'thunderstorm'; i.style.color = '#4A6CFA'; } else { currentWeather = 'sunny'; i.innerText = 'wb_sunny'; i.style.color = '#FFD700'; } }
+        window.clearData=()=>{if(confirm("RESET DATA?")){data.trans=[];data.kasbon=[];localStorage.setItem('dl_super_v5',JSON.stringify(data));renderDash();}}
+        window.calcAdm = () => { let n=parseInt(document.getElementById('admNom').value)||0; document.getElementById('admLit').innerText=(n/data.price).toFixed(2)+" L"; }
+        window.toggleWeather = () => { const i = document.querySelector('.wt-icon'); if(currentWeather === 'sunny') { currentWeather = 'rain'; i.innerText = 'thunderstorm'; i.style.color = 'var(--primary)'; } else { currentWeather = 'sunny'; i.innerText = 'wb_sunny'; i.style.color = '#FFD700'; } }
         window.renderSet = () => { document.getElementById('setStore').value = data.store; document.getElementById('setAddr').value = data.addr; document.getElementById('setPrice').value = data.price; document.getElementById('setModalPrice').value = data.modalPrice; document.getElementById('setStok').value = data.stokLiter; document.getElementById('setGroqKey').value = data.groqKey || ""; document.getElementById('setTarget').value = data.dailyTarget || 170000; document.getElementById('setPhoto').src = data.photo; }
-        window.saveSet = () => { data.store=document.getElementById('setStore').value; data.addr=document.getElementById('setAddr').value; data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value); data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value; data.dailyTarget=parseInt(document.getElementById('setTarget').value) || 170000; localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("System Updated!"); renderDash(); }
-        window.resetStock = () => { if(confirm("Yakin ingin mereset stok menjadi 0?")) { data.stokLiter = 0; localStorage.setItem('dl_super_v4', JSON.stringify(data)); renderSet(); alert("Stok direset ke 0."); } }
+        window.saveSet = () => { data.store=document.getElementById('setStore').value; data.addr=document.getElementById('setAddr').value; data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value); data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value; data.dailyTarget=parseInt(document.getElementById('setTarget').value); localStorage.setItem('dl_super_v5', JSON.stringify(data)); alert("Tersimpan"); renderDash(); }
+        window.resetStock = () => { if(confirm("Reset stok ke 0?")) { data.stokLiter = 0; localStorage.setItem('dl_super_v5', JSON.stringify(data)); renderSet(); } }
         window.updatePhoto=(e)=>{let r=new FileReader(); r.onload=v=>{data.photo=v.target.result; renderSet();}; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]);}
+        window.openKasbon = () => {
+            document.getElementById('kasbonModal').style.display='flex'; toggleNav(false);
+            const renderK = () => { document.getElementById('kasbonList').innerHTML = data.kasbon.map((k,i) => `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(128,128,128,0.1); font-size:13px;"><span>${k.name}</span><div style="display:flex; gap:10px;"><span style="font-weight:bold;">${fmtMoney(k.nom)}</span><span onclick="delKasbon(${i})" style="color:red; cursor:pointer;">x</span></div></div>`).join(''); };
+            window.addKasbon = () => { let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); if(nm&&no){ data.kasbon.push({name:nm, nom:no}); localStorage.setItem('dl_super_v5', JSON.stringify(data)); document.getElementById('kasbonName').value=''; document.getElementById('kasbonNom').value=''; renderK(); } };
+            window.delKasbon = (i) => { data.kasbon.splice(i,1); localStorage.setItem('dl_super_v5', JSON.stringify(data)); renderK(); };
+            renderK();
+        }
 
-        const startApp=()=>{ document.getElementById('splashScreen').style.opacity='0'; setTimeout(()=>document.getElementById('splashScreen').style.display='none',500); if(localStorage.getItem('dl_log')) nav('adminScreen'); }
-        window.addEventListener('DOMContentLoaded', ()=>{setTimeout(startApp,2000)});
+        const startApp=()=>{ if(localStorage.getItem('dl_log')) nav('adminScreen'); }
+        window.addEventListener('DOMContentLoaded', startApp);
     </script>
 </body>
 </html>
