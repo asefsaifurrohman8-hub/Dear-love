@@ -650,7 +650,7 @@
             dailyTarget: 170000, trans: [], kasbon: [], holidays: [], groqKey: "", theme: 'dark' 
         };
 
-        try { let saved = localStorage.getItem('dl_super_v5'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
+        try { let saved = localStorage.getItem('dl_super_v4'); if(saved) data = { ...data, ...JSON.parse(saved) }; } catch(e) {}
         if(!Array.isArray(data.trans)) data.trans = [];
 
         let currentMode = 'inc', reportMode = 'daily', currentWeather = 'sunny'; 
@@ -665,7 +665,7 @@
         const toggleTheme = () => {
             data.theme = data.theme === 'light' ? 'dark' : 'light';
             applyTheme();
-            localStorage.setItem('dl_super_v5', JSON.stringify(data));
+            localStorage.setItem('dl_super_v4', JSON.stringify(data));
             renderDash(); // Re-render to update charts colors
         }
         applyTheme();
@@ -778,7 +778,7 @@
                 tx.n=n; tx.desc="Withdrawal";
             }
 
-            data.trans.unshift(tx); localStorage.setItem('dl_super_v5', JSON.stringify(data));
+            data.trans.unshift(tx); localStorage.setItem('dl_super_v4', JSON.stringify(data));
             ['admNom','buyNom','buyLit','expNom','descInput','wdNom'].forEach(i=>document.getElementById(i).value='');
             closeModal('inputModal'); renderDash();
         }
@@ -794,13 +794,13 @@
             else if(type==='buy') { data.trans[idx].desc="Restock"; data.stokLiter+=l; }
             else data.trans[idx].desc=d;
             
-            localStorage.setItem('dl_super_v5', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
+            localStorage.setItem('dl_super_v', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
         }
 
         window.deleteTrans = () => {
             if(!confirm("Yakin hapus?")) return; let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id);
             let oldT=data.trans[idx]; if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
-            data.trans.splice(idx,1); localStorage.setItem('dl_super_v5', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
+            data.trans.splice(idx,1); localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); renderDash();
         }
 
         window.openEdit = (id) => {
@@ -1007,18 +1007,18 @@
         // --- SYSTEM ---
         window.doLogin=()=>{if(document.getElementById('passInput').value===data.pass){localStorage.setItem('dl_log','1');nav('adminScreen');}else alert("Wrong PIN");}
         window.doLogout=()=>{localStorage.removeItem('dl_log');nav('loginScreen');}
-        window.clearData=()=>{if(confirm("RESET DATA?")){data.trans=[];data.kasbon=[];localStorage.setItem('dl_super_v5',JSON.stringify(data));renderDash();}}
+        window.clearData=()=>{if(confirm("RESET DATA?")){data.trans=[];data.kasbon=[];localStorage.setItem('dl_super_v4',JSON.stringify(data));renderDash();}}
         window.calcAdm = () => { let n=parseInt(document.getElementById('admNom').value)||0; document.getElementById('admLit').innerText=(n/data.price).toFixed(2)+" L"; }
         window.toggleWeather = () => { const i = document.querySelector('.wt-icon'); if(currentWeather === 'sunny') { currentWeather = 'rain'; i.innerText = 'thunderstorm'; i.style.color = 'var(--primary)'; } else { currentWeather = 'sunny'; i.innerText = 'wb_sunny'; i.style.color = '#FFD700'; } }
         window.renderSet = () => { document.getElementById('setStore').value = data.store; document.getElementById('setAddr').value = data.addr; document.getElementById('setPrice').value = data.price; document.getElementById('setModalPrice').value = data.modalPrice; document.getElementById('setStok').value = data.stokLiter; document.getElementById('setGroqKey').value = data.groqKey || ""; document.getElementById('setTarget').value = data.dailyTarget || 170000; document.getElementById('setPhoto').src = data.photo; }
-        window.saveSet = () => { data.store=document.getElementById('setStore').value; data.addr=document.getElementById('setAddr').value; data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value); data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value; data.dailyTarget=parseInt(document.getElementById('setTarget').value); localStorage.setItem('dl_super_v5', JSON.stringify(data)); alert("Tersimpan"); renderDash(); }
-        window.resetStock = () => { if(confirm("Reset stok ke 0?")) { data.stokLiter = 0; localStorage.setItem('dl_super_v5', JSON.stringify(data)); renderSet(); } }
+        window.saveSet = () => { data.store=document.getElementById('setStore').value; data.addr=document.getElementById('setAddr').value; data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value); data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value; data.dailyTarget=parseInt(document.getElementById('setTarget').value); localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("Tersimpan"); renderDash(); }
+        window.resetStock = () => { if(confirm("Reset stok ke 0?")) { data.stokLiter = 0; localStorage.setItem('dl_super_v4', JSON.stringify(data)); renderSet(); } }
         window.updatePhoto=(e)=>{let r=new FileReader(); r.onload=v=>{data.photo=v.target.result; renderSet();}; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]);}
         window.openKasbon = () => {
             document.getElementById('kasbonModal').style.display='flex'; toggleNav(false);
             const renderK = () => { document.getElementById('kasbonList').innerHTML = data.kasbon.map((k,i) => `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(128,128,128,0.1); font-size:13px;"><span>${k.name}</span><div style="display:flex; gap:10px;"><span style="font-weight:bold;">${fmtMoney(k.nom)}</span><span onclick="delKasbon(${i})" style="color:red; cursor:pointer;">x</span></div></div>`).join(''); };
-            window.addKasbon = () => { let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); if(nm&&no){ data.kasbon.push({name:nm, nom:no}); localStorage.setItem('dl_super_v5', JSON.stringify(data)); document.getElementById('kasbonName').value=''; document.getElementById('kasbonNom').value=''; renderK(); } };
-            window.delKasbon = (i) => { data.kasbon.splice(i,1); localStorage.setItem('dl_super_v5', JSON.stringify(data)); renderK(); };
+            window.addKasbon = () => { let nm=document.getElementById('kasbonName').value, no=parseInt(document.getElementById('kasbonNom').value); if(nm&&no){ data.kasbon.push({name:nm, nom:no}); localStorage.setItem('dl_super_v4', JSON.stringify(data)); document.getElementById('kasbonName').value=''; document.getElementById('kasbonNom').value=''; renderK(); } };
+            window.delKasbon = (i) => { data.kasbon.splice(i,1); localStorage.setItem('dl_super_v4', JSON.stringify(data)); renderK(); };
             renderK();
         }
 
