@@ -348,7 +348,7 @@
             <div class="header-profile-wrap" onclick="nav('settingScreen')">
                 <img id="dispPhoto" class="profile-pic" src="logo.png" onerror="this.src='https://ui-avatars.com/api/?name=DL&background=random&color=fff'">
                 <div class="header-info">
-                    <p>Good Morning,</p>
+                    <p>Hallo bosss,</p>
                     <h1 id="dispStoreName">DEAR LOVE</h1>
                 </div>
             </div>
@@ -365,18 +365,18 @@
         <div class="scroll-content">
             <div class="hero-card">
                 <div class="hero-top">
-                    <span class="hero-label" id="heroStatusLabel">Status Keuangan Hari Ini</span>
+                    <span class="hero-label" id="heroStatusLabel">Current Money </span>
                     <div id="heroStatus" class="status-badge st-recovery">LOADING...</div>
                 </div>
                 
                 <div>
                     <div class="hero-balance" id="heroMainValue">Rp 0</div>
-                    <div class="hero-label" id="heroDesc" style="margin-top:5px; opacity:0.7;">Real-Time Profit (Cash Flow)</div>
+                    <div class="hero-label" id="heroDesc" style="margin-top:5px; opacity:0.7;">Saldo Aktif Hari Ini</div>
                 </div>
 
                 <div class="hero-grid">
                     <div class="hg-item">
-                        <span class="hg-lbl">Modal & Beban</span>
+                        <span class="hg-lbl">Total Keluar (Hpp Exp wd) </span>
                         <span class="hg-val" id="dispTotalRestock">Rp 0</span>
                     </div>
                     <div class="hg-item" style="text-align:right;">
@@ -834,7 +834,7 @@
             document.getElementById('themeIcon').innerText = next === 'light' ? 'light_mode' : 'dark_mode';
         }
 
-        // --- DASHBOARD LOGIC (MODIFIED: REAL TIME PROFIT) ---
+        // --- DASHBOARD LOGIC (MODIFIED: REAL TIME CASH IN DRAWER) ---
         window.renderDash = () => {
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
@@ -852,10 +852,10 @@
                 }
             });
 
-            // 2. Logic "Real Time Profit" (Net Cash Flow)
-            // Rumus: Omzet - (Modal Belanja + Beban Operasional)
-            let totalOut = dRestock + dExp; 
-            let netCash = dInc - totalOut; 
+            // 2. Logic "Uang di Laci" (Cash in Drawer)
+            // Rumus: Omzet Masuk - (Semua Uang Keluar: Beban, WD, Restock)
+            let totalOut = dExp + dWd + dRestock;
+            let cashInDrawer = dInc - totalOut; 
             
             // UPDATE HERO CARD
             const heroStatus = document.getElementById('heroStatus');
@@ -865,19 +865,19 @@
             document.getElementById('dispTotalRestock').innerText = fmtMoney(totalOut);
             document.getElementById('dispTotalOmzet').innerText = fmtMoney(dInc);
             
-            if (netCash >= 0) {
-                // SUDAH PROFIT (Positive Cash Flow)
+            if (cashInDrawer >= 0) {
+                // SALDO POSITIF (Ada uang di laci)
                 heroStatus.className = "status-badge st-profit";
-                heroStatus.innerText = "PROFIT (REAL-TIME)";
-                heroDesc.innerText = "Net Profit Hari Ini";
-                heroMain.innerText = "+ " + fmtMoney(netCash);
+                heroStatus.innerText = "SALDO AMAN";
+                heroDesc.innerText = "Sisa Uang Fisik Saat Ini";
+                heroMain.innerText = fmtMoney(cashInDrawer);
                 heroMain.style.color = "#FFFFFF"; 
             } else {
-                // MINUS (Negative Cash Flow / Belum Balik Modal)
+                // SALDO NEGATIF (Minus/Tekor - Pengeluaran lebih besar dari pemasukan hari ini)
                 heroStatus.className = "status-badge st-recovery";
-                heroStatus.innerText = "MINUS / MODAL";
-                heroDesc.innerText = "Defisit Hari Ini";
-                heroMain.innerText = "- " + fmtMoney(Math.abs(netCash));
+                heroStatus.innerText = "SALDO MINUS (TEKOR)";
+                heroDesc.innerText = "Defisit Cash Hari Ini";
+                heroMain.innerText = "- " + fmtMoney(Math.abs(cashInDrawer));
                 heroMain.style.color = "#FFD1D1"; 
             }
             
