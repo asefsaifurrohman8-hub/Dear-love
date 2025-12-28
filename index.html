@@ -130,6 +130,11 @@
             color: white;
             min-height: 180px;
             display: flex; flex-direction: column; justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+        .hero-card.mode-total {
+            background: linear-gradient(110deg, #FFB547 0%, #FFD188 100%);
+            box-shadow: 0 10px 30px rgba(255, 181, 71, 0.25);
         }
         .hero-card::before {
             content: ''; position: absolute; top: -50px; right: -50px;
@@ -182,6 +187,7 @@
         .sb-green { background: var(--profit-bg); color: var(--profit); }
         .sb-red { background: var(--recovery-bg); color: var(--recovery); }
         .sb-purple { background: #F3E8FF; color: #A855F7; }
+        .sb-orange { background: #FFF4E5; color: #FFB547; }
 
         .sb-val { font-size: 14px; font-weight: 700; color: var(--text-main); letter-spacing: -0.3px; line-height: 1.2; }
         .sb-lbl { font-size: 10px; color: var(--text-sec); font-weight: 500; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -321,6 +327,23 @@
         }
         
         .login-logo { width: 80px; height: 80px; background: var(--primary); border-radius: 24px; margin: 0 auto 25px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: 800; box-shadow: 0 10px 30px rgba(67, 24, 255, 0.3); }
+        /* --- TAMBAHAN STYLE UNTUK TOMBOL SISA MODAL --- */
+        /* Keadaan Aktif (Ditekan) */
+        .stat-box.active-mode {
+            border: 2px solid var(--primary) !important;
+            background: var(--primary-soft) !important; /* Biru muda di Light Mode */
+        }
+        
+        /* Khusus Dark Mode saat Aktif */
+        [data-theme="dark"] .stat-box.active-mode {
+            background: rgba(67, 24, 255, 0.2) !important; /* Biru transparan di Dark Mode */
+            border-color: var(--primary) !important;
+        }
+
+        /* Hapus border default kuning biar tidak tabrakan */
+        .stat-box.prev-bal-box {
+            border: 1px solid var(--warning); 
+        }
     </style>
 </head>
 <body>
@@ -363,7 +386,7 @@
         </div>
 
         <div class="scroll-content">
-            <div class="hero-card">
+            <div id="mainHeroCard" class="hero-card">
                 <div class="hero-top">
                     <span class="hero-label" id="heroStatusLabel">Current Money </span>
                     <div id="heroStatus" class="status-badge st-recovery">LOADING...</div>
@@ -392,11 +415,13 @@
                     <span class="sb-val" id="dashTodayLit">0</span>
                     <span class="sb-lbl">Terjual (L)</span>
                 </div>
-                <div class="stat-box">
-                    <div class="sb-icon-wrap sb-green"><span class="material-icons-round">payments</span></div>
-                    <span class="sb-val" id="dashTodayInc">0</span>
-                    <span class="sb-lbl">Omzet Hari Ini</span>
+                
+                    <div class="stat-box prev-bal-box" onclick="toggleHeroView()" style="cursor:pointer;">
+                    <div class="sb-icon-wrap sb-orange"><span class="material-icons-round">account_balance</span></div>
+                    <span class="sb-val" id="dashPrevBal">0</span>
+                    <span class="sb-lbl">Sisa Modal Kemarin</span>
                 </div>
+
                 <div class="stat-box">
                     <div class="sb-icon-wrap sb-red"><span class="material-icons-round">trending_down</span></div>
                     <span class="sb-val" id="dashTodayExp">0</span>
@@ -453,7 +478,7 @@
                  <div style="height:200px;"><canvas id="hourChart"></canvas></div>
              </div>
              <div class="stat-box" style="margin-bottom: 20px; padding: 20px;">
-                 <h4 style="margin:0 0 15px 0; color:var(--text-main);">Grafik Hari (Minggu Ini)</h4>
+                 <h4 style="margin:0 0 15px 0; color:var(--text-main);">Grafik Hari (7 Hari Terakhir)</h4>
                  <div style="height:200px;"><canvas id="dayChart"></canvas></div>
              </div>
 
@@ -802,6 +827,7 @@
         if(!Array.isArray(data.kasbon)) data.kasbon = [];
         
         let currentMode = 'inc', reportMode = 'daily', currentWeather = 'sunny';
+        let includePrevBalance = false; // Default: Tidak dijumlahkan
         const fmtMoney = (n) => "Rp " + parseInt(n).toLocaleString('id-ID');
 
         // --- CORE HELPER: FISCAL PERIOD (18-17) ---
@@ -834,16 +860,31 @@
             document.getElementById('themeIcon').innerText = next === 'light' ? 'light_mode' : 'dark_mode';
         }
 
-        // --- DASHBOARD LOGIC (MODIFIED: REAL TIME CASH IN DRAWER) ---
-        window.renderDash = () => {
+        // --- DASHBOARD LOGIC (MODIFIED WITH PREV BALANCE) ---
+window.toggleHeroView = () => {
+            includePrevBalance = !includePrevBalance; // Balik status (Aktif/Tidak)
+            renderDash(); // Langsung update angka
+        }
+
+            window.renderDash = () => {
+            // Update Foto & Nama Toko
             document.getElementById('dispStoreName').innerText = data.store;
             document.getElementById('dispPhoto').src = data.photo;
+            
             let today = new Date().toLocaleDateString();
             
-            // 1. Hitung Stats HARI INI
-            let dInc=0, dExp=0, dWd=0, dLit=0, dRestock=0;
+            // --- 1. HITUNG SEMUA DATA (LOOPING) ---
+            let totalInc=0, totalExp=0, totalWd=0, totalBuy=0; // Data Total Sejarah
+            let dInc=0, dExp=0, dWd=0, dLit=0, dRestock=0;      // Data Hari Ini
             
             data.trans.forEach(t => { 
+                // Hitung Total (Sejarah)
+                if(t.type === 'inc') totalInc += t.n;
+                else if(t.type === 'exp') totalExp += t.n;
+                else if(t.type === 'buy') totalBuy += t.n;
+                else if(t.type === 'wd') totalWd += t.n;
+
+                // Hitung Hari Ini
                 if(t.date === today) { 
                     if(t.type === 'inc') { dInc+=t.n; dLit+=(t.l||0); }
                     else if(t.type === 'wd') { dWd+=t.n; } 
@@ -852,41 +893,74 @@
                 }
             });
 
-            // 2. Logic "Uang di Laci" (Cash in Drawer)
-            // Rumus: Omzet Masuk - (Semua Uang Keluar: Beban, WD, Restock)
-            let totalOut = dExp + dWd + dRestock;
-            let cashInDrawer = dInc - totalOut; 
+            // --- 2. RUMUS SEDERHANA ---
             
-            // UPDATE HERO CARD
-            const heroStatus = document.getElementById('heroStatus');
-            const heroDesc = document.getElementById('heroDesc');
-            const heroMain = document.getElementById('heroMainValue');
+            // Uang Murni Hari Ini (Masuk - Keluar Hari Ini)
+            let todayOut = dExp + dWd + dRestock;
+            let todayBalance = dInc - todayOut;
 
-            document.getElementById('dispTotalRestock').innerText = fmtMoney(totalOut);
-            document.getElementById('dispTotalOmzet').innerText = fmtMoney(dInc);
+            // Uang Total di Tangan (Semua Masuk - Semua Keluar sampai detik ini)
+            let allTimeOut = totalExp + totalBuy + totalWd;
+            let currentBalance = totalInc - allTimeOut; 
             
-            if (cashInDrawer >= 0) {
-                // SALDO POSITIF (Ada uang di laci)
+            // Sisa Kemarin (Selisih Total dikurangi Hari Ini)
+            let prevBalance = currentBalance - todayBalance; 
+
+            // --- 3. LOGIKA GANTI ANGKA (YANG ANDA MINTA) ---
+            
+            // Jika tombol ditekan (includePrevBalance), tampilkan TOTAL (Gabungan).
+            // Jika tidak, tampilkan HARI INI saja.
+            let angkaYangDitampilkan = includePrevBalance ? currentBalance : todayBalance;
+
+            // --- 4. UPDATE TAMPILAN KARTU UTAMA ---
+            
+            const heroStatus = document.getElementById('heroStatus');
+            const heroMain = document.getElementById('heroMainValue');
+            
+            // Tampilkan Angkanya
+            if (angkaYangDitampilkan >= 0) {
                 heroStatus.className = "status-badge st-profit";
-                heroStatus.innerText = "SALDO AMAN";
-                heroDesc.innerText = "Sisa Uang Fisik Saat Ini";
-                heroMain.innerText = fmtMoney(cashInDrawer);
+                heroStatus.innerText = "SALDO AMAN"; // Teks tetap simpel
+                heroMain.innerText = fmtMoney(angkaYangDitampilkan);
                 heroMain.style.color = "#FFFFFF"; 
             } else {
-                // SALDO NEGATIF (Minus/Tekor - Pengeluaran lebih besar dari pemasukan hari ini)
                 heroStatus.className = "status-badge st-recovery";
-                heroStatus.innerText = "SALDO MINUS (TEKOR)";
-                heroDesc.innerText = "Defisit Cash Hari Ini";
-                heroMain.innerText = "- " + fmtMoney(Math.abs(cashInDrawer));
+                heroStatus.innerText = "SALDO MINUS"; // Teks tetap simpel
+                heroMain.innerText = "- " + fmtMoney(Math.abs(angkaYangDitampilkan));
                 heroMain.style.color = "#FFD1D1"; 
             }
+
+            // Update Info Kecil di Kartu Utama (Opsional: Tetap fokus data hari ini biar gak bingung)
+            document.getElementById('dispTotalRestock').innerText = fmtMoney(todayOut);
+            document.getElementById('dispTotalOmzet').innerText = fmtMoney(dInc);
             
-            // SMALL STATS (TODAY)
+            // --- 5. UPDATE KOTAK-KOTAK KECIL ---
+            
             document.getElementById('dashTodayLit').innerText = dLit.toFixed(1);
-            document.getElementById('dashTodayInc').innerText = fmtMoney(dInc);
+            
+// KOTAK SISA MODAL KEMARIN
+            let prevBox = document.getElementById('dashPrevBal');
+            prevBox.innerText = fmtMoney(prevBalance);
+            
+            // LOGIKA VISUAL BARU (Support Dark Mode)
+            // Kita mainkan Class, bukan warna manual.
+            // parentNode adalah elemen <div class="stat-box"> pembungkusnya
+            
+            if (includePrevBalance) {
+                prevBox.parentNode.classList.add('active-mode'); // Tambah class aktif
+                prevBox.parentNode.style.border = ""; // Hapus style inline jika ada
+            } else {
+                prevBox.parentNode.classList.remove('active-mode'); // Hapus class aktif
+                // Kembalikan ke border kuning default lewat CSS, 
+                // Background otomatis ngikutin tema (Putih di Light, Gelap di Dark)
+                prevBox.parentNode.style.background = ""; 
+                prevBox.parentNode.style.border = "";
+            }
+
             document.getElementById('dashTodayExp').innerText = fmtMoney(dExp);
             document.getElementById('dashTodayWd').innerText = fmtMoney(dWd);
             
+            // Update List Transaksi
             document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
         }
 
@@ -945,13 +1019,10 @@
                 document.getElementById('receiptModal').style.display='flex';
 
             } else if (type === 'buy') {
-                // MODIFIED: Input is Nominal Rupiah ONLY
                 let n=parseInt(document.getElementById('buyNom').value); if(!n) return;
-                // Auto-calculate liters for stock tracking based on Modal Price setting
                 let l = parseFloat((n / data.modalPrice).toFixed(2));
-                
                 tx.n=n; tx.l=l; tx.desc="Restock Modal"; 
-                data.stokLiter+=l; // Update stock liter inventory
+                data.stokLiter+=l; 
             } else if (type === 'exp') {
                 let n=parseInt(document.getElementById('expNom').value), d=document.getElementById('descInput').value; if(!n) return;
                 tx.n=n; tx.desc=d||"Expense";
@@ -1284,18 +1355,112 @@
             });
         }
 
-        // --- CHARTS & AI ---
+        // --- CHARTS & INSIGHTS (NEW IMPLEMENTATION) ---
         window.renderDataInsight = () => {
-            let hC = Array(24).fill(0); let dC = Array(7).fill(0);
+            // 1. HOUR CHART (TODAY)
+            let hC = Array(24).fill(0);
             let today = new Date().toLocaleDateString();
+            
+            // 2. DAY CHART (LAST 7 DAYS)
+            let dLabels = [];
+            let dData = [];
+            for(let i=6; i>=0; i--) {
+                let d = new Date();
+                d.setDate(d.getDate() - i);
+                let dStr = d.toLocaleDateString();
+                dLabels.push(d.toLocaleDateString('id-ID',{weekday:'short'}));
+                
+                // Sum omzet for this specific day
+                let daySum = data.trans.reduce((acc, t) => {
+                    return (t.date === dStr && t.type === 'inc') ? acc + t.n : acc;
+                }, 0);
+                dData.push(daySum);
+            }
+
+            // 3. TOP HOURS & DAYS AGGREGATION
+            let hourStats = {};
+            let dayStats = {};
+            
             data.trans.forEach(t => {
                 if(t.type === 'inc') {
-                    if(t.date === today) hC[parseInt(t.time.split(':')[0])] += t.n;
+                    // Populate Hour Chart Today
+                    if(t.date === today) {
+                        let h = parseInt(t.time.split(':')[0]);
+                        hC[h] += t.n;
+                    }
+
+                    // Populate Top Hours Table (All Time)
+                    let hKey = t.time.split(':')[0] + ":00";
+                    if(!hourStats[hKey]) hourStats[hKey] = {vol:0, omzet:0};
+                    hourStats[hKey].vol += (t.l||0);
+                    hourStats[hKey].omzet += t.n;
+
+                    // Populate Top Days Table (All Time)
+                    // Get Day Name from TS
+                    let dayName = new Date(t.ts).toLocaleDateString('id-ID', {weekday:'long'});
+                    if(!dayStats[dayName]) dayStats[dayName] = {vol:0, omzet:0};
+                    dayStats[dayName].vol += (t.l||0);
+                    dayStats[dayName].omzet += t.n;
                 }
             });
+
+            // RENDER CHARTS
             updateChart('hourChart', 'hourChartInstance', 'line', Array.from({length:24},(_,i)=>i), hC);
+            updateChart('dayChart', 'dayChartInstance', 'bar', dLabels, dData);
+
+            // RENDER TABLES
+            // Sort Hours by Omzet Desc
+            let sortedHours = Object.keys(hourStats).sort((a,b) => hourStats[b].omzet - hourStats[a].omzet).slice(0, 5);
+            let hTableHTML = sortedHours.map((h, i) => `
+                <tr style="border-bottom:1px solid rgba(0,0,0,0.05);">
+                    <td style="padding:10px;">${i+1}</td>
+                    <td style="font-weight:600;">${h}</td>
+                    <td style="text-align:right;">${hourStats[h].vol.toFixed(1)} L</td>
+                    <td style="text-align:right; font-weight:700;">${fmtMoney(hourStats[h].omzet)}</td>
+                </tr>
+            `).join('');
+            document.getElementById('topHoursTableBody').innerHTML = hTableHTML;
+
+            // Sort Days by Omzet Desc
+            let sortedDays = Object.keys(dayStats).sort((a,b) => dayStats[b].omzet - dayStats[a].omzet);
+            let dTableHTML = sortedDays.map((d, i) => `
+                <tr style="border-bottom:1px solid rgba(0,0,0,0.05);">
+                    <td style="padding:10px;">${i+1}</td>
+                    <td style="font-weight:600;">${d}</td>
+                    <td style="text-align:right;">${dayStats[d].vol.toFixed(1)} L</td>
+                    <td style="text-align:right; font-weight:700;">${fmtMoney(dayStats[d].omzet)}</td>
+                </tr>
+            `).join('');
+            document.getElementById('topDaysTableBody').innerHTML = dTableHTML;
         }
-        function updateChart(id,iN,t,l,d){const ctx=document.getElementById(id).getContext('2d');if(window[iN])window[iN].destroy();window[iN]=new Chart(ctx,{type:t,data:{labels:l,datasets:[{label:'Omzet',data:d,borderColor:'#4318FF',backgroundColor:'rgba(67, 24, 255, 0.1)',fill:true}]}});}
+
+        function updateChart(id,iN,t,l,d){
+            const ctx=document.getElementById(id).getContext('2d');
+            if(window[iN])window[iN].destroy();
+            window[iN]=new Chart(ctx,{
+                type:t,
+                data:{
+                    labels:l,
+                    datasets:[{
+                        label:'Omzet',
+                        data:d,
+                        borderColor:'#4318FF',
+                        backgroundColor: t==='line' ? 'rgba(67, 24, 255, 0.1)' : '#4318FF',
+                        fill:true,
+                        borderRadius: 5
+                    }]
+                },
+                options:{
+                    responsive:true, 
+                    maintainAspectRatio:false,
+                    plugins:{legend:{display:false}},
+                    scales:{
+                        x:{grid:{display:false}, ticks:{font:{size:10}}},
+                        y:{display:false}
+                    }
+                }
+            });
+        }
 
         window.sendAIChat = async () => {
              let m = document.getElementById('aiInput').value; if(!m)return;
