@@ -188,6 +188,7 @@
         .sb-red { background: var(--recovery-bg); color: var(--recovery); }
         .sb-purple { background: #F3E8FF; color: #A855F7; }
         .sb-orange { background: #FFF4E5; color: #FFB547; }
+        .sb-teal { background: #E0F2F1; color: #00897B; }
 
         .sb-val { font-size: 14px; font-weight: 700; color: var(--text-main); letter-spacing: -0.3px; line-height: 1.2; }
         .sb-lbl { font-size: 10px; color: var(--text-sec); font-weight: 500; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -327,6 +328,7 @@
         }
         
         .login-logo { width: 80px; height: 80px; background: var(--primary); border-radius: 24px; margin: 0 auto 25px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: 800; box-shadow: 0 10px 30px rgba(67, 24, 255, 0.3); }
+        
         /* --- TAMBAHAN STYLE UNTUK TOMBOL SISA MODAL --- */
         /* Keadaan Aktif (Ditekan) */
         .stat-box.active-mode {
@@ -416,7 +418,7 @@
                     <span class="sb-lbl">Terjual (L)</span>
                 </div>
                 
-                    <div class="stat-box prev-bal-box" onclick="toggleHeroView()" style="cursor:pointer;">
+                <div class="stat-box prev-bal-box" onclick="toggleHeroView()" style="cursor:pointer;">
                     <div class="sb-icon-wrap sb-orange"><span class="material-icons-round">account_balance</span></div>
                     <span class="sb-val" id="dashPrevBal">0</span>
                     <span class="sb-lbl">Sisa Modal Kemarin</span>
@@ -431,6 +433,16 @@
                     <div class="sb-icon-wrap sb-purple"><span class="material-icons-round">account_balance_wallet</span></div>
                     <span class="sb-val" id="dashTodayWd">0</span>
                     <span class="sb-lbl">Withdraw Today</span>
+                </div>
+                
+                <div class="stat-box" style="grid-column: span 2;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span class="sb-val" id="dashStockVal" style="color:var(--text-main);">0</span>
+                            <span class="sb-lbl">Aset Stok (Modal Tertahan)</span>
+                        </div>
+                         <div class="sb-icon-wrap sb-teal" style="margin:0;"><span class="material-icons-round">inventory_2</span></div>
+                    </div>
                 </div>
             </div>
 
@@ -533,6 +545,7 @@
             <table class="detail-table">
                 <tr><td>Total Omzet</td><td class="detail-row-val text-green" id="cdmOmzet">0</td></tr>
                 <tr><td>Total Liter</td><td class="detail-row-val" id="cdmLiter">0 L</td></tr>
+                <tr><td>Modal Harian (Restock)</td><td class="detail-row-val text-blue" id="cdmModal">0</td></tr>
                 <tr><td>Pengeluaran</td><td class="detail-row-val text-red" id="cdmExp">0</td></tr>
                 <tr><td>Withdraw (WD)</td><td class="detail-row-val" style="color:var(--accent-wd);" id="cdmWd">0</td></tr>
                 <tr><td>Jam Teramai</td><td class="detail-row-val" id="cdmBusy">-</td></tr>
@@ -861,7 +874,7 @@
         }
 
         // --- DASHBOARD LOGIC (MODIFIED WITH PREV BALANCE) ---
-window.toggleHeroView = () => {
+        window.toggleHeroView = () => {
             includePrevBalance = !includePrevBalance; // Balik status (Aktif/Tidak)
             renderDash(); // Langsung update angka
         }
@@ -938,21 +951,23 @@ window.toggleHeroView = () => {
             
             document.getElementById('dashTodayLit').innerText = dLit.toFixed(1);
             
-// KOTAK SISA MODAL KEMARIN
+            // KOTAK SISA MODAL KEMARIN (UANG CASH)
             let prevBox = document.getElementById('dashPrevBal');
             prevBox.innerText = fmtMoney(prevBalance);
             
+            // KOTAK ASET STOK (MODAL TERTAHAN) - NEW FEATURE
+            // Menghitung nilai aset yang masih ada di stok (belum terjual)
+            let stockAsset = data.stokLiter * data.modalPrice;
+            document.getElementById('dashStockVal').innerText = fmtMoney(stockAsset);
+
+            
             // LOGIKA VISUAL BARU (Support Dark Mode)
             // Kita mainkan Class, bukan warna manual.
-            // parentNode adalah elemen <div class="stat-box"> pembungkusnya
-            
             if (includePrevBalance) {
                 prevBox.parentNode.classList.add('active-mode'); // Tambah class aktif
                 prevBox.parentNode.style.border = ""; // Hapus style inline jika ada
             } else {
                 prevBox.parentNode.classList.remove('active-mode'); // Hapus class aktif
-                // Kembalikan ke border kuning default lewat CSS, 
-                // Background otomatis ngikutin tema (Putih di Light, Gelap di Dark)
                 prevBox.parentNode.style.background = ""; 
                 prevBox.parentNode.style.border = "";
             }
@@ -1183,7 +1198,7 @@ window.toggleHeroView = () => {
             document.getElementById('calendarBody').innerHTML = calHTML;
         }
 
-        // --- CALENDAR DETAIL MODAL ---
+        // --- CALENDAR DETAIL MODAL (UPDATED WITH MODAL HARIAN) ---
         let detailChartInstance = null;
 
         window.openDateDetail = (dateStr) => {
@@ -1193,6 +1208,7 @@ window.toggleHeroView = () => {
             let totalLit = 0;
             let totalExp = 0;
             let totalWd = 0;
+            let totalBuy = 0; // NEW: Track Modal Harian
             let hourCounts = {};
             let weathers = {};
 
@@ -1206,6 +1222,7 @@ window.toggleHeroView = () => {
                 }
                 else if (t.type === 'exp') totalExp += t.n;
                 else if (t.type === 'wd') totalWd += t.n;
+                else if (t.type === 'buy') totalBuy += t.n; // Sum Restock
             });
 
             let busiestHour = "-";
@@ -1223,6 +1240,7 @@ window.toggleHeroView = () => {
             document.getElementById('cdmLiter').innerText = totalLit.toFixed(2) + " L";
             document.getElementById('cdmExp').innerText = fmtMoney(totalExp);
             document.getElementById('cdmWd').innerText = fmtMoney(totalWd);
+            document.getElementById('cdmModal').innerText = fmtMoney(totalBuy); // Display Modal Harian
             document.getElementById('cdmBusy').innerText = busiestHour;
             document.getElementById('cdmWeather').innerText = domWeather;
             document.getElementById('cdmNet').innerText = fmtMoney(net);
