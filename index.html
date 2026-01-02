@@ -1500,6 +1500,104 @@ window.saveSet = () => {
             setTimeout(()=>{document.getElementById('splashScreen').style.opacity='0'; setTimeout(()=>document.getElementById('splashScreen').style.display='none',500);}, 2000);
             if(localStorage.getItem('dl_log')) nav('adminScreen');
         });
+        
+        // --- FITUR EDIT & DELETE HISTORY (Tambahkan ini) ---
+
+// 1. Fungsi Membuka Modal Edit
+window.openEdit = (id) => {
+    // Cari data transaksi berdasarkan ID
+    let t = data.trans.find(x => x.id === id);
+    if(!t) return;
+
+    // Masukkan data lama ke dalam form input
+    document.getElementById('editId').value = id;
+    document.getElementById('editType').value = t.type;
+    document.getElementById('editNom').value = t.n;
+    document.getElementById('editLit').value = t.l || 0;
+    document.getElementById('editDesc').value = t.desc || (t.metode || "");
+
+    // Atur tampilan field (sembunyikan liter jika bukan penjualan/restock)
+    toggleEditFields();
+    
+    // Tampilkan Modal
+    document.getElementById('editModal').style.display = 'flex';
+    toggleNav(false); // Sembunyikan navigasi bawah
+}
+
+// 2. Fungsi Mengatur Tampilan Input di Modal Edit
+window.toggleEditFields = () => {
+    let type = document.getElementById('editType').value;
+    // Tampilkan input Liter hanya jika tipe 'inc' (Jual) atau 'buy' (Restock)
+    let showLiter = (type === 'inc' || type === 'buy');
+    document.getElementById('editLiterWrap').style.display = showLiter ? 'block' : 'none';
+}
+
+// 3. Fungsi Menyimpan Perubahan (UPDATE)
+window.saveEditTrans = () => {
+    let id = parseInt(document.getElementById('editId').value);
+    let tIndex = data.trans.findIndex(x => x.id === id);
+    
+    if(tIndex === -1) return; // Data tidak ditemukan
+
+    // Ambil nilai baru dari form
+    let newType = document.getElementById('editType').value;
+    let newNom = parseInt(document.getElementById('editNom').value);
+    let newLit = parseFloat(document.getElementById('editLit').value);
+    let newDesc = document.getElementById('editDesc').value;
+
+    // Logika Update Data
+    data.trans[tIndex].type = newType;
+    data.trans[tIndex].n = newNom;
+    
+    if(newType === 'inc') {
+        data.trans[tIndex].l = newLit;
+        data.trans[tIndex].metode = newDesc || "Tunai"; // Di form edit, deskripsi jadi metode bayar kalau jual
+        // Catatan: Jika ingin stok otomatis berubah saat diedit, logika tambahannya rumit.
+        // Untuk sekarang kita hanya ubah datanya saja. Stok bisa disesuaikan manual di Settings.
+    } else if (newType === 'buy') {
+        data.trans[tIndex].l = newLit;
+        data.trans[tIndex].desc = "Restock Modal";
+    } else {
+        // Untuk Expense (exp) dan Withdraw (wd)
+        data.trans[tIndex].l = 0;
+        data.trans[tIndex].desc = newDesc;
+    }
+
+    // Simpan ke LocalStorage
+    localStorage.setItem('dl_super_v4', JSON.stringify(data));
+    
+    // Tutup Modal & Refresh Tampilan
+    closeModal('editModal');
+    alert("Data berhasil diupdate!");
+    
+    // Refresh halaman yang sedang aktif
+    renderDash();
+    if(document.getElementById('historyScreen').classList.contains('active')) {
+        renderHistory();
+    }
+}
+
+        // 4. Fungsi Menghapus Transaksi (DELETE)
+window.deleteTrans = () => {
+    let id = parseInt(document.getElementById('editId').value);
+    
+    if(!confirm("Yakin ingin menghapus data ini secara permanen?")) return;
+
+    // Filter data (buang data yang ID-nya cocok)
+    data.trans = data.trans.filter(x => x.id !== id);
+    
+    // Simpan perubahan
+    localStorage.setItem('dl_super_v4', JSON.stringify(data));
+    
+    closeModal('editModal');
+    
+    // Refresh Tampilan
+    renderDash();
+    if(document.getElementById('historyScreen').classList.contains('active')) {
+        renderHistory();
+    }
+}
+
     </script>
 </body>
 </html>
