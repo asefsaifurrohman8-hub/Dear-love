@@ -418,11 +418,11 @@
                     <span class="sb-lbl">Terjual (L)</span>
                 </div>
                 
-                <div class="stat-box prev-bal-box" onclick="toggleHeroView()" style="cursor:pointer;">
-                    <div class="sb-icon-wrap sb-orange"><span class="material-icons-round">account_balance</span></div>
-                    <span class="sb-val" id="dashPrevBal">0</span>
-                    <span class="sb-lbl">Sisa Modal Kemarin</span>
-                </div>
+<div class="stat-box active-mode" style="cursor:default;">
+    <div class="sb-icon-wrap sb-teal"><span class="material-icons-round">inventory_2</span></div>
+    <span class="sb-val" id="dashStockVal">0</span>
+    <span class="sb-lbl">Aset Stok Tertahan</span>
+</div>
 
                 <div class="stat-box">
                     <div class="sb-icon-wrap sb-red"><span class="material-icons-round">trending_down</span></div>
@@ -435,15 +435,7 @@
                     <span class="sb-lbl">Withdraw Today</span>
                 </div>
                 
-                <div class="stat-box" style="grid-column: span 2;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <span class="sb-val" id="dashStockVal" style="color:var(--text-main);">0</span>
-                            <span class="sb-lbl">Aset Stok (Modal Tertahan)</span>
-                        </div>
-                         <div class="sb-icon-wrap sb-teal" style="margin:0;"><span class="material-icons-round">inventory_2</span></div>
-                    </div>
-                </div>
+
             </div>
 
             <div class="section-header">
@@ -878,106 +870,111 @@
             includePrevBalance = !includePrevBalance; // Balik status (Aktif/Tidak)
             renderDash(); // Langsung update angka
         }
+// --- TAMBAHAN FIX: PASTIKAN INI ADA ---
+
+window.renderHistory = () => { document.getElementById('fullHistoryList').innerHTML = data.trans.map(t => makeTransItem(t)).join(''); }
+
+window.makeTransItem = (t) => {
+    let ic='ti-inc', iname='local_gas_station', s='+', ti='Sale', su=(t.l||0).toFixed(2)+" L";
+    
+    // Logika Icon & Teks berdasarkan Tipe
+    if(t.type==='buy'){ ic='ti-buy'; iname='water_drop'; s='-'; ti='Restock Modal'; su="+"+(t.l||0).toFixed(2)+" L (Stok)"; }
+    else if(t.type==='exp'){ ic='ti-exp'; iname='payments'; s='-'; ti=t.desc; su="Expense"; }
+    else if(t.type==='wd'){ ic='ti-wd'; iname='account_balance_wallet'; s='-'; ti='Withdraw'; su="Ambil Profit"; }
+    else ti=t.metode||"Cash";
+    
+    // Return HTML String
+    return `
+    <div class="trans-item" onclick="openEdit(${t.id})">
+        <div class="ti-left">
+            <div class="ti-icon ${ic}"><span class="material-icons-round">${iname}</span></div>
+            <div class="ti-info"><h4>${ti}</h4><p>${su}</p></div>
+        </div>
+        <div>
+            <div class="ti-val">${s} ${fmtMoney(t.n)}</div>
+            <span class="ti-date">${t.date}</span>
+        </div>
+    </div>`;
+}
+
+// ---------------------------------------
+
 
             window.renderDash = () => {
-            // Update Foto & Nama Toko
-            document.getElementById('dispStoreName').innerText = data.store;
-            document.getElementById('dispPhoto').src = data.photo;
-            
-            let today = new Date().toLocaleDateString();
-            
-            // --- 1. HITUNG SEMUA DATA (LOOPING) ---
-            let totalInc=0, totalExp=0, totalWd=0, totalBuy=0; // Data Total Sejarah
-            let dInc=0, dExp=0, dWd=0, dLit=0, dRestock=0;      // Data Hari Ini
-            
-            data.trans.forEach(t => { 
-                // Hitung Total (Sejarah)
-                if(t.type === 'inc') totalInc += t.n;
-                else if(t.type === 'exp') totalExp += t.n;
-                else if(t.type === 'buy') totalBuy += t.n;
-                else if(t.type === 'wd') totalWd += t.n;
+    // Update Foto & Nama Toko
+    document.getElementById('dispStoreName').innerText = data.store;
+    document.getElementById('dispPhoto').src = data.photo;
+    
+    let today = new Date().toLocaleDateString();
+    
+    // --- 1. HITUNG SEMUA DATA ---
+    let totalInc=0, totalExp=0, totalWd=0, totalBuy=0; 
+    let dInc=0, dExp=0, dWd=0, dLit=0, dRestock=0;      
+    
+    data.trans.forEach(t => { 
+        if(t.type === 'inc') totalInc += t.n;
+        else if(t.type === 'exp') totalExp += t.n;
+        else if(t.type === 'buy') totalBuy += t.n;
+        else if(t.type === 'wd') totalWd += t.n;
 
-                // Hitung Hari Ini
-                if(t.date === today) { 
-                    if(t.type === 'inc') { dInc+=t.n; dLit+=(t.l||0); }
-                    else if(t.type === 'wd') { dWd+=t.n; } 
-                    else if(t.type === 'exp') { dExp+=t.n; }
-                    else if(t.type === 'buy') { dRestock+=t.n; }
-                }
-            });
-
-            // --- 2. RUMUS SEDERHANA ---
-            
-            // Uang Murni Hari Ini (Masuk - Keluar Hari Ini)
-            let todayOut = dExp + dWd + dRestock;
-            let todayBalance = dInc - todayOut;
-
-            // Uang Total di Tangan (Semua Masuk - Semua Keluar sampai detik ini)
-            let allTimeOut = totalExp + totalBuy + totalWd;
-            let currentBalance = totalInc - allTimeOut; 
-            
-            // Sisa Kemarin (Selisih Total dikurangi Hari Ini)
-            let prevBalance = currentBalance - todayBalance; 
-
-            // --- 3. LOGIKA GANTI ANGKA (YANG ANDA MINTA) ---
-            
-            // Jika tombol ditekan (includePrevBalance), tampilkan TOTAL (Gabungan).
-            // Jika tidak, tampilkan HARI INI saja.
-            let angkaYangDitampilkan = includePrevBalance ? currentBalance : todayBalance;
-
-            // --- 4. UPDATE TAMPILAN KARTU UTAMA ---
-            
-            const heroStatus = document.getElementById('heroStatus');
-            const heroMain = document.getElementById('heroMainValue');
-            
-            // Tampilkan Angkanya
-            if (angkaYangDitampilkan >= 0) {
-                heroStatus.className = "status-badge st-profit";
-                heroStatus.innerText = "SALDO AMAN"; // Teks tetap simpel
-                heroMain.innerText = fmtMoney(angkaYangDitampilkan);
-                heroMain.style.color = "#FFFFFF"; 
-            } else {
-                heroStatus.className = "status-badge st-recovery";
-                heroStatus.innerText = "SALDO MINUS"; // Teks tetap simpel
-                heroMain.innerText = "- " + fmtMoney(Math.abs(angkaYangDitampilkan));
-                heroMain.style.color = "#FFD1D1"; 
-            }
-
-            // Update Info Kecil di Kartu Utama (Opsional: Tetap fokus data hari ini biar gak bingung)
-            document.getElementById('dispTotalRestock').innerText = fmtMoney(todayOut);
-            document.getElementById('dispTotalOmzet').innerText = fmtMoney(dInc);
-            
-            // --- 5. UPDATE KOTAK-KOTAK KECIL ---
-            
-            document.getElementById('dashTodayLit').innerText = dLit.toFixed(1);
-            
-            // KOTAK SISA MODAL KEMARIN (UANG CASH)
-            let prevBox = document.getElementById('dashPrevBal');
-            prevBox.innerText = fmtMoney(prevBalance);
-            
-            // KOTAK ASET STOK (MODAL TERTAHAN) - NEW FEATURE
-            // Menghitung nilai aset yang masih ada di stok (belum terjual)
-            let stockAsset = data.stokLiter * data.modalPrice;
-            document.getElementById('dashStockVal').innerText = fmtMoney(stockAsset);
-
-            
-            // LOGIKA VISUAL BARU (Support Dark Mode)
-            // Kita mainkan Class, bukan warna manual.
-            if (includePrevBalance) {
-                prevBox.parentNode.classList.add('active-mode'); // Tambah class aktif
-                prevBox.parentNode.style.border = ""; // Hapus style inline jika ada
-            } else {
-                prevBox.parentNode.classList.remove('active-mode'); // Hapus class aktif
-                prevBox.parentNode.style.background = ""; 
-                prevBox.parentNode.style.border = "";
-            }
-
-            document.getElementById('dashTodayExp').innerText = fmtMoney(dExp);
-            document.getElementById('dashTodayWd').innerText = fmtMoney(dWd);
-            
-            // Update List Transaksi
-            document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
+        if(t.date === today) { 
+            if(t.type === 'inc') { dInc+=t.n; dLit+=(t.l||0); }
+            else if(t.type === 'wd') { dWd+=t.n; } 
+            else if(t.type === 'exp') { dExp+=t.n; }
+            else if(t.type === 'buy') { dRestock+=t.n; }
         }
+    });
+
+    // --- 2. LOGIKA SALDO ---
+    let todayOut = dExp + dWd + dRestock;
+    let todayBalance = dInc - todayOut;
+    let allTimeOut = totalExp + totalBuy + totalWd;
+    let currentBalance = totalInc - allTimeOut; 
+    
+    // Pilih angka yang tampil di kartu utama
+    let angkaYangDitampilkan = includePrevBalance ? currentBalance : todayBalance;
+
+    // --- 3. UPDATE TAMPILAN KARTU UTAMA ---
+    const heroStatus = document.getElementById('heroStatus');
+    const heroMain = document.getElementById('heroMainValue');
+    
+    if (angkaYangDitampilkan >= 0) {
+        heroStatus.className = "status-badge st-profit";
+        heroStatus.innerText = "SALDO AMAN";
+        heroMain.innerText = fmtMoney(angkaYangDitampilkan);
+        heroMain.style.color = "#FFFFFF"; 
+    } else {
+        heroStatus.className = "status-badge st-recovery";
+        heroStatus.innerText = "SALDO MINUS";
+        heroMain.innerText = "- " + fmtMoney(Math.abs(angkaYangDitampilkan));
+        heroMain.style.color = "#FFD1D1"; 
+    }
+
+    document.getElementById('dispTotalRestock').innerText = fmtMoney(todayOut);
+    document.getElementById('dispTotalOmzet').innerText = fmtMoney(dInc);
+    
+    // --- 4. UPDATE KOTAK STATISTIK (FIX ERROR DISINI) ---
+    
+    // Update Liter Terjual
+    if(document.getElementById('dashTodayLit')) {
+        document.getElementById('dashTodayLit').innerText = dLit.toFixed(1);
+    }
+    
+    // Update Aset Stok Tertahan (Pengganti Modal Kemarin)
+    let stockAsset = (data.stokLiter || 0) * (data.modalPrice || 0);
+    let elStock = document.getElementById('dashStockVal');
+    if(elStock) {
+        elStock.innerText = fmtMoney(stockAsset);
+    }
+
+    // Update Beban & WD
+    if(document.getElementById('dashTodayExp')) document.getElementById('dashTodayExp').innerText = fmtMoney(dExp);
+    if(document.getElementById('dashTodayWd')) document.getElementById('dashTodayWd').innerText = fmtMoney(dWd);
+    
+    // Update List Transaksi
+    document.getElementById('recentTrans').innerHTML = data.trans.slice(0, 5).map(t => makeTransItem(t)).join('');
+}
+
 
         // --- NAVIGATION & MODALS ---
         const toggleNav = (show) => document.querySelector('.bottom-nav-wrap').style.transform = show ? 'translateY(0)' : 'translateY(200%)';
@@ -1015,104 +1012,85 @@
             document.getElementById(m==='inc'?'formInc':(m==='buy'?'formBuy':(m==='exp'?'formExp':'formWd'))).style.display = 'block';
         }
 
-        // --- TRANSACTIONS ---
-        window.saveTrans = async (type) => {
-            let now = new Date();
-            let tx = { id:Date.now(), ts:now.getTime(), date:now.toLocaleDateString(), time:now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), type:type, weather: currentWeather };
-            
-            if(type === 'inc') {
-                let n=parseInt(document.getElementById('admNom').value); if(!n) return;
-                let l=parseFloat((n/data.price).toFixed(2)); 
-                let radios = document.getElementsByName('payMethod'); let method = 'Tunai'; for(let r of radios) { if(r.checked) method = r.value; }
-                tx.n=n; tx.l=l; tx.metode=method; data.stokLiter=Math.max(0, data.stokLiter-l);
-                
-                // Receipt Data
-                document.getElementById('rcTotal').innerText=fmtMoney(n); 
-                document.getElementById('rcDet').innerText=l+" L"; 
-                document.getElementById('rcMethod').innerText=method.toUpperCase();
-                document.getElementById('rcTime').innerText=now.toLocaleString(); 
-                document.getElementById('receiptModal').style.display='flex';
+// --- GANTI DARI SINI (window.saveTrans) ---
 
-            } else if (type === 'buy') {
-                let n=parseInt(document.getElementById('buyNom').value); if(!n) return;
-                let l = parseFloat((n / data.modalPrice).toFixed(2));
-                tx.n=n; tx.l=l; tx.desc="Restock Modal"; 
-                data.stokLiter+=l; 
-            } else if (type === 'exp') {
-                let n=parseInt(document.getElementById('expNom').value), d=document.getElementById('descInput').value; if(!n) return;
-                tx.n=n; tx.desc=d||"Expense";
-            } else if (type === 'wd') {
-                let n=parseInt(document.getElementById('wdNom').value); if(!n) return;
-                tx.n=n; tx.desc="Withdrawal";
-            }
-
-            data.trans.unshift(tx); 
-            localStorage.setItem('dl_super_v4', JSON.stringify(data));
-            ['admNom','buyNom','expNom','descInput','wdNom'].forEach(i=>document.getElementById(i).value='');
-            closeModal('inputModal'); renderDash();
-        }
-
-        window.saveEditTrans = () => {
-            let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id); if(idx<0) return;
-            let oldT=data.trans[idx]; 
-            if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); 
-            if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
-            
-            let type=document.getElementById('editType').value, n=parseInt(document.getElementById('editNom').value), l=parseFloat(document.getElementById('editLit').value)||0, d=document.getElementById('editDesc').value;
-            
-            data.trans[idx]={...data.trans[idx], type:type, n:n, l:l, desc:d};
-            if(type==='inc') data.stokLiter-=l; 
-            if(type==='buy') data.stokLiter+=l;
-            
-            localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); 
-            if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); 
-            renderDash();
-        }
-
-        window.deleteTrans = () => {
-            if(!confirm("Hapus data ini?")) return; 
-            let id=parseInt(document.getElementById('editId').value), idx=data.trans.findIndex(x=>x.id===id);
-            let oldT=data.trans[idx]; 
-            if(oldT.type==='inc') data.stokLiter+=(oldT.l||0); 
-            if(oldT.type==='buy') data.stokLiter-=(oldT.l||0);
-            data.trans.splice(idx,1); 
-            localStorage.setItem('dl_super_v4', JSON.stringify(data)); closeModal('editModal'); 
-            if(document.getElementById('historyScreen').classList.contains('active')) renderHistory(); 
-            renderDash();
-        }
-
-        window.openEdit = (id) => {
-            let t=data.trans.find(x=>x.id===id); if(!t) return;
-            document.getElementById('editId').value=id; document.getElementById('editType').value=t.type; document.getElementById('editNom').value=t.n; document.getElementById('editLit').value=t.l||0; document.getElementById('editDesc').value=t.desc||t.metode||'';
-            toggleEditFields(); document.getElementById('editModal').style.display='flex'; toggleNav(false);
-        }
+window.saveTrans = async (type) => {
+    let now = new Date();
+    // Inisialisasi object transaksi dasar
+    let tx = { 
+        id: Date.now(), 
+        ts: now.getTime(), 
+        date: now.toLocaleDateString(), 
+        time: now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}), 
+        type: type, 
+        weather: currentWeather 
+    };
+    
+    if(type === 'inc') {
+        // --- LOGIKA PENJUALAN ---
+        let n = parseInt(document.getElementById('admNom').value); 
+        if(!n) return;
+        let l = parseFloat((n/data.price).toFixed(2)); 
+        let radios = document.getElementsByName('payMethod'); 
+        let method = 'Tunai'; 
+        for(let r of radios) { if(r.checked) method = r.value; }
         
-        window.toggleEditFields = () => {
-            let t = document.getElementById('editType').value;
-            document.getElementById('editLiterWrap').style.display = (t==='exp' || t==='wd') ? 'none' : 'block';
+        tx.n = n; tx.l = l; tx.metode = method; 
+        data.stokLiter = Math.max(0, data.stokLiter - l);
+        
+        // Kirim ke Firebase (Opsional)
+        if (db) {
+            try {
+                await db.collection("struk_public").doc("current").set({
+                    nominal: n,
+                    liter: l,
+                    waktu: now.toLocaleString('id-ID'),
+                    nama_toko: data.store,
+                    alamat_toko: data.addr,
+                    status: (method === "QRIS") ? "UNPAID" : "PAID"
+                });
+            } catch (e) { console.error("Gagal kirim ke Cloud: ", e); }
         }
 
-        window.renderHistory = () => { document.getElementById('fullHistoryList').innerHTML = data.trans.map(t => makeTransItem(t)).join(''); }
+        // Tampilkan Modal Struk (Receipt)
+        document.getElementById('rcStore').innerText = data.store;
+        document.getElementById('rcAddr').innerText = data.addr;
+        document.getElementById('rcTotal').innerText = fmtMoney(n); 
+        document.getElementById('rcDet').innerText = l + " L"; 
+        document.getElementById('rcMethod').innerText = method.toUpperCase();
+        document.getElementById('rcTime').innerText = now.toLocaleString(); 
+        document.getElementById('receiptModal').style.display = 'flex';
 
-        window.makeTransItem = (t) => {
-            let ic='ti-inc', iname='local_gas_station', s='+', ti='Sale', su=(t.l||0).toFixed(2)+" L";
-            if(t.type==='buy'){ ic='ti-buy'; iname='water_drop'; s='-'; ti='Restock Modal'; su="+"+(t.l||0).toFixed(2)+" L (Stok)"; }
-            else if(t.type==='exp'){ ic='ti-exp'; iname='payments'; s='-'; ti=t.desc; su="Expense"; }
-            else if(t.type==='wd'){ ic='ti-wd'; iname='account_balance_wallet'; s='-'; ti='Withdraw'; su="Ambil Profit"; }
-            else ti=t.metode||"Cash";
-            
-            return `
-            <div class="trans-item" onclick="openEdit(${t.id})">
-                <div class="ti-left">
-                    <div class="ti-icon ${ic}"><span class="material-icons-round">${iname}</span></div>
-                    <div class="ti-info"><h4>${ti}</h4><p>${su}</p></div>
-                </div>
-                <div>
-                    <div class="ti-val">${s} ${fmtMoney(t.n)}</div>
-                    <span class="ti-date">${t.date}</span>
-                </div>
-            </div>`;
-        }
+    } else if (type === 'buy') {
+        // --- LOGIKA RESTOCK ---
+        let n = parseInt(document.getElementById('buyNom').value); if(!n) return;
+        let l = parseFloat((n / data.modalPrice).toFixed(2));
+        tx.n = n; tx.l = l; tx.desc = "Restock Modal"; 
+        data.stokLiter += l; 
+
+    } else if (type === 'exp') {
+        // --- LOGIKA BEBAN ---
+        let n = parseInt(document.getElementById('expNom').value), d = document.getElementById('descInput').value; if(!n) return;
+        tx.n = n; tx.desc = d || "Expense";
+
+    } else if (type === 'wd') {
+        // --- LOGIKA WITHDRAW ---
+        let n = parseInt(document.getElementById('wdNom').value); if(!n) return;
+        tx.n = n; tx.desc = "Withdrawal";
+    }
+
+    // Simpan ke Array & LocalStorage
+    data.trans.unshift(tx); 
+    localStorage.setItem('dl_super_v4', JSON.stringify(data));
+    
+    // Reset Form & Refresh Dashboard
+    ['admNom','buyNom','expNom','descInput','wdNom'].forEach(i => document.getElementById(i).value = '');
+    closeModal('inputModal'); 
+    renderDash();
+}
+
+// --- SAMPAI SINI ---
+
 
         // --- KASBON SYSTEM ---
         window.openKasbon = () => {
@@ -1489,8 +1467,28 @@
         // --- UTILS ---
         window.calcAdm = () => { let n=parseInt(document.getElementById('admNom').value)||0; document.getElementById('admLit').innerText=(n/data.price).toFixed(2); }
         window.toggleWeather = () => { currentWeather = currentWeather==='sunny'?'rain':'sunny'; document.querySelector('.wt-icon').innerText = currentWeather==='sunny'?'wb_sunny':'thunderstorm'; }
-        window.renderSet = () => { document.getElementById('setStore').value = data.store; document.getElementById('setPrice').value = data.price; document.getElementById('setModalPrice').value = data.modalPrice; document.getElementById('setStok').value = data.stokLiter; document.getElementById('setGroqKey').value = data.groqKey; }
-        window.saveSet = () => { data.store=document.getElementById('setStore').value; data.price=parseInt(document.getElementById('setPrice').value); data.modalPrice=parseInt(document.getElementById('setModalPrice').value); data.stokLiter=parseFloat(document.getElementById('setStok').value); data.groqKey=document.getElementById('setGroqKey').value; localStorage.setItem('dl_super_v4', JSON.stringify(data)); alert("Settings Saved"); renderDash(); }
+        window.renderSet = () => { 
+    document.getElementById('setStore').value = data.store; 
+    document.getElementById('setAddr').value = data.addr || ""; // Tambahan Fix
+    document.getElementById('setPrice').value = data.price; 
+    document.getElementById('setModalPrice').value = data.modalPrice; 
+    document.getElementById('setStok').value = data.stokLiter; 
+    document.getElementById('setGroqKey').value = data.groqKey; 
+}
+
+window.saveSet = () => { 
+    data.store = document.getElementById('setStore').value; 
+    data.addr = document.getElementById('setAddr').value; // Tambahan Fix
+    data.price = parseInt(document.getElementById('setPrice').value); 
+    data.modalPrice = parseInt(document.getElementById('setModalPrice').value); 
+    data.stokLiter = parseFloat(document.getElementById('setStok').value); 
+    data.groqKey = document.getElementById('setGroqKey').value; 
+    
+    localStorage.setItem('dl_super_v4', JSON.stringify(data)); 
+    alert("Settings Saved"); 
+    renderDash(); 
+}
+
         window.resetStock = () => { if(confirm("Reset Stok ke 0?")) { data.stokLiter=0; saveSet(); } }
         window.updatePhoto=(e)=>{let r=new FileReader(); r.onload=v=>{data.photo=v.target.result; renderDash();}; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]);}
         window.doLogin=()=>{if(document.getElementById('passInput').value===data.pass){localStorage.setItem('dl_log','1');nav('adminScreen');}else alert("Wrong PIN");}
